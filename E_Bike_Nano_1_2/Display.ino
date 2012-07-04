@@ -1,4 +1,11 @@
 //Display-Functions
+//written by jenkie / pedelecforum.de
+//Copyright (C) 2012
+
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the GNU General Public License as published by
+//the Free Software Foundation; either version 3 of the License, or
+//(at your option) any later version.
 
 
 void display_nokia_setup()    //first time setup of nokia display------------------------------------------------------------------------------------------------------------------

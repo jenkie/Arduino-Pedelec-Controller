@@ -1,3 +1,5 @@
+//EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMWriteAnything
+
 #include "EEPROM.h"
 #if ARDUINO < 100
 #include <WProgram.h>
