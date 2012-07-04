@@ -38,7 +38,7 @@ EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMW
 #include "BMP085.h"          //library for altitude and temperature measurement using http://www.watterott.com/de/Breakout-Board-mit-dem-BMP085-absoluten-Drucksensor     
 BMP085 bmp;
 
-#include "PCD8544_Nano.h"                    //for Nokia Display
+#include "PCD8544_nano.h"                    //for Nokia Display
 static PCD8544 lcd;                          //for Nokia Display
 //#include "LiquidCrystalDogm.h"             //for 4bit (e.g. EA-DOGM) Display
 //LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   //for 4bit (e.g. EA-DOGM) Display
