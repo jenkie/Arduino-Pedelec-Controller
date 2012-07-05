@@ -1,0 +1,11 @@
+# Backup files and stuff from patches
+*.orig
+*.rej
+*~
+.*.swp
+
+# CMake
+build/
+CMakeCache.txt
+cmake_install.cmake
+CMakeFiles
