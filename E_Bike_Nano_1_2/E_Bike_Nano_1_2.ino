@@ -101,6 +101,7 @@ double power_set = 0;          //Set Power
 volatile int cad=0;            //Cadence
 int looptime=0;                //Loop Time in milliseconds (for testing)
 float battery_percent=0.0;     //battery capacity
+int lowest_raw_current = 1023; //automatic current offset calibration
 float current = 0.0;           //measured battery current
 float voltage = 0.0;           //measured battery voltage
 float voltage_1s,voltage_2s = 0.0; //Voltage history 1s and 2s before "now"
@@ -175,8 +176,17 @@ void loop()
     brake_stat = digitalRead(brake_in);
 //voltage, current, power
     voltage = analogRead(voltage_in)*0.05859375;          //check with multimeter and change if needed!
-    current = analogRead(current_in)*0.0296217305;        //check with multimeter and change if needed!
+
+    // Read in current and auto-calibrate the shift offset:
+    // There is a constant offset depending on the
+    // Arduino / resistor value, so we automatically
+    // shift it to zero on the scale.
+    int raw_current = analogRead(current_in);
+    if (raw_current < lowest_raw_current)
+        lowest_raw_current = raw_current;
+    current = (raw_current-lowest_raw_current)*0.0296217305; //check with multimeter and change if needed!
     current = constrain(current,0,30);
+
     voltage_display = 0.99*voltage_display + 0.01*voltage; //averaged voltage for display
     current_display = 0.99*current_display + 0.01*current; //averaged voltage for display
     power=current*voltage;
