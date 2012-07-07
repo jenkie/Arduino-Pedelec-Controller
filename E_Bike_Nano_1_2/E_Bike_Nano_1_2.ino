@@ -34,9 +34,13 @@ EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMW
 #include "EEPROM.h"          //
 #include "EEPROMAnything.h"  //to enable data storage when powered off
 #include "PID_v1_nano.h"
-#include <Wire.h>
-#include "BMP085.h"          //library for altitude and temperature measurement using http://www.watterott.com/de/Breakout-Board-mit-dem-BMP085-absoluten-Drucksensor     
-BMP085 bmp;
+
+// #define SUPPORT_BMP085
+#ifdef SUPPORT_BMP085
+    #include <Wire.h>
+    #include "BMP085.h"          //library for altitude and temperature measurement using http://www.watterott.com/de/Breakout-Board-mit-dem-BMP085-absoluten-Drucksensor     
+    BMP085 bmp;
+#endif
 
 #include "PCD8544_nano.h"                    //for Nokia Display
 static PCD8544 lcd;                          //for Nokia Display
@@ -155,9 +159,11 @@ void setup()
     EEPROM_readAnything(0,variable);      //read stored variables
     myPID.SetMode(AUTOMATIC);             //initialize pid
     myPID.SetOutputLimits(0,1023);        //initialize pid
+#ifdef SUPPORT_BMP085
     Wire.begin();                         //initialize i2c-bus
     bmp.begin();                          //initialize barometric altitude sensor
     altitude_start=bmp.readAltitude();    //initialize barometric altitude sensor
+#endif
 }
 
 void loop()
@@ -280,8 +286,10 @@ void loop()
         voltage_2s=voltage_1s;                           //update voltage history
         voltage_1s=voltage;                              //update voltage history
 
+#ifdef SUPPORT_BMP085
         temperature = bmp.readTemperature();
         altitude = bmp.readAltitude()-altitude_start;
+#endif
 
 //-----battery percent calculation start, valid for turnigy 5000mAh-LiPo (polynomial fit to discharge curve at 150W)
         if (voltage_display>38.6)
