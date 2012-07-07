@@ -55,30 +55,30 @@ static byte glyph2[] = {0xc8, 0x2f, 0x6a, 0x2e, 0xc8}; //symbol for wh/km part 2
 static byte glyph3[] = {0x44, 0x28, 0xfe, 0x6c, 0x28}; //bluetooth-symbol       check this out: http://www.carlos-rodrigues.com/projects/pcd8544/
 
 //Config Options-----------------------------------------------------------------------------------------------------
-int fet_out = A0;              //FET: Pull high to switch off
-int voltage_in = A1;           //Voltage read-Pin
-int option_in = A2;            //analog option
-int current_in = A3;           //Current read-Pin
-int poti_in = A6;              //PAS Speed-Poti-Pin
-int throttle_in = A7;          // Throttle read-Pin
+const int fet_out = A0;              //FET: Pull high to switch off
+const int voltage_in = A1;           //Voltage read-Pin
+const int option_in = A2;            //analog option
+const int current_in = A3;           //Current read-Pin
+const int poti_in = A6;              //PAS Speed-Poti-Pin
+const int throttle_in = A7;          // Throttle read-Pin
 
-int pas_in = 2;                //PAS Sensor read-Pin
-int wheel_in = 3;              //Speed read-Pin
-int brake_in = 4;              //Brake-In-Pin
-int switch_thr = 5;            //Throttle-Switch read-Pin
-int throttle_out = 6;          //Throttle out-Pin
-int bluetooth_pin = 7;         //Bluetooth-Supply
-int switch_disp = 8;           //Display switch
+const int pas_in = 2;                //PAS Sensor read-Pin
+const int wheel_in = 3;              //Speed read-Pin
+const int brake_in = 4;              //Brake-In-Pin
+const int switch_thr = 5;            //Throttle-Switch read-Pin
+const int throttle_out = 6;          //Throttle out-Pin
+const int bluetooth_pin = 7;         //Bluetooth-Supply
+const int switch_disp = 8;           //Display switch
 
-int pas_tolerance=1;           //0... increase to make pas sensor slower but more tolerant against speed changes
-int throttle_offset=50;        //Offset for throttle output where Motor starts to spin (0..255 = 0..5V)
-int throttle_max=200;          //Maximum input value for motor driver (0..255 = 0..5V)
-boolean startingaidenable = true; //enable starting aid?
-float vcutoff=33.0;            //cutoff voltage in V;
-float wheel_circumference = 2.202; //wheel circumference in m
-int spd_max1=27.0;             //speed cutoff start in Km/h
-int spd_max2=30.0;             //speed cutoff stop (0W) in Km/h
-int power_max=500;             //Maximum power in W
+const int pas_tolerance=1;           //0... increase to make pas sensor slower but more tolerant against speed changes
+const int throttle_offset=50;        //Offset for throttle output where Motor starts to spin (0..255 = 0..5V)
+const int throttle_max=200;          //Maximum input value for motor driver (0..255 = 0..5V)
+const boolean startingaidenable = true; //enable starting aid?
+const float vcutoff=33.0;            //cutoff voltage in V;
+const float wheel_circumference = 2.202; //wheel circumference in m
+const int spd_max1=27.0;             //speed cutoff start in Km/h
+const int spd_max2=30.0;             //speed cutoff stop (0W) in Km/h
+const int power_max=500;             //Maximum power in W
 double pid_p=0.0;              //pid p-value, default: 0.0
 double pid_i=2.0;              //pid i-value, default: 2.0
 double pid_p_throttle=0.05;    //pid p-value for throttle mode
