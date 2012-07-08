@@ -131,6 +131,8 @@ float wh=0.0;                  //watthours drawn from battery
 float temperature = 0.0;       //temperature
 float altitude = 0.0;          //altitude
 float altitude_start=0.0;      //altitude at start
+float last_altitude;           //height 
+float slope = 0.0;             //current slope
 volatile float km=0.0;         //trip-km
 volatile float spd=0.0;        //speed
 float range = 0.0;             //expected range
@@ -384,6 +386,12 @@ void speed_change()    //Wheel Sensor Change------------------------------------
         {km=km+wheel_circumference/1000.0;}
     else
         {spd=0;}
+#ifdef SUPPORT_BMP085
+//slope-stuff start-------------------------------
+    slope=0.98*slope+2*(altitude-last_altitude)/wheel_circumference;
+    last_altitude=altitude;  
+//slope-stuff end---------------------------------
+#endif
     last_wheel_time=millis();
 }
 
@@ -454,7 +462,7 @@ void display_nokia_update()  //update nokia display-----------------------------
     lcd.print(voltage_display,1);
 
     lcd.setCursor(6,0);
-    if (current_display<9.5)
+    if ((current_display<9.5)&&(current_display>0))
         {lcd.print(" ");}
     lcd.print(current_display,1);
 
@@ -515,14 +523,15 @@ void display_nokia_update()  //update nokia display-----------------------------
 //lcd.print(millis()/60000.0,1);   //uncomment this to display minutes since startup
 //lcd.print(" Minuten");
 #ifdef SUPPORT_BMP085
-    lcd.print(temperature,1);
-    lcd.print(" ");
+    //lcd.print(temperature,1);
+    //lcd.print(" ");
+    lcd.print(slope,0);
+    lcd.print("% ");
     lcd.print((int)altitude);
     lcd.print(" ");
 #endif
     lcd.print(range,0);
     lcd.print("km ");    
-    lcd.print("    ");
 #if HARDWARE_REV >=2
     lcd.setCursor(13,5);
     if (digitalRead(bluetooth_pin)==1)
