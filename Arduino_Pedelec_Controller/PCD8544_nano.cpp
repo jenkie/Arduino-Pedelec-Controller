@@ -22,7 +22,6 @@
  * THE SOFTWARE.
  */
 
-
 #include "PCD8544_nano.h"
 
 #if ARDUINO < 100
@@ -72,11 +71,11 @@ void PCD8544::begin(unsigned char width, unsigned char height, unsigned char mod
     pinMode(this->pin_sdin, OUTPUT);
     pinMode(this->pin_dc, OUTPUT);
     pinMode(this->pin_reset, OUTPUT);
-    pinMode(this->pin_sce, OUTPUT);
+    //pinMode(this->pin_sce, OUTPUT);
 
     // Reset the controller state...
     digitalWrite(this->pin_reset, HIGH);
-    digitalWrite(this->pin_sce, HIGH);
+    //digitalWrite(this->pin_sce, HIGH);
     digitalWrite(this->pin_reset, LOW);
     delay(100);
     digitalWrite(this->pin_reset, HIGH);
@@ -332,9 +331,9 @@ void PCD8544::send(unsigned char type, unsigned char data)
 {
     digitalWrite(this->pin_dc, type);
 
-    digitalWrite(this->pin_sce, LOW);
+    //digitalWrite(this->pin_sce, LOW);
     shiftOut(this->pin_sdin, this->pin_sclk, MSBFIRST, data);
-    digitalWrite(this->pin_sce, HIGH);
+    //digitalWrite(this->pin_sce, HIGH);
 }
 
 

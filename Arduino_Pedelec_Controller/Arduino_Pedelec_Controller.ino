@@ -1,6 +1,6 @@
 
 /*
-Arduino Pedelec "Forumscontroller" for Hardware 1.2 and Arduino 1.0
+Arduino Pedelec "Forumscontroller" for Hardware 1.1-1.3
 written by jenkie / pedelecforum.de
 Copyright (C) 2012
 
@@ -29,25 +29,28 @@ What does it to:
 *sends Amarino-compatible data over bluetooth
 
 EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMWriteAnything
-
 */
+
+#define DISPLAY_TYPE 0      //display type 0:Nokia5110 5-pin-mode 1: Nokia5110 4-pin-mode (SCE pin tied to GND) 2: 16x2 LCD 4bit-mode
+#define HARDWARE_REV 3      //place your hardware revision (1-3) here: x means hardware-revision 1.x
+#define SUPPORT_BMP085      //uncomment if BMP085 available
+
 #include "EEPROM.h"          //
 #include "EEPROMAnything.h"  //to enable data storage when powered off
 #include "PID_v1_nano.h"
-
-#define HARDWARE_REV 3      //place your hardware revision (1-3) here: x means hardware-revision 1.x
-// #define SUPPORT_BMP085      //uncomment if BMP085 available
-
 #ifdef SUPPORT_BMP085
     #include <Wire.h>
     #include "BMP085.h"          //library for altitude and temperature measurement using http://www.watterott.com/de/Breakout-Board-mit-dem-BMP085-absoluten-Drucksensor     
     BMP085 bmp;
 #endif
-
+#if DISPLAY_TYPE <= 1
 #include "PCD8544_nano.h"                    //for Nokia Display
 static PCD8544 lcd;                          //for Nokia Display
-//#include "LiquidCrystalDogm.h"             //for 4bit (e.g. EA-DOGM) Display
-//LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   //for 4bit (e.g. EA-DOGM) Display
+#endif
+#if DISPLAY_TYPE == 2
+#include "LiquidCrystalDogm.h"             //for 4bit (e.g. EA-DOGM) Display
+LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   //for 4bit (e.g. EA-DOGM) Display
+#endif
 
 struct savings   //add variables if you want to store additional values to the eeprom
 {
@@ -87,10 +90,11 @@ const int switch_thr = 5;            //Throttle-Switch read-Pin
 const int throttle_out = 6;          //Throttle out-Pin
 const int bluetooth_pin = 7;         //Bluetooth-Supply, do not use in Rev. 1.1!!!
 const int switch_disp = 8;           //Display switch
-
+#if DISPLAY_TYPE == 1
+const int switch_disp_2 = 13;        //second Display switch with Nokia-Display in 4-pin-mode
+#endif
 
 //Config Options-----------------------------------------------------------------------------------------------------
-
 const int pas_tolerance=1;           //0... increase to make pas sensor slower but more tolerant against speed changes
 const int throttle_offset=50;        //Offset for throttle output where Motor starts to spin (0..255 = 0..5V)
 const int throttle_max=200;          //Maximum input value for motor driver (0..255 = 0..5V)
@@ -157,13 +161,25 @@ void send_android_data();
 //Setup---------------------------------------------------------------------------------------------------------------------
 void setup()
 {
+#if DISPLAY_TYPE == 0
+    pinMode(13,OUTPUT);
+    digitalWrite(13,LOW);
+#endif
+#if DISPLAY_TYPE <= 1
     display_nokia_setup();    //for Nokia Display
-    //lcd.begin(8, 2);        //for 4bit (e.g. EA-DOGM) Display
+#endif
+#if DISPLAY_TYPE == 2
+    lcd.begin(16, 2);        //for 4bit (e.g. EA-DOGM) Display
+#endif
     Serial.begin(115200);     //bluetooth-module requires 115200
     pinMode(pas_in, INPUT);
     pinMode(wheel_in, INPUT);
     pinMode(switch_thr, INPUT);
     pinMode(switch_disp, INPUT);
+#if DISPLAY_TYPE == 1
+    pinMode(switch_disp_2, INPUT);
+    digitalWrite(switch_disp_2, HIGH);    // turn on pullup resistors on display-switch 2
+#endif
     pinMode(brake_in, INPUT);
     pinMode(option_pin,OUTPUT);
 #if HARDWARE_REV >= 2
@@ -423,6 +439,7 @@ void send_android_data()  //send adroid data------------------------------------
 
 void display_nokia_setup()    //first time setup of nokia display------------------------------------------------------------------------------------------------------------------
 {
+#if DISPLAY_TYPE <= 1
     lcd.begin(84, 48);
     lcd.createChar(0, glyph1);
     lcd.createChar(1, glyph2);
@@ -440,6 +457,7 @@ void display_nokia_setup()    //first time setup of nokia display---------------
     lcd.setCursor(12,4);
     lcd.write(0);
     lcd.write(1);
+#endif
 }
 
 void display_4bit_update()  //update 4bit display------------------------------------------------------------------------------------------------------------------
