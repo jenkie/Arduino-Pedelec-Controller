@@ -35,6 +35,7 @@ EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMW
 #include "EEPROMAnything.h"  //to enable data storage when powered off
 #include "PID_v1_nano.h"
 
+#define HARDWARE_REV 2      //place your hardware revision here: 1.x
 // #define SUPPORT_BMP085
 #ifdef SUPPORT_BMP085
     #include <Wire.h>
@@ -59,9 +60,10 @@ static byte glyph2[] = {0xc8, 0x2f, 0x6a, 0x2e, 0xc8}; //symbol for wh/km part 2
 static byte glyph3[] = {0x44, 0x28, 0xfe, 0x6c, 0x28}; //bluetooth-symbol       check this out: http://www.carlos-rodrigues.com/projects/pcd8544/
 
 //Config Options-----------------------------------------------------------------------------------------------------
+
 const int fet_out = A0;              //FET: Pull high to switch off
 const int voltage_in = A1;           //Voltage read-Pin
-const int option_in = A2;            //analog option
+const int option_pin = A2;            //analog option
 const int current_in = A3;           //Current read-Pin
 const int poti_in = A6;              //PAS Speed-Poti-Pin
 const int throttle_in = A7;          // Throttle read-Pin
@@ -146,7 +148,7 @@ void setup()
     pinMode(switch_thr, INPUT);
     pinMode(switch_disp, INPUT);
     pinMode(brake_in, INPUT);
-    pinMode(option_in,INPUT);
+    pinMode(option_pin,OUTPUT);
     pinMode(fet_out,OUTPUT);
     pinMode(bluetooth_pin,OUTPUT);
     digitalWrite(fet_out, LOW);           // turn on whole system on (write high to fet_out if you want to power off)
@@ -177,7 +179,7 @@ void loop()
     brake_stat = digitalRead(brake_in);
 //voltage, current, power
     voltage = analogRead(voltage_in)*0.05859375;          //check with multimeter and change if needed!
-
+#if HARDWARE_REV <= 2
     // Read in current and auto-calibrate the shift offset:
     // There is a constant offset depending on the
     // Arduino / resistor value, so we automatically
@@ -187,6 +189,11 @@ void loop()
         lowest_raw_current = raw_current;
     current = (raw_current-lowest_raw_current)*0.0296217305; //check with multimeter and change if needed!
     current = constrain(current,0,30);
+#endif
+#if HARDWARE_REV >= 3
+    current = (analogRead(current_in)-512)*0.0740543263;        //check with multimeter and change if needed!
+    current = constrain(current,-30,30);
+#endif
 
     voltage_display = 0.99*voltage_display + 0.01*voltage; //averaged voltage for display
     current_display = 0.99*current_display + 0.01*current; //averaged voltage for display
