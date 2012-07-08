@@ -34,9 +34,13 @@ EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMW
 #include "EEPROM.h"          //
 #include "EEPROMAnything.h"  //to enable data storage when powered off
 #include "PID_v1_nano.h"
-#include <Wire.h>
-#include "BMP085.h"          //library for altitude and temperature measurement using http://www.watterott.com/de/Breakout-Board-mit-dem-BMP085-absoluten-Drucksensor     
-BMP085 bmp;
+
+// #define SUPPORT_BMP085
+#ifdef SUPPORT_BMP085
+    #include <Wire.h>
+    #include "BMP085.h"          //library for altitude and temperature measurement using http://www.watterott.com/de/Breakout-Board-mit-dem-BMP085-absoluten-Drucksensor     
+    BMP085 bmp;
+#endif
 
 #include "PCD8544_nano.h"                    //for Nokia Display
 static PCD8544 lcd;                          //for Nokia Display
@@ -55,30 +59,30 @@ static byte glyph2[] = {0xc8, 0x2f, 0x6a, 0x2e, 0xc8}; //symbol for wh/km part 2
 static byte glyph3[] = {0x44, 0x28, 0xfe, 0x6c, 0x28}; //bluetooth-symbol       check this out: http://www.carlos-rodrigues.com/projects/pcd8544/
 
 //Config Options-----------------------------------------------------------------------------------------------------
-int fet_out = A0;              //FET: Pull high to switch off
-int voltage_in = A1;           //Voltage read-Pin
-int option_in = A2;            //analog option
-int current_in = A3;           //Current read-Pin
-int poti_in = A6;              //PAS Speed-Poti-Pin
-int throttle_in = A7;          // Throttle read-Pin
+const int fet_out = A0;              //FET: Pull high to switch off
+const int voltage_in = A1;           //Voltage read-Pin
+const int option_in = A2;            //analog option
+const int current_in = A3;           //Current read-Pin
+const int poti_in = A6;              //PAS Speed-Poti-Pin
+const int throttle_in = A7;          // Throttle read-Pin
 
-int pas_in = 2;                //PAS Sensor read-Pin
-int wheel_in = 3;              //Speed read-Pin
-int brake_in = 4;              //Brake-In-Pin
-int switch_thr = 5;            //Throttle-Switch read-Pin
-int throttle_out = 6;          //Throttle out-Pin
-int bluetooth_pin = 7;         //Bluetooth-Supply
-int switch_disp = 8;           //Display switch
+const int pas_in = 2;                //PAS Sensor read-Pin
+const int wheel_in = 3;              //Speed read-Pin
+const int brake_in = 4;              //Brake-In-Pin
+const int switch_thr = 5;            //Throttle-Switch read-Pin
+const int throttle_out = 6;          //Throttle out-Pin
+const int bluetooth_pin = 7;         //Bluetooth-Supply
+const int switch_disp = 8;           //Display switch
 
-int pas_tolerance=1;           //0... increase to make pas sensor slower but more tolerant against speed changes
-int throttle_offset=50;        //Offset for throttle output where Motor starts to spin (0..255 = 0..5V)
-int throttle_max=200;          //Maximum input value for motor driver (0..255 = 0..5V)
-boolean startingaidenable = true; //enable starting aid?
-float vcutoff=33.0;            //cutoff voltage in V;
-float wheel_circumference = 2.202; //wheel circumference in m
-int spd_max1=27.0;             //speed cutoff start in Km/h
-int spd_max2=30.0;             //speed cutoff stop (0W) in Km/h
-int power_max=500;             //Maximum power in W
+const int pas_tolerance=1;           //0... increase to make pas sensor slower but more tolerant against speed changes
+const int throttle_offset=50;        //Offset for throttle output where Motor starts to spin (0..255 = 0..5V)
+const int throttle_max=200;          //Maximum input value for motor driver (0..255 = 0..5V)
+const boolean startingaidenable = true; //enable starting aid?
+const float vcutoff=33.0;            //cutoff voltage in V;
+const float wheel_circumference = 2.202; //wheel circumference in m
+const int spd_max1=27.0;             //speed cutoff start in Km/h
+const int spd_max2=30.0;             //speed cutoff stop (0W) in Km/h
+const int power_max=500;             //Maximum power in W
 double pid_p=0.0;              //pid p-value, default: 0.0
 double pid_i=2.0;              //pid i-value, default: 2.0
 double pid_p_throttle=0.05;    //pid p-value for throttle mode
@@ -97,6 +101,7 @@ double power_set = 0;          //Set Power
 volatile int cad=0;            //Cadence
 int looptime=0;                //Loop Time in milliseconds (for testing)
 float battery_percent=0.0;     //battery capacity
+int lowest_raw_current = 1023; //automatic current offset calibration
 float current = 0.0;           //measured battery current
 float voltage = 0.0;           //measured battery voltage
 float voltage_1s,voltage_2s = 0.0; //Voltage history 1s and 2s before "now"
@@ -122,6 +127,12 @@ boolean variables_saved = false; //has everything been saved after Switch-Off de
 boolean brake_stat = true; //brake activated?
 PID myPID(&power, &pid_out,&pid_set,pid_p,pid_i,0, DIRECT);
 
+// Forward declarations for compatibility with new gcc versions
+void display_nokia_setup();
+void display_nokia_update();
+void pas_change();
+void speed_change();
+void send_android_data();
 
 //Setup---------------------------------------------------------------------------------------------------------------------
 void setup()
@@ -149,9 +160,11 @@ void setup()
     EEPROM_readAnything(0,variable);      //read stored variables
     myPID.SetMode(AUTOMATIC);             //initialize pid
     myPID.SetOutputLimits(0,1023);        //initialize pid
+#ifdef SUPPORT_BMP085
     Wire.begin();                         //initialize i2c-bus
     bmp.begin();                          //initialize barometric altitude sensor
     altitude_start=bmp.readAltitude();    //initialize barometric altitude sensor
+#endif
 }
 
 void loop()
@@ -163,8 +176,17 @@ void loop()
     brake_stat = digitalRead(brake_in);
 //voltage, current, power
     voltage = analogRead(voltage_in)*0.05859375;          //check with multimeter and change if needed!
-    current = analogRead(current_in)*0.0296217305;        //check with multimeter and change if needed!
+
+    // Read in current and auto-calibrate the shift offset:
+    // There is a constant offset depending on the
+    // Arduino / resistor value, so we automatically
+    // shift it to zero on the scale.
+    int raw_current = analogRead(current_in);
+    if (raw_current < lowest_raw_current)
+        lowest_raw_current = raw_current;
+    current = (raw_current-lowest_raw_current)*0.0296217305; //check with multimeter and change if needed!
     current = constrain(current,0,30);
+
     voltage_display = 0.99*voltage_display + 0.01*voltage; //averaged voltage for display
     current_display = 0.99*current_display + 0.01*current; //averaged voltage for display
     power=current*voltage;
@@ -274,8 +296,10 @@ void loop()
         voltage_2s=voltage_1s;                           //update voltage history
         voltage_1s=voltage;                              //update voltage history
 
+#ifdef SUPPORT_BMP085
         temperature = bmp.readTemperature();
         altitude = bmp.readAltitude()-altitude_start;
+#endif
 
 //-----battery percent calculation start, valid for turnigy 5000mAh-LiPo (polynomial fit to discharge curve at 150W)
         if (voltage_display>38.6)
@@ -356,5 +380,119 @@ void send_android_data()  //send adroid data------------------------------------
     Serial.print(";");
     Serial.print(0);
     Serial.print(ack);
+}
+
+void display_nokia_setup()    //first time setup of nokia display------------------------------------------------------------------------------------------------------------------
+{
+    lcd.begin(84, 48);
+    lcd.createChar(0, glyph1);
+    lcd.createChar(1, glyph2);
+    lcd.createChar(2, glyph3);
+    lcd.setCursor(4,0);
+    lcd.print("V");
+    lcd.setCursor(13,0);
+    lcd.print("%");
+    lcd.setCursor(3,1);
+    lcd.print("W");
+    lcd.setCursor(12,1);
+    lcd.print("Wh");
+    lcd.setCursor(0,2);
+    lcd.print(" SPD   KM  CAD");
+    lcd.setCursor(12,4);
+    lcd.write(0);
+    lcd.write(1);
+}
+
+void display_4bit_update()  //update 4bit display------------------------------------------------------------------------------------------------------------------
+{
+    lcd.setCursor(0,0);
+    lcd.print(voltage_display,1);
+    lcd.print(" ");
+    lcd.print(battery_percent,0);
+    lcd.print("%  ");
+    lcd.setCursor(0,1);
+    lcd.print(power,0);
+    lcd.print("/");
+    lcd.print(power_set);
+    lcd.print("W      ");
+}
+
+void display_nokia_update()  //update nokia display------------------------------------------------------------------------------------------------------------------
+{
+    lcd.setCursor(0,0);
+    lcd.print(voltage_display,1);
+
+    lcd.setCursor(6,0);
+    if (current_display<9.5)
+        {lcd.print(" ");}
+    lcd.print(current_display,1);
+
+    lcd.setCursor(10,0);
+    if (battery_percent<99.5)
+        {lcd.print(" ");}
+    if (battery_percent<9.5)
+        {lcd.print(" ");}
+    lcd.print(battery_percent,0);
+
+    lcd.setCursor(0,1);
+    if (power<99.5)
+        {lcd.print(" ");}
+    if (power<9.5)
+        {lcd.print(" ");}
+    lcd.print(power,0);
+
+    lcd.setCursor(9,1);
+    if (wh<99.5)
+        {lcd.print(" ");}
+    if (wh<9.5)
+        {lcd.print(" ");}
+    lcd.print(wh,0);
+
+
+    lcd.setCursor(0,3);
+    if (spd<9.5)
+        {lcd.print(" ");}
+    lcd.print(spd,1);
+
+    lcd.setCursor(5,3);
+    if (km<99.5)
+        {lcd.print(" ");}
+    if (km<9.5)
+        {lcd.print(" ");}
+    lcd.print(km,1);
+
+    lcd.setCursor(11,3);
+    if (cad<100)
+        {lcd.print(" ");}
+    if (cad<10)
+        {lcd.print(" ");}
+    lcd.print(cad,10);
+
+    lcd.setCursor(0,4);
+    if ( spd > 5.0)
+        lcd.print(power/spd,1);
+    else
+        lcd.print("---");
+    lcd.print("/");
+    if ( km > 0.1)
+        lcd.print(wh/km,1);
+    else
+        lcd.print("---");
+    lcd.print(" ");
+
+    lcd.setCursor(0,5);
+//lcd.print(millis()/60000.0,1);
+//lcd.print(" Minuten");
+    lcd.print(temperature,1);
+    lcd.print(" ");
+    lcd.print((int)altitude);
+    lcd.print(" ");
+    lcd.print(analogRead(option_in));
+    lcd.print("    ");
+    lcd.setCursor(13,5);
+    if (digitalRead(bluetooth_pin)==1)
+        {lcd.write(2);}
+    else
+        {lcd.print(" ");}
 }
 
