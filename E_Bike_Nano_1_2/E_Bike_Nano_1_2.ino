@@ -35,8 +35,9 @@ EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMW
 #include "EEPROMAnything.h"  //to enable data storage when powered off
 #include "PID_v1_nano.h"
 
-#define HARDWARE_REV 2      //place your hardware revision here: 1.x
-// #define SUPPORT_BMP085
+#define HARDWARE_REV 3      //place your hardware revision (1-3) here: x means hardware-revision 1.x
+// #define SUPPORT_BMP085      //uncomment if BMP085 available
+
 #ifdef SUPPORT_BMP085
     #include <Wire.h>
     #include "BMP085.h"          //library for altitude and temperature measurement using http://www.watterott.com/de/Breakout-Board-mit-dem-BMP085-absoluten-Drucksensor     
@@ -59,22 +60,36 @@ static byte glyph1[] = {0x0b, 0xfc, 0x4e, 0xac, 0x0b}; //symbol for wh/km part 1
 static byte glyph2[] = {0xc8, 0x2f, 0x6a, 0x2e, 0xc8}; //symbol for wh/km part 2
 static byte glyph3[] = {0x44, 0x28, 0xfe, 0x6c, 0x28}; //bluetooth-symbol       check this out: http://www.carlos-rodrigues.com/projects/pcd8544/
 
-//Config Options-----------------------------------------------------------------------------------------------------
-
+//Pin Assignments-----------------------------------------------------------------------------------------------------
+#if HARDWARE_REV == 1
+const int option_pin = A0;         //Analog option
+const int voltage_in = A1;         //Voltage read-Pin
+const int current_in = A2;         //Current read-Pin
+#endif
+#if HARDWARE_REV == 2
 const int fet_out = A0;              //FET: Pull high to switch off
 const int voltage_in = A1;           //Voltage read-Pin
-const int option_pin = A2;            //analog option
+const int option_pin = A2;           //Analog option
 const int current_in = A3;           //Current read-Pin
+#endif
+#if HARDWARE_REV == 3
+const int voltage_in = A0;           //Voltage read-Pin
+const int fet_out = A1;              //FET: Pull high to switch off
+const int current_in = A2;           //Current read-Pin
+const int option_pin = A3;            //Analog option
+#endif
 const int poti_in = A6;              //PAS Speed-Poti-Pin
-const int throttle_in = A7;          // Throttle read-Pin
-
+const int throttle_in = A7;          //Throttle read-Pin
 const int pas_in = 2;                //PAS Sensor read-Pin
 const int wheel_in = 3;              //Speed read-Pin
 const int brake_in = 4;              //Brake-In-Pin
 const int switch_thr = 5;            //Throttle-Switch read-Pin
 const int throttle_out = 6;          //Throttle out-Pin
-const int bluetooth_pin = 7;         //Bluetooth-Supply
+const int bluetooth_pin = 7;         //Bluetooth-Supply, do not use in Rev. 1.1!!!
 const int switch_disp = 8;           //Display switch
+
+
+//Config Options-----------------------------------------------------------------------------------------------------
 
 const int pas_tolerance=1;           //0... increase to make pas sensor slower but more tolerant against speed changes
 const int throttle_offset=50;        //Offset for throttle output where Motor starts to spin (0..255 = 0..5V)
@@ -149,10 +164,12 @@ void setup()
     pinMode(switch_disp, INPUT);
     pinMode(brake_in, INPUT);
     pinMode(option_pin,OUTPUT);
+#if HARDWARE_REV >= 2
     pinMode(fet_out,OUTPUT);
     pinMode(bluetooth_pin,OUTPUT);
-    digitalWrite(fet_out, LOW);           // turn on whole system on (write high to fet_out if you want to power off)
     digitalWrite(bluetooth_pin, LOW);     // turn bluetooth off
+    digitalWrite(fet_out, LOW);           // turn on whole system on (write high to fet_out if you want to power off)
+#endif
     digitalWrite(brake_in, HIGH);         // turn on pullup resistors on brake
     digitalWrite(switch_thr, HIGH);       // turn on pullup resistors on throttle-switch
     digitalWrite(switch_disp, HIGH);      // turn on pullup resistors on display-switch
@@ -276,7 +293,9 @@ void loop()
         }
         else if ((millis()-switch_disp_pressed)>1000)
         {
+#if HARDWARE_REV >=2
             digitalWrite(fet_out,HIGH);
+#endif
         }
     }
     else
@@ -284,7 +303,9 @@ void loop()
         if (switch_disp_last==true)
         {
             switch_disp_last=false;
-            digitalWrite(bluetooth_pin, !digitalRead(bluetooth_pin));
+#if HARDWARE_REV >=2
+            digitalWrite(bluetooth_pin, !digitalRead(bluetooth_pin));   //not available in 1.1!
+#endif
         }
     }
 
@@ -491,7 +512,7 @@ void display_nokia_update()  //update nokia display-----------------------------
     lcd.print(" ");
 
     lcd.setCursor(0,5);
-//lcd.print(millis()/60000.0,1);
+//lcd.print(millis()/60000.0,1);   //uncomment this to display minutes since startup
 //lcd.print(" Minuten");
 #ifdef SUPPORT_BMP085
     lcd.print(temperature,1);
@@ -502,10 +523,12 @@ void display_nokia_update()  //update nokia display-----------------------------
     lcd.print(range,0);
     lcd.print("km ");    
     lcd.print("    ");
+#if HARDWARE_REV >=2
     lcd.setCursor(13,5);
     if (digitalRead(bluetooth_pin)==1)
         {lcd.write(2);}
     else
         {lcd.print(" ");}
+#endif
 }
 
