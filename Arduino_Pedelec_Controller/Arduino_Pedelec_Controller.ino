@@ -363,8 +363,12 @@ void loop()
 
         range=constrain(capacity/wh*km-km,0.0,200.0);               //range calculation from battery capacity
         wh=wh+current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
+#if DISPLAY_TYPE <= 1
         display_nokia_update();                                     //for Nokia display
-//display_4bit_update();                                    //for 4bit (e.g. EA-DOGM) Display
+#endif
+#if DISPLAY_TYPE == 2
+        display_4bit_update();                                    //for 4bit (e.g. EA-DOGM) Display
+#endif
         last_writetime=millis();
         send_android_data();                                        //sends data over bluetooth to amarino - also visible at the serial monitor
     }
