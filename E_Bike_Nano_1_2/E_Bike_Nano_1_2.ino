@@ -83,11 +83,11 @@ const float wheel_circumference = 2.202; //wheel circumference in m
 const int spd_max1=27.0;             //speed cutoff start in Km/h
 const int spd_max2=30.0;             //speed cutoff stop (0W) in Km/h
 const int power_max=500;             //Maximum power in W
+const double capacity = 166.0;       //battery capacity in watthours for range calculation
 double pid_p=0.0;              //pid p-value, default: 0.0
 double pid_i=2.0;              //pid i-value, default: 2.0
 double pid_p_throttle=0.05;    //pid p-value for throttle mode
 double pid_i_throttle=2.5;     //pid i-value for throttle mode
-
 
 //Variable-Declarations-----------------------------------------------------------------------------------------------
 double pid_out,pid_set;        //pid output, pid set value
@@ -116,6 +116,7 @@ float altitude = 0.0;          //altitude
 float altitude_start=0.0;      //altitude at start
 volatile float km=0.0;         //trip-km
 volatile float spd=0.0;        //speed
+float range = 0.0;             //expected range
 unsigned long switch_disp_pressed;       //time when display switch was pressed down (to decide if long or short press)
 boolean switch_disp_last=false; //was display switch already pressed since last loop run?
 unsigned long last_writetime = millis();  //last time display has been refreshed
@@ -313,6 +314,8 @@ void loop()
         }
         battery_percent=constrain(battery_percent*100,0,100);
 //-----battery percent calculation end
+
+        range=constrain(capacity/wh*km-km,0.0,200.0);               //range calculation from battery capacity
         wh=wh+current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
         display_nokia_update();                                     //for Nokia display
 //display_4bit_update();                                    //for 4bit (e.g. EA-DOGM) Display
@@ -483,11 +486,14 @@ void display_nokia_update()  //update nokia display-----------------------------
     lcd.setCursor(0,5);
 //lcd.print(millis()/60000.0,1);
 //lcd.print(" Minuten");
+#ifdef SUPPORT_BMP085
     lcd.print(temperature,1);
     lcd.print(" ");
     lcd.print((int)altitude);
     lcd.print(" ");
-    lcd.print(analogRead(option_in));
+#endif
+    lcd.print(range,0);
+    lcd.print("km ");    
     lcd.print("    ");
     lcd.setCursor(13,5);
     if (digitalRead(bluetooth_pin)==1)
