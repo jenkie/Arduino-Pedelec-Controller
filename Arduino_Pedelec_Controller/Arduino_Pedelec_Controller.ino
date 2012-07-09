@@ -151,6 +151,10 @@ boolean variables_saved = false; //has everything been saved after Switch-Off de
 boolean brake_stat = true; //brake activated?
 PID myPID(&power, &pid_out,&pid_set,pid_p,pid_i,0, DIRECT);
 
+const unsigned int idle_shutdown_secs = 30 * 60;             // Idle shutdown in seconds. Max is ~1080 minutes or 18 hours
+unsigned int idle_shutdown_count = 0;
+unsigned long idle_shutdown_last_wheel_time = millis();
+
 // Forward declarations for compatibility with new gcc versions
 void display_nokia_setup();
 void display_nokia_update();
@@ -371,6 +375,20 @@ void loop()
 #endif
         last_writetime=millis();
         send_android_data();                                        //sends data over bluetooth to amarino - also visible at the serial monitor
+
+// Idle shutdown
+        if (last_wheel_time != idle_shutdown_last_wheel_time)
+        {
+            idle_shutdown_last_wheel_time = last_wheel_time;
+            idle_shutdown_count = 0;
+        } else
+        {
+            ++idle_shutdown_count;
+            if (idle_shutdown_count > idle_shutdown_secs)
+            {
+                digitalWrite(fet_out,HIGH);
+            }
+        }
     }
 }
 

@@ -233,6 +233,8 @@ void loop()
        Serial.print(pas_on_time);
        Serial.print(" PAS_Off");
        Serial.print(pas_off_time);
+       Serial.print(" PAS_factor");
+       Serial.print((float)pas_on_time/pas_off_time);
        Serial.print(" Speed");
        Serial.print(spd);
        Serial.print(" Brake");
