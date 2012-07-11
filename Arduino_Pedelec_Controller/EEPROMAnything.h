@@ -1,4 +1,6 @@
 //EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMWriteAnything
+#ifndef EEPROM_ANYTHING_H
+#define EEPROM_ANYTHING_H
 
 #include "EEPROM.h"
 #if ARDUINO < 100
@@ -24,3 +26,5 @@ template <class T> int EEPROM_readAnything(int ee, T& value)
         *p++ = EEPROM.read(ee++);
     return i;
 }
+
+#endif

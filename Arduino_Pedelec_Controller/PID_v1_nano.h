@@ -76,5 +76,5 @@ private:
     double outMin, outMax;
     bool inAuto;
 };
-#endif
 
+#endif

@@ -1,4 +1,6 @@
 //place all your personal configurations here and keep this file when updating!   
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #if ARDUINO < 100
 #include <WProgram.h>
@@ -27,3 +29,5 @@ double pid_p=0.0;                        //pid p-value, default: 0.0
 double pid_i=2.0;                        //pid i-value, default: 2.0
 double pid_p_throttle=0.05;              //pid p-value for throttle mode
 double pid_i_throttle=2.5;               //pid i-value for throttle mode
+
+#endif

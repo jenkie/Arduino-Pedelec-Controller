@@ -1,3 +1,5 @@
+#ifndef BMP085_H
+#define BMP085_H
 // BMP085 Pressure/Temperature (Altimeter) sensor
 
 // MIT license
@@ -58,3 +60,4 @@ private:
     uint16_t ac4, ac5, ac6;
 };
 
+#endif
