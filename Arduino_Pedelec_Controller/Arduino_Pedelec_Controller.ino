@@ -372,6 +372,15 @@ void loop()
                 digitalWrite(fet_out,HIGH);
             }
         }
+
+// Emergency power down to protect battery from undervoltage.
+// Also checks averaged voltage to prevent ADC read errors killing the system.
+// Don't shut down on USB power, too.
+        if (voltage < vemergency_shutdown && voltage_display < vemergency_shutdown
+            && voltage > 6.0)
+        {
+            digitalWrite(fet_out,HIGH);
+        }
     }
 }
 

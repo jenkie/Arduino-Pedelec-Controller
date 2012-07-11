@@ -19,6 +19,7 @@ const int throttle_offset=50;            //Offset for throttle output where Moto
 const int throttle_max=200;              //Maximum input value for motor driver (0..255 = 0..5V)
 const boolean startingaidenable = true;  //enable starting aid?
 const float vcutoff=33.0;                //cutoff voltage in V;
+const float vemergency_shutdown = 28.0;  //emergency power off situation to save the battery from undervoltage
 const float wheel_circumference = 2.202; //wheel circumference in m
 const int spd_max1=27.0;                 //speed cutoff start in Km/h
 const int spd_max2=30.0;                 //speed cutoff stop (0W) in Km/h
