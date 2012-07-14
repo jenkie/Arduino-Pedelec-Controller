@@ -335,7 +335,7 @@ void loop()
         altitude = bmp.readAltitude()-altitude_start;
 #endif
 
-//-----battery percent calculation start, valid for turnigy 5000mAh-LiPo (polynomial fit to discharge curve at 150W)
+/* //-----battery percent calculation start, valid for turnigy 5000mAh-LiPo (polynomial fit to discharge curve at 150W)
         if (voltage_display>38.6)
             {battery_percent=-15.92628+0.71422*voltage_display-0.007398*pow(voltage_display,2);}
         else
@@ -346,8 +346,9 @@ void loop()
                 {battery_percent=0.0025*pow(voltage_display-33,3);}
         }
         battery_percent=constrain(battery_percent*100,0,100);
-//-----battery percent calculation end
+//-----battery percent calculation end */
 
+        battery_percent = constrain((1-wh/capacity)*100,0,100);     //battery percent calculation from battery capacity. For voltage-based calculation see above
         range=constrain(capacity/wh*km-km,0.0,200.0);               //range calculation from battery capacity
         wh=wh+current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
 #if DISPLAY_TYPE <= 1
