@@ -389,7 +389,7 @@ void loop()
 }
 
 void pas_change()       //Are we pedaling? PAS Sensor Change------------------------------------------------------------------------------------------------------------------
-{
+{   
     if (last_pas_event>(millis()-10)) return;
     if (digitalRead(pas_in)==true)
         {pas_off_time=millis()-last_pas_event;}
@@ -398,17 +398,12 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
     last_pas_event = millis();
     pas_failtime=pas_failtime+1;
     cad=12000/(pas_on_time+pas_off_time);
-    if ((pas_on_time>1.2*pas_off_time)&&(pas_on_time<3*pas_off_time))   //when pedaling forward the pas_on_time is with my sensor approximately 2 times the pas_off_time......
-//if (pas_on_time>pas_off_time)
+    double pas_factor=(double)pas_on_time/(double)pas_off_time;
+    if ((pas_factor>pas_factor_min)&&(pas_factor<pas_factor_max)) 
     {
         pedaling=true;
         pas_failtime=0;
     }
-//Serial.print(pas_off_time);           //good for debug
-//Serial.print(" ");
-//Serial.print(pas_on_time);
-//Serial.print(" ");
-//Serial.println(brake_stat);
 }
 
 void speed_change()    //Wheel Sensor Change------------------------------------------------------------------------------------------------------------------
