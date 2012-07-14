@@ -245,6 +245,7 @@ void loop()
 
 
 //Power control-------------------------------------------------------------------------------------------------------------
+#if CONTROL_MODE == 0                                //power-control-mode
     if (throttle_stat > poti_stat)                  //throttle mode: throttle sets power with "agressive" p and i parameters
     {
         myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);
@@ -255,7 +256,18 @@ void loop()
         myPID.SetTunings(pid_p,pid_i,0);
         power_set=poti_stat/1023.0*power_max;
     }
-
+#endif
+#if CONTROL_MODE == 1                               //wh/km control mode
+    if (throttle_stat > poti_stat)                  //throttle mode: throttle sets power with "agressive" p and i parameters
+    {
+        myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);
+    }
+    else                                            //poti mode: poti sets power with "soft" p and i parameters
+    {
+        myPID.SetTunings(pid_p,pid_i,0);
+    }
+    power_set=max(poti_stat/1023.0*whkm_max*spd,throttle_stat/1023.0*power_max);
+#endif
 //Speed cutoff-------------------------------------------------------------------------------------------------------------
 
     if (pedaling==true)
@@ -273,16 +285,17 @@ void loop()
     if (((pedaling==false)&&(throttle_stat<5))||(brake_stat==0))  //power_set is set to -60W when you stop pedaling or brake (this is the pid-input)
         {power_set=-60;}
 
-    pid_set=power_set;
-    myPID.Compute();                                      //this computes the needed drive voltage for the motor controller to maintain the "power_set" based on the current "power" measurment
-
-//Voltage cutoff----------------------------------------------------------------------------------------------------------
+ 
+ //Voltage cutoff----------------------------------------------------------------------------------------------------------
     if (voltage<vcutoff)
         {factor_volt=factor_volt*0.9997;}
     else
         {factor_volt=factor_volt*0.9997+0.0003;}
 
 //Throttle output-------------------------------------------------------------------------------------------------------
+
+    pid_set=power_set;
+    myPID.Compute();                                      //this computes the needed drive voltage for the motor controller to maintain the "power_set" based on the current "power" measurment
 
     throttle_write=map(pid_out*brake_stat*factor_volt,0,1023,throttle_offset,throttle_max);
     if ((pedaling==false)&&(throttle_stat<5))
