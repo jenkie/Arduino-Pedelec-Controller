@@ -324,7 +324,7 @@ void loop()
         variables_saved=true;
     }
 
-//Show something on the LCD----------------------//use this subroutine to place any functions which should happen only once a second
+//slow loop start----------------------//use this subroutine to place any functions which should happen only once a second
     if (millis()-last_writetime > 1000)              //don't do this more than once a second
     {
         voltage_2s=voltage_1s;                           //update voltage history
@@ -359,6 +359,7 @@ void loop()
         last_writetime=millis();
         send_android_data();                                        //sends data over bluetooth to amarino - also visible at the serial monitor
 
+#if HARDWARE_REV >= 2
 // Idle shutdown
         if (last_wheel_time != idle_shutdown_last_wheel_time)
         {
@@ -381,7 +382,9 @@ void loop()
         {
             digitalWrite(fet_out,HIGH);
         }
+#endif
     }
+//slow loop end------------------------------------------------------------------------------------------------------
 }
 
 void pas_change()       //Are we pedaling? PAS Sensor Change------------------------------------------------------------------------------------------------------------------
