@@ -8,13 +8,18 @@
 #include <Arduino.h>
 #endif
 
-#define DISPLAY_TYPE 0      //display type 0:Nokia5110 5-pin-mode 1: Nokia5110 4-pin-mode (SCE pin tied to GND) 2: 16x2 LCD 4bit-mode
+#define DISPLAY_TYPE_NOKIA_5PIN (1<<0)       //Nokia 5110 5 pin mode
+#define DISPLAY_TYPE_NOKIA_4PIN (1<<1)       //Nokia 5110 4 pin mode (SCE pin tied to GND)
+#define DISPLAY_TYPE_NOKIA (DISPLAY_TYPE_NOKIA_5PIN|DISPLAY_TYPE_NOKIA_4PIN)
+#define DISPLAY_TYPE_16X2_LCD_4BIT (1<<2)    //16x2 LCD 4bit-mode
+#define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_5PIN //Set your display type here
+
 #define HARDWARE_REV 3      //place your hardware revision (1-3) here: x means hardware-revision 1.x
 #define SUPPORT_BMP085      //uncomment if BMP085 available
 
 #define CONTROL_MODE_NORMAL 0            //Normal mode: poti and throttle control motor power
 #define CONTROL_MODE_LIMIT_WH_PER_KM 1   //Limit wh/km consumption: poti controls wh/km, throttle controls power to override poti
-#define CONTROL_MODE CONTROL_MODE_NORMAL
+#define CONTROL_MODE CONTROL_MODE_NORMAL //Set your control mode here
 
 //Config Options-----------------------------------------------------------------------------------------------------
 const int pas_tolerance=1;               //0... increase to make pas sensor slower but more tolerant against speed changes
