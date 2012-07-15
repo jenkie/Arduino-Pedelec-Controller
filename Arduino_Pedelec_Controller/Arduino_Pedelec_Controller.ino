@@ -1,4 +1,3 @@
-
 /*
 Arduino Pedelec "Forumscontroller" for Hardware 1.1-1.3
 written by jenkie / pedelecforum.de
@@ -42,11 +41,11 @@ EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMW
     #include "BMP085.h"          //library for altitude and temperature measurement using http://www.watterott.com/de/Breakout-Board-mit-dem-BMP085-absoluten-Drucksensor     
     BMP085 bmp;
 #endif
-#if DISPLAY_TYPE <= 1
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 #include "PCD8544_nano.h"                    //for Nokia Display
 static PCD8544 lcd;                          //for Nokia Display
 #endif
-#if DISPLAY_TYPE == 2
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
 #include "LiquidCrystalDogm.h"             //for 4bit (e.g. EA-DOGM) Display
 LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   //for 4bit (e.g. EA-DOGM) Display
 #endif
@@ -89,7 +88,7 @@ const int switch_thr = 5;            //Throttle-Switch read-Pin
 const int throttle_out = 6;          //Throttle out-Pin
 const int bluetooth_pin = 7;         //Bluetooth-Supply, do not use in Rev. 1.1!!!
 const int switch_disp = 8;           //Display switch
-#if DISPLAY_TYPE == 1
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
 const int switch_disp_2 = 13;        //second Display switch with Nokia-Display in 4-pin-mode
 #endif
 
@@ -148,14 +147,14 @@ void send_android_data();
 //Setup---------------------------------------------------------------------------------------------------------------------
 void setup()
 {
-#if DISPLAY_TYPE == 0
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_5PIN)
     pinMode(13,OUTPUT);
     digitalWrite(13,LOW);
 #endif
-#if DISPLAY_TYPE <= 1
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     display_nokia_setup();    //for Nokia Display
 #endif
-#if DISPLAY_TYPE == 2
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
     lcd.begin(16, 2);        //for 4bit (e.g. EA-DOGM) Display
 #endif
     Serial.begin(115200);     //bluetooth-module requires 115200
@@ -163,7 +162,7 @@ void setup()
     pinMode(wheel_in, INPUT);
     pinMode(switch_thr, INPUT);
     pinMode(switch_disp, INPUT);
-#if DISPLAY_TYPE == 1
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
     pinMode(switch_disp_2, INPUT);
     digitalWrite(switch_disp_2, HIGH);    // turn on pullup resistors on display-switch 2
 #endif
@@ -245,7 +244,7 @@ void loop()
 
 
 //Power control-------------------------------------------------------------------------------------------------------------
-#if CONTROL_MODE == 0                                //power-control-mode
+#if CONTROL_MODE == CONTROL_MODE_NORMAL             //power-control-mode
     if (throttle_stat > poti_stat)                  //throttle mode: throttle sets power with "agressive" p and i parameters
     {
         myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);
@@ -257,7 +256,7 @@ void loop()
         power_set=poti_stat/1023.0*power_max;
     }
 #endif
-#if CONTROL_MODE == 1                               //wh/km control mode
+#if CONTROL_MODE == CONTROL_MODE_LIMIT_WH_PER_KM    //wh/km control mode
     if (throttle_stat > poti_stat)                  //throttle mode: throttle sets power with "agressive" p and i parameters
     {
         myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);
@@ -364,10 +363,10 @@ void loop()
         battery_percent = constrain((1-wh/capacity)*100,0,100);     //battery percent calculation from battery capacity. For voltage-based calculation see above
         range=constrain(capacity/wh*km-km,0.0,200.0);               //range calculation from battery capacity
         wh=wh+current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
-#if DISPLAY_TYPE <= 1
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
         display_nokia_update();                                     //for Nokia display
 #endif
-#if DISPLAY_TYPE == 2
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
         display_4bit_update();                                    //for 4bit (e.g. EA-DOGM) Display
 #endif
         last_writetime=millis();
@@ -465,7 +464,7 @@ void send_android_data()  //send adroid data------------------------------------
 
 void display_nokia_setup()    //first time setup of nokia display------------------------------------------------------------------------------------------------------------------
 {
-#if DISPLAY_TYPE <= 1
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     lcd.begin(84, 48);
     lcd.createChar(0, glyph1);
     lcd.createChar(1, glyph2);
