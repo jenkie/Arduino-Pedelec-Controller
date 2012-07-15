@@ -245,7 +245,7 @@ void loop()
 
 
 //Power control-------------------------------------------------------------------------------------------------------------
-#if CONTROL_MODE == 0                                //power-control-mode
+#if CONTROL_MODE == CONTROL_MODE_NORMAL             //power-control-mode
     if (throttle_stat > poti_stat)                  //throttle mode: throttle sets power with "agressive" p and i parameters
     {
         myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);
@@ -257,7 +257,7 @@ void loop()
         power_set=poti_stat/1023.0*power_max;
     }
 #endif
-#if CONTROL_MODE == 1                               //wh/km control mode
+#if CONTROL_MODE == CONTROL_MODE_LIMIT_WH_PER_KM    //wh/km control mode
     if (throttle_stat > poti_stat)                  //throttle mode: throttle sets power with "agressive" p and i parameters
     {
         myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);
