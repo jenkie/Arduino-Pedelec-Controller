@@ -15,7 +15,7 @@
 #define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_5PIN //Set your display type here
 
 #define HARDWARE_REV 3      //place your hardware revision (1-3) here: x means hardware-revision 1.x
-#define SUPPORT_BMP085      //uncomment if BMP085 available
+// #define SUPPORT_BMP085      //uncomment if BMP085 available
 
 #define CONTROL_MODE_NORMAL 0            //Normal mode: poti and throttle control motor power
 #define CONTROL_MODE_LIMIT_WH_PER_KM 1   //Limit wh/km consumption: poti controls wh/km, throttle controls power to override poti
