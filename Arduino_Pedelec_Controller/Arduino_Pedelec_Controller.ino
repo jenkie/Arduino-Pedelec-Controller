@@ -18,7 +18,7 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-What does it to:
+What it does do:
 *limit maximum electric power to 500 W (which means "250 W Nennleistung" :P)
 *limit maximum speed
 *starting aid up to 6 km/h
