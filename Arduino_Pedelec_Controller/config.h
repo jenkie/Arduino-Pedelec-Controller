@@ -43,12 +43,12 @@ double pid_p_throttle=0.05;              //pid p-value for throttle mode
 double pid_i_throttle=2.5;               //pid i-value for throttle mode
 
 // voltage and current calibration
-const float voltage_amplitude = 0.0586;       // set this value according to your own voltage-calibration
-const float voltage_offset = 0.0;             // set this value according to your own voltage-calibration
-const float current_offset = 0.0;             // for Rev 1.3 ONLY! set this value according to your own current-calibration
+const float voltage_amplitude = 0.0587;       // set this value according to your own voltage-calibration. Default: 0.0587
+const float voltage_offset = 0.0;             // set this value according to your own voltage-calibration. Default: 0.0
+const float current_offset = 0.0;             // for Rev 1.3 ONLY! set this value according to your own current-calibration. Default: 0.0
                                               // for Rev 1.1 - 1.2 the offset is corrected by software!
-const float current_amplitude_R11 = 0.0296;   // for Rev 1.1 - 1.2 set this value according to your own current-calibration
-const float current_amplitude_R13 = 0.0741;   // for Rev 1.3 set this value according to your own current-calibration
+const float current_amplitude_R11 = 0.0296;   // for Rev 1.1 - 1.2 set this value according to your own current-calibration. Default: 0.0296
+const float current_amplitude_R13 = 0.0741;   // for Rev 1.3 set this value according to your own current-calibration. Default: 0.0741
                                           
 
 #endif
