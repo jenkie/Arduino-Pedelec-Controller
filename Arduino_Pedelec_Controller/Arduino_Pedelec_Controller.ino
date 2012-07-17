@@ -199,7 +199,7 @@ void loop()
     throttle_stat = constrain(map(analogRead(throttle_in),196,832,0,1023),0,1023);   // 0...1023
     brake_stat = digitalRead(brake_in);
 //voltage, current, power
-    voltage = (analogRead(voltage_in)+voltage_offset)*voltage_amplitude; //check with multimeter, change in config.h if needed!
+    voltage = analogRead(voltage_in)*voltage_amplitude+voltage_offset; //check with multimeter, change in config.h if needed!
 #if HARDWARE_REV <= 2
     // Read in current and auto-calibrate the shift offset:
     // There is a constant offset depending on the
@@ -212,7 +212,7 @@ void loop()
     current = constrain(current,0,30);
 #endif
 #if HARDWARE_REV >= 3
-    current = (analogRead(current_in)-512+current_offset)*current_amplitude_R13;    //check with multimeter, change in config.h if needed!
+    current = (analogRead(current_in)-512)*current_amplitude_R13+current_offset;    //check with multimeter, change in config.h if needed!
     current = constrain(current,-30,30);
 #endif
 
