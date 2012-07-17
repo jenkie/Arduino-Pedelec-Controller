@@ -18,7 +18,7 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 
-What does it to:
+What it does do:
 *limit maximum electric power to 500 W (which means "250 W Nennleistung" :P)
 *limit maximum speed
 *starting aid up to 6 km/h
@@ -199,7 +199,7 @@ void loop()
     throttle_stat = constrain(map(analogRead(throttle_in),196,832,0,1023),0,1023);   // 0...1023
     brake_stat = digitalRead(brake_in);
 //voltage, current, power
-    voltage = analogRead(voltage_in)*0.05859375;          //check with multimeter and change if needed!
+    voltage = analogRead(voltage_in)*voltage_amplitude+voltage_offset; //check with multimeter, change in config.h if needed!
 #if HARDWARE_REV <= 2
     // Read in current and auto-calibrate the shift offset:
     // There is a constant offset depending on the
@@ -208,11 +208,11 @@ void loop()
     int raw_current = analogRead(current_in);
     if (raw_current < lowest_raw_current)
         lowest_raw_current = raw_current;
-    current = (raw_current-lowest_raw_current)*0.0296217305; //check with multimeter and change if needed!
+    current = (raw_current-lowest_raw_current)*current_amplitude_R11; //check with multimeter, change in config.h if needed!
     current = constrain(current,0,30);
 #endif
 #if HARDWARE_REV >= 3
-    current = (analogRead(current_in)-512)*0.0740543263;        //check with multimeter and change if needed!
+    current = (analogRead(current_in)-512)*current_amplitude_R13+current_offset;    //check with multimeter, change in config.h if needed!
     current = constrain(current,-30,30);
 #endif
 
