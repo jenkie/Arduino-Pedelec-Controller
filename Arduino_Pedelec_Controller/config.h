@@ -43,10 +43,10 @@ const unsigned int idle_shutdown_secs = 30 * 60;           // Idle shutdown in s
 const double capacity = 166.0;           //battery capacity in watthours for range calculation
 const double pas_factor_min=1.2;         //Use pas_factor from hardware-test here with some tolerances. Both values have to be eihter larger or smaller than 1.0 and not 0.0!
 const double pas_factor_max=3;           //Use pas_factor from hardware-test here with some tolerances. Both values have to be eihter larger or smaller than 1.0 and not 0.0!
-double pid_p=0.0;                        //pid p-value, default: 0.0
-double pid_i=2.0;                        //pid i-value, default: 2.0
-double pid_p_throttle=0.05;              //pid p-value for throttle mode
-double pid_i_throttle=2.5;               //pid i-value for throttle mode
+const double cfg_pid_p=0.0;              //pid p-value, default: 0.0
+const double cfg_pid_i=2.0;              //pid i-value, default: 2.0
+const double cfg_pid_p_throttle=0.05;    //pid p-value for throttle mode
+const double cfg_pid_i_throttle=2.5;     //pid i-value for throttle mode
 
 // voltage and current calibration
 const float voltage_amplitude = 0.0587;       // set this value according to your own voltage-calibration. Default: 0.0587
@@ -55,6 +55,5 @@ const float current_offset = 0.0;             // for Rev 1.3 ONLY! set this valu
                                               // for Rev 1.1 - 1.2 the offset is corrected by software!
 const float current_amplitude_R11 = 0.0296;   // for Rev 1.1 - 1.2 set this value according to your own current-calibration. Default: 0.0296
 const float current_amplitude_R13 = 0.0741;   // for Rev 1.3 set this value according to your own current-calibration. Default: 0.0741
-                                          
 
 #endif

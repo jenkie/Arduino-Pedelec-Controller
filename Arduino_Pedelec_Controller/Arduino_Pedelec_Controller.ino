@@ -95,6 +95,11 @@ const int switch_disp_2 = 13;        //second Display switch with Nokia-Display 
 
 
 //Variable-Declarations-----------------------------------------------------------------------------------------------
+double pid_p=cfg_pid_p;
+double pid_i=cfg_pid_i;
+double pid_p_throttle=cfg_pid_p_throttle;
+double pid_i_throttle=cfg_pid_i_throttle;
+
 double pid_out,pid_set;        //pid output, pid set value
 int throttle_stat = 0;         //Throttle reading
 int throttle_write=0;          //Throttle write value
