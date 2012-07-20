@@ -32,7 +32,8 @@ EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMW
 
 
 #include "config.h"          //place all your personal configurations there and keep that file when updating!   
-#include "EEPROM.h"     
+#include "display.h"         //display output functions
+#include "EEPROM.h"
 #include "EEPROMAnything.h"  //to enable data storage when powered off
 #include "PID_v1_nano.h"
 
@@ -40,14 +41,6 @@ EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMW
     #include <Wire.h>
     #include "BMP085.h"          //library for altitude and temperature measurement using http://www.watterott.com/de/Breakout-Board-mit-dem-BMP085-absoluten-Drucksensor     
     BMP085 bmp;
-#endif
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
-#include "PCD8544_nano.h"                    //for Nokia Display
-static PCD8544 lcd;                          //for Nokia Display
-#endif
-#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
-#include "LiquidCrystalDogm.h"             //for 4bit (e.g. EA-DOGM) Display
-LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   //for 4bit (e.g. EA-DOGM) Display
 #endif
 
 struct savings   //add variables if you want to store additional values to the eeprom
@@ -57,9 +50,6 @@ struct savings   //add variables if you want to store additional values to the e
     float kilometers;
 };
 savings variable = {0.0,0.0,0.0}; //variable stores last voltage and capacity read from EEPROM
-static byte glyph1[] = {0x0b, 0xfc, 0x4e, 0xac, 0x0b}; //symbol for wh/km part 1
-static byte glyph2[] = {0xc8, 0x2f, 0x6a, 0x2e, 0xc8}; //symbol for wh/km part 2
-static byte glyph3[] = {0x44, 0x28, 0xfe, 0x6c, 0x28}; //bluetooth-symbol       check this out: http://www.carlos-rodrigues.com/projects/pcd8544/
 
 //Pin Assignments-----------------------------------------------------------------------------------------------------
 #if HARDWARE_REV == 1
@@ -143,8 +133,6 @@ unsigned int idle_shutdown_count = 0;
 unsigned long idle_shutdown_last_wheel_time = millis();
 
 // Forward declarations for compatibility with new gcc versions
-void display_nokia_setup();
-void display_nokia_update();
 void pas_change();
 void speed_change();
 void send_android_data();
@@ -152,16 +140,8 @@ void send_android_data();
 //Setup---------------------------------------------------------------------------------------------------------------------
 void setup()
 {
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_5PIN)
-    pinMode(13,OUTPUT);
-    digitalWrite(13,LOW);
-#endif
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
-    display_nokia_setup();    //for Nokia Display
-#endif
-#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
-    lcd.begin(16, 2);        //for 4bit (e.g. EA-DOGM) Display
-#endif
+    display_init();
+
     Serial.begin(115200);     //bluetooth-module requires 115200
     pinMode(pas_in, INPUT);
     pinMode(wheel_in, INPUT);
@@ -379,12 +359,9 @@ void loop()
         battery_percent = constrain((1-wh/capacity)*100,0,100);     //battery percent calculation from battery capacity. For voltage-based calculation see above
         range=constrain(capacity/wh*km-km,0.0,200.0);               //range calculation from battery capacity
         wh=wh+current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
-        display_nokia_update();                                     //for Nokia display
-#endif
-#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
-        display_4bit_update();                                    //for 4bit (e.g. EA-DOGM) Display
-#endif
+
+        display_update();
+
         last_writetime=millis();
         send_android_data();                                        //sends data over bluetooth to amarino - also visible at the serial monitor
 
@@ -477,126 +454,3 @@ void send_android_data()  //send adroid data------------------------------------
     Serial.print(0);
     Serial.print(ack);
 }
-
-void display_nokia_setup()    //first time setup of nokia display------------------------------------------------------------------------------------------------------------------
-{
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
-    lcd.begin(84, 48);
-    lcd.createChar(0, glyph1);
-    lcd.createChar(1, glyph2);
-    lcd.createChar(2, glyph3);
-    lcd.setCursor(4,0);
-    lcd.print("V");
-    lcd.setCursor(13,0);
-    lcd.print("%");
-    lcd.setCursor(3,1);
-    lcd.print("W");
-    lcd.setCursor(12,1);
-    lcd.print("Wh");
-    lcd.setCursor(0,2);
-    lcd.print(" SPD   KM  CAD");
-    lcd.setCursor(12,4);
-    lcd.write(0);
-    lcd.write(1);
-#endif
-}
-
-void display_4bit_update()  //update 4bit display------------------------------------------------------------------------------------------------------------------
-{
-    lcd.setCursor(0,0);
-    lcd.print(voltage_display,1);
-    lcd.print(" ");
-    lcd.print(battery_percent,0);
-    lcd.print("%  ");
-    lcd.setCursor(0,1);
-    lcd.print(power,0);
-    lcd.print("/");
-    lcd.print(power_set);
-    lcd.print("W      ");
-}
-
-void display_nokia_update()  //update nokia display------------------------------------------------------------------------------------------------------------------
-{
-    lcd.setCursor(0,0);
-    lcd.print(voltage_display,1);
-
-    lcd.setCursor(6,0);
-    if ((current_display<9.5)&&(current_display>0))
-        {lcd.print(" ");}
-    lcd.print(current_display,1);
-
-    lcd.setCursor(10,0);
-    if (battery_percent<99.5)
-        {lcd.print(" ");}
-    if (battery_percent<9.5)
-        {lcd.print(" ");}
-    lcd.print(battery_percent,0);
-
-    lcd.setCursor(0,1);
-    if (power<99.5)
-        {lcd.print(" ");}
-    if (power<9.5)
-        {lcd.print(" ");}
-    lcd.print(power,0);
-
-    lcd.setCursor(9,1);
-    if (wh<99.5)
-        {lcd.print(" ");}
-    if (wh<9.5)
-        {lcd.print(" ");}
-    lcd.print(wh,0);
-
-
-    lcd.setCursor(0,3);
-    if (spd<9.5)
-        {lcd.print(" ");}
-    lcd.print(spd,1);
-
-    lcd.setCursor(5,3);
-    if (km<99.5)
-        {lcd.print(" ");}
-    if (km<9.5)
-        {lcd.print(" ");}
-    lcd.print(km,1);
-
-    lcd.setCursor(11,3);
-    if (cad<100)
-        {lcd.print(" ");}
-    if (cad<10)
-        {lcd.print(" ");}
-    lcd.print(cad,10);
-
-    lcd.setCursor(0,4);
-    if ( spd > 5.0)
-        lcd.print(power/spd,1);
-    else
-        lcd.print("---");
-    lcd.print("/");
-    if ( km > 0.1)
-        lcd.print(wh/km,1);
-    else
-        lcd.print("---");
-    lcd.print(" ");
-
-    lcd.setCursor(0,5);
-//lcd.print(millis()/60000.0,1);   //uncomment this to display minutes since startup
-//lcd.print(" Minuten");
-#ifdef SUPPORT_BMP085
-    //lcd.print(temperature,1);
-    //lcd.print(" ");
-    lcd.print(slope,0);
-    lcd.print("% ");
-    lcd.print((int)altitude);
-    lcd.print(" ");
-#endif
-    lcd.print(range,0);
-    lcd.print("km ");    
-#if HARDWARE_REV >=2
-    lcd.setCursor(13,5);
-    if (digitalRead(bluetooth_pin)==1)
-        {lcd.write(2);}
-    else
-        {lcd.print(" ");}
-#endif
-}
-

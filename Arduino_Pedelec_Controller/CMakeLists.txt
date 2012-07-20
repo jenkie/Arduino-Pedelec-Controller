@@ -23,6 +23,8 @@ set(${FIRMWARE_NAME}_SRCS                          # Source code
     PCD8544_charset.cpp
     PCD8544_nano.cpp
     PID_v1_nano.cpp
+    display.cpp
+    display.h
     )
 generate_arduino_firmware(${FIRMWARE_NAME})
 
