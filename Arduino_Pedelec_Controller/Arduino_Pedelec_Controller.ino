@@ -98,7 +98,7 @@ const int switch_disp_2 = 13;        //second Display switch with Nokia-Display 
 double pid_out,pid_set;        //pid output, pid set value
 int throttle_stat = 0;         //Throttle reading
 int throttle_write=0;          //Throttle write value
-float poti_stat;               //PAS-Poti setting
+float poti_stat = 0.0;         //Poti reading
 volatile int pas_on_time = 0;  //High-Time of PAS-Sensor-Signal (needed to determine pedaling direction)
 volatile int pas_off_time = 0; //Low-Time of PAS-Sensor-Signal  (needed to determine pedaling direction)
 volatile int pas_failtime = 0; //how many subsequent "wrong" PAS values?
@@ -179,7 +179,9 @@ void setup()
     digitalWrite(switch_disp, HIGH);      // turn on pullup resistors on display-switch
     digitalWrite(wheel_in, HIGH);         // turn on pullup resistors on wheel-sensor
     digitalWrite(pas_in, HIGH);           // turn on pullup resistors on pas-sensor
+#ifdef SUPPORT_PAS
     attachInterrupt(0, pas_change, CHANGE); //attach interrupt for PAS-Sensor
+#endif
     attachInterrupt(1, speed_change, RISING); //attach interrupt for Wheel-Sensor
     EEPROM_readAnything(0,variable);      //read stored variables
     myPID.SetMode(AUTOMATIC);             //initialize pid
@@ -189,14 +191,21 @@ void setup()
     bmp.begin();                          //initialize barometric altitude sensor
     altitude_start=bmp.readAltitude();    //initialize barometric altitude sensor
 #endif
+#ifndef SUPPORT_PAS
+    pedaling=true;
+#endif
 }
 
 void loop()
 {
     looptime=millis();
 //Readings-----------------------------------------------------------------------------------------------------------------
+#ifdef SUPPORT_POTI
     poti_stat=analogRead(poti_in);                       // 0...1023
-    throttle_stat = constrain(map(analogRead(throttle_in),196,832,0,1023),0,1023);   // 0...1023
+#endif
+#ifdef SUPPORT_THROTTLE
+    throttle_stat = constrain(map(analogRead(throttle_in),throttle_offset,throttle_max,0,1023),0,1023);   // 0...1023
+#endif
     brake_stat = digitalRead(brake_in);
 //voltage, current, power
     voltage = analogRead(voltage_in)*voltage_amplitude+voltage_offset; //check with multimeter, change in config.h if needed!
@@ -235,9 +244,11 @@ void loop()
 
 
 //Are we pedaling?---------------------------------------------------------------------------------------------------------
+#ifdef SUPPORT_PAS
     if (((millis()-last_pas_event)>500)||((millis()-last_pas_event)>2*pas_on_time)||(pas_failtime>pas_tolerance))
         {pedaling = false;}                               //we are not pedaling anymore, if pas did not change for > 0,5 s
     cad=cad*pedaling;
+#endif
 
     if ((millis()-last_wheel_time)>3000)               //wheel did not spin for 3 seconds --> speed is zero
         spd=0;
@@ -281,7 +292,7 @@ void loop()
 
     if (power_set>power_max*factor_speed)
         {power_set=power_max*factor_speed;}                  //Maximum allowed power including Speed-Cutoff
-    if (((pedaling==false)&&(throttle_stat<5))||(brake_stat==0))  //power_set is set to -60W when you stop pedaling or brake (this is the pid-input)
+    if ((((poti_stat<=throttle_stat)||(pedaling==false))&&(throttle_stat<5))||(brake_stat==0))  //power_set is set to -60W when you stop pedaling or brake (this is the pid-input)
         {power_set=-60;}
 
  
@@ -296,7 +307,7 @@ void loop()
     pid_set=power_set;
     myPID.Compute();                                      //this computes the needed drive voltage for the motor controller to maintain the "power_set" based on the current "power" measurment
 
-    throttle_write=map(pid_out*brake_stat*factor_volt,0,1023,throttle_offset,throttle_max);
+    throttle_write=map(pid_out*brake_stat*factor_volt,0,1023,motor_offset,motor_max);
     if ((pedaling==false)&&(throttle_stat<5))
         {throttle_write=0;}
     analogWrite(throttle_out,throttle_write);
