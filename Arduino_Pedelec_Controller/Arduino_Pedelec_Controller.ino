@@ -393,8 +393,9 @@ void loop()
 //slow loop end------------------------------------------------------------------------------------------------------
 }
 
+#ifdef SUPPORT_PAS
 void pas_change()       //Are we pedaling? PAS Sensor Change------------------------------------------------------------------------------------------------------------------
-{   
+{
     if (last_pas_event>(millis()-10)) return;
     if (digitalRead(pas_in)==true)
         {pas_off_time=millis()-last_pas_event;}
@@ -410,6 +411,9 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
         pas_failtime=0;
     }
 }
+#else
+#warning PAS sensor support is needed by EU-wide laws except Austria or Swiss.
+#endif
 
 void speed_change()    //Wheel Sensor Change------------------------------------------------------------------------------------------------------------------
 {
