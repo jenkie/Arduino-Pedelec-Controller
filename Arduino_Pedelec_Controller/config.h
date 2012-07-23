@@ -16,10 +16,17 @@
 #define DISPLAY_TYPE_16X2_LCD_4BIT (1<<2)    //16x2 LCD 4bit-mode
 #define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_5PIN //Set your display type here
 
+// #define SUPPORT_DISPLAY_BACKLIGHT // uncomment for LCD display backlight support
+                                     // The Nokia 5110 display needs a 120 Ohm resistor on the backlight pin
+#ifdef SUPPORT_DISPLAY_BACKLIGHT
+const int display_backlight_pin = 8;   // LCD backlight. Use a free pin here, f.e. instead of display switch #2.
+#endif
+
 // #define SUPPORT_BMP085   //uncomment if BMP085 available
 #define SUPPORT_POTI        //uncomment if Poti connected
 #define SUPPORT_THROTTLE    //uncomment if Throttle connected
 #define SUPPORT_PAS         //uncomment if PAS-sensor connected
+
 
 #define CONTROL_MODE_NORMAL 0            //Normal mode: poti and throttle control motor power
 #define CONTROL_MODE_LIMIT_WH_PER_KM 1   //Limit wh/km consumption: poti controls wh/km, throttle controls power to override poti

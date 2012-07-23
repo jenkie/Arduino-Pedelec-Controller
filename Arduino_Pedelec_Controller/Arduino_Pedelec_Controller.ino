@@ -33,6 +33,7 @@ EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMW
 
 #include "config.h"          //place all your personal configurations there and keep that file when updating!   
 #include "display.h"         //display output functions
+#include "display_backlight.h"  // LCD display backlight support
 #include "EEPROM.h"
 #include "EEPROMAnything.h"  //to enable data storage when powered off
 #include "PID_v1_nano.h"
@@ -164,6 +165,10 @@ void setup()
     digitalWrite(switch_disp, HIGH);      // turn on pullup resistors on display-switch
     digitalWrite(wheel_in, HIGH);         // turn on pullup resistors on wheel-sensor
     digitalWrite(pas_in, HIGH);           // turn on pullup resistors on pas-sensor
+#ifdef SUPPORT_DISPLAY_BACKLIGHT
+    pinMode(display_backlight_pin, OUTPUT);
+    enable_backlight();
+#endif
 #ifdef SUPPORT_PAS
     attachInterrupt(0, pas_change, CHANGE); //attach interrupt for PAS-Sensor
 #endif
@@ -306,6 +311,9 @@ void loop()
         }
         else if ((millis()-switch_disp_pressed)>1000)
         {
+#ifdef SUPPORT_DISPLAY_BACKLIGHT
+            enable_backlight();
+#endif
 #if HARDWARE_REV >=2
             digitalWrite(fet_out,HIGH);
 #endif
@@ -331,6 +339,10 @@ void loop()
         EEPROM_writeAnything(0,variable);
         variables_saved=true;
     }
+
+#ifdef SUPPORT_DISPLAY_BACKLIGHT
+    handle_backlight();
+#endif
 
 //slow loop start----------------------//use this subroutine to place any functions which should happen only once a second
     if (millis()-last_writetime > 1000)              //don't do this more than once a second

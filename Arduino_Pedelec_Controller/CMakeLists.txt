@@ -25,6 +25,8 @@ set(${FIRMWARE_NAME}_SRCS                          # Source code
     PID_v1_nano.cpp
     display.cpp
     display.h
+    display_backlight.cpp
+    display_backlight.h
     )
 generate_arduino_firmware(${FIRMWARE_NAME})
 
