@@ -17,19 +17,15 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
-
-What it does do:
-*limit maximum electric power to 500 W (which means "250 W Nennleistung" :P)
-*limit maximum speed
-*starting aid up to 6 km/h
-*pedaling-enabled, true-power-control throttle
-*pedaling-enabled, pid-controlled motor-power which can be set by a potentiometer
-*display: Nokia 5510
-*sends Amarino-compatible data over bluetooth
-
-EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMWriteAnything
+Features:
+- pedaling-enabled, true-power-control throttle
+- pedaling-enabled, pid-controlled motor-power which can be set by a potentiometer
+- starting aid up to 6 km/h
+- limit maximum speed
+- limit maximum electric power to 500 W (which means "250 W Nennleistung" :P)
+- display: Nokia 5510
+- sends Amarino-compatible data over bluetooth
 */
-
 
 #include "config.h"          //place all your personal configurations there and keep that file when updating!   
 #include "display.h"         //display output functions
