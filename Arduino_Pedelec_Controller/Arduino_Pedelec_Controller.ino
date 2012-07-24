@@ -163,8 +163,8 @@ void setup()
     digitalWrite(pas_in, HIGH);           // turn on pullup resistors on pas-sensor
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
     pinMode(display_backlight_pin, OUTPUT);
-    enable_backlight();
 #endif
+    display_show_important_info(msg_welcome, 1);
 #ifdef SUPPORT_PAS
     attachInterrupt(0, pas_change, CHANGE); //attach interrupt for PAS-Sensor
 #endif
@@ -307,10 +307,8 @@ void loop()
         }
         else if ((millis()-switch_disp_pressed)>1000)
         {
-#ifdef SUPPORT_DISPLAY_BACKLIGHT
-            enable_backlight();
-#endif
 #if HARDWARE_REV >=2
+            display_show_important_info(msg_shutdown, 60);
             digitalWrite(fet_out,HIGH);
 #endif
         }
@@ -384,6 +382,7 @@ void loop()
             ++idle_shutdown_count;
             if (idle_shutdown_count > idle_shutdown_secs)
             {
+                display_show_important_info("Idle shutdown. Good night.", 60);
                 digitalWrite(fet_out,HIGH);
             }
         }
@@ -394,6 +393,7 @@ void loop()
         if (voltage < vemergency_shutdown && voltage_display < vemergency_shutdown
             && voltage > 6.0)
         {
+            display_show_important_info("Battery undervoltage detected. Emergency shutdown.", 60);
             digitalWrite(fet_out,HIGH);
         }
 #endif

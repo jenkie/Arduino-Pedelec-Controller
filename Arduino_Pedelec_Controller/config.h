@@ -63,4 +63,7 @@ const float current_offset = 0.0;             // for Rev 1.3 ONLY! set this valu
 const float current_amplitude_R11 = 0.0296;   // for Rev 1.1 - 1.2 set this value according to your own current-calibration. Default: 0.0296
 const float current_amplitude_R13 = 0.0741;   // for Rev 1.3 set this value according to your own current-calibration. Default: 0.0741
 
+const char* const msg_welcome = "Welcome";
+const char* const msg_shutdown = "Live long and prosper.";
+
 #endif
