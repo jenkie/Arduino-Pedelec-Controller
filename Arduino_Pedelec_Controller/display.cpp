@@ -33,6 +33,27 @@ static byte glyph1[] = {0x0b, 0xfc, 0x4e, 0xac, 0x0b}; //symbol for wh/km part 1
 static byte glyph2[] = {0xc8, 0x2f, 0x6a, 0x2e, 0xc8}; //symbol for wh/km part 2
 static byte glyph3[] = {0x44, 0x28, 0xfe, 0x6c, 0x28}; //bluetooth-symbol       check this out: http://www.carlos-rodrigues.com/projects/pcd8544/
 
+unsigned long show_important_info_until = 0;
+void display_show_important_info(const char *str, int duration_secs)
+{
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+    unsigned long seconds = 2;
+    if (duration_secs)
+        seconds = duration_secs;
+
+    show_important_info_until = millis() + (seconds*1000);
+
+#ifdef SUPPORT_DISPLAY_BACKLIGHT
+    enable_backlight();
+#endif
+
+    // TODO: Implement and test 4bit display mode
+    lcd.clear();
+    lcd.setCursor(0, 2);
+    lcd.print(str);
+#endif
+}
+
 static void display_nokia_setup()    //first time setup of nokia display
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
@@ -56,6 +77,37 @@ static void display_nokia_setup()    //first time setup of nokia display
 #endif
 }
 
+static void display_4bit_setup()
+{
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
+    lcd.begin(16, 2);
+#endif
+}
+
+// Check if we should show an important info to the user
+static bool handle_important_info_expire()
+{
+    if (show_important_info_until)
+    {
+        if (millis() < show_important_info_until)
+        {
+            // Important info still active
+            return true;
+        }
+
+        // Important info expired
+        show_important_info_until = 0;
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+        display_nokia_setup();
+#elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
+        display_4bit_setup();
+#endif
+    }
+
+    // No important info shown
+    return false;
+}
+
 static void display_4bit_update()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
@@ -75,6 +127,9 @@ static void display_4bit_update()
 static void display_nokia_update()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+    if (handle_important_info_expire())
+        return;
+
     lcd.setCursor(0,0);
     lcd.print(voltage_display,1);
 
@@ -165,12 +220,11 @@ void display_init()
     pinMode(13,OUTPUT);
     digitalWrite(13,LOW);
 #endif
+
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     display_nokia_setup();
-#endif
-
-#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
-    lcd.begin(16, 2);
+#elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
+    display_4bit_setup();
 #endif
 }
 
@@ -178,8 +232,7 @@ void display_update()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
         display_nokia_update();
-#endif
-#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
+#elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
         display_4bit_update();
 #endif
 }

@@ -21,6 +21,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 void display_init();
 void display_update();
+void display_show_important_info(const char *str, int duration_secs);
 
 // Global defines from main program.
 // This list will be replaced by a proper defined interface between
