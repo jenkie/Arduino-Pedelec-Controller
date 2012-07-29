@@ -40,6 +40,10 @@ Features:
     BMP085 bmp;
 #endif
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+#include <SoftwareSerial.h>      //for Kingmeter J-LCD
+#endif
+
 struct savings   //add variables if you want to store additional values to the eeprom
 {
     float voltage;
@@ -120,6 +124,7 @@ unsigned long switch_disp_pressed;       //time when display switch was pressed 
 boolean switch_disp_last=false; //was display switch already pressed since last loop run?
 unsigned long last_writetime = millis();  //last time display has been refreshed
 volatile unsigned long last_wheel_time = millis(); //last time of wheel sensor change 0->1
+volatile unsigned long wheel_time = 0;  //time for one revolution of the wheel
 volatile unsigned long last_pas_event = millis();  //last change-time of PAS sensor status
 volatile boolean pedaling = false;  //pedaling? (in forward direction!)
 boolean firstrun = true;  //first run of loop?
@@ -189,6 +194,11 @@ void loop()
 #ifdef SUPPORT_POTI
     poti_stat=analogRead(poti_in);                       // 0...1023
 #endif
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+    display_update();
+#endif
+
 #ifdef SUPPORT_THROTTLE
     throttle_stat = constrain(map(analogRead(throttle_in),throttle_offset,throttle_max,0,1023),0,1023);   // 0...1023
 #endif
@@ -237,7 +247,10 @@ void loop()
 #endif
 
     if ((millis()-last_wheel_time)>3000)               //wheel did not spin for 3 seconds --> speed is zero
+    {
         spd=0;
+        wheel_time=0;
+    }
 
 
 //Power control-------------------------------------------------------------------------------------------------------------
@@ -366,8 +379,9 @@ void loop()
         range=constrain(capacity/wh*km-km,0.0,200.0);               //range calculation from battery capacity
         wh=wh+current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
 
+#if !(DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
         display_update();
-
+#endif
         last_writetime=millis();
         send_android_data();                                        //sends data over bluetooth to amarino - also visible at the serial monitor
 
@@ -427,7 +441,8 @@ void speed_change()    //Wheel Sensor Change------------------------------------
 {
 //Speed and Km
     if (last_wheel_time>(millis()-50)) return;                         //debouncing reed-sensor
-    spd = (spd+3600*wheel_circumference/((millis()-last_wheel_time)))/2;  //a bit of averaging for smoother speed-cutoff
+    wheel_time=millis()-last_wheel_time;
+    spd = (spd+3600*wheel_circumference/wheel_time)/2;  //a bit of averaging for smoother speed-cutoff
     if (spd<100)
         {km=km+wheel_circumference/1000.0;}
     else

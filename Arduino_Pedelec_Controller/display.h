@@ -19,6 +19,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+
 void display_init();
 void display_update();
 void display_show_important_info(const char *str, int duration_secs);
@@ -40,5 +41,9 @@ extern float temperature;
 extern float altitude;
 extern float slope;
 extern const int bluetooth_pin;
+extern float poti_stat;
+extern int throttle_stat;
+extern volatile unsigned long wheel_time;
+extern const int fet_out;
 
 #endif
