@@ -20,9 +20,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "config.h"
 
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
-const int backlight_default_show_ms = 5 * 1000;   // Time backlight stays on by default
-const int backlight_blink_pause = 500;     // Blink mode: Number of milliseconds between blink switch
-const int backlight_blink_goal = 4;          // Number of blinks to do
+const unsigned int backlight_default_show_ms = 5 * 1000;   // Time backlight stays on by default
+const unsigned int backlight_blink_pause = 500;     // Blink mode: Number of milliseconds between blink switch
+const unsigned int backlight_blink_goal = 4;          // Number of blinks to do
 
 enum backlight_states
 {
@@ -37,10 +37,10 @@ enum backlight_states
 backlight_states backlight_state = BacklightOff;
 unsigned long backlight_next_event_ms = 0;         // When should we process next backlight state
 
-int backlight_show_ms = 0;                                    // Custom show time if wanted
+unsigned int backlight_show_ms = 0;                                    // Custom show time if wanted
 bool backlight_blink_currently_enabled = false;  // Blink mode: True if backlight is currently on
 bool backlight_blink_done_stay_on = false;       // If true we stay on after blinking
-int backlight_blink_count = 0;                   // Number of blinks done
+unsigned int backlight_blink_count = 0;                   // Number of blinks done
 
 static void enter_backlight_state(const backlight_states new_state)
 {
@@ -99,7 +99,7 @@ void enable_backlight()
     enter_backlight_state(BacklightTriggerOn);
 }
 
-void enable_custom_backlight(int duration_ms)
+void enable_custom_backlight(unsigned int duration_ms)
 {
     backlight_show_ms = duration_ms;
     enter_backlight_state(BacklightTriggerOn);
