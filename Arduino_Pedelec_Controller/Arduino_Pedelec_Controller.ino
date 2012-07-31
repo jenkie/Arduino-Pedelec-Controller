@@ -315,6 +315,15 @@ void loop()
         {throttle_write=0;}
     analogWrite(throttle_out,throttle_write);
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
+    if (digitalRead(switch_disp_2)==0)  //switch backlight on for one minute
+    {
+#ifdef SUPPORT_DISPLAY_BACKLIGHT
+        enable_custom_backlight(60000);
+#endif
+    }
+#endif
+
     if (digitalRead(switch_disp)==0)  //switch on/off bluetooth if switch is pressed
     {
         if (switch_disp_last==false)
