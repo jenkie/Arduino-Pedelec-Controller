@@ -40,6 +40,10 @@ Features:
     BMP085 bmp;
 #endif
 
+#if defined(SUPPORT_POTI) && defined(SUPPORT_SOFT_POTI)
+#error You either have poti or soft-poti support. Disable one of them.
+#endif
+
 #if (DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
 #include <SoftwareSerial.h>      //for Kingmeter J-LCD
 #endif
@@ -321,6 +325,11 @@ void loop()
         else if ((millis()-switch_disp_pressed)>1000)
         {
 #if HARDWARE_REV >=2
+#ifdef SUPPORT_SOFT_POTI
+            // Work around missing shutdown state machine
+            // Otherwise it might show "Tempomat set".
+            poti_stat = throttle_stat;
+#endif
             display_show_important_info(msg_shutdown, 60);
             digitalWrite(fet_out,HIGH);
 #endif
@@ -331,6 +340,17 @@ void loop()
         if (switch_disp_last==true)
         {
             switch_disp_last=false;
+#ifdef SUPPORT_SOFT_POTI
+            // Set soft poti if throttle value changed
+            if (poti_stat != throttle_stat)
+            {
+                poti_stat = throttle_stat;
+                if (poti_stat == 0)
+                    display_show_important_info("Tempomat reset", 0);
+                else
+                    display_show_important_info("Tempomat set", 0);
+            }
+#endif
 #if HARDWARE_REV >=2
             digitalWrite(bluetooth_pin, !digitalRead(bluetooth_pin));   //not available in 1.1!
 #endif

@@ -25,6 +25,7 @@ const int display_backlight_pin = 8;   // LCD backlight. Use a free pin here, f.
 
 // #define SUPPORT_BMP085   //uncomment if BMP085 available
 #define SUPPORT_POTI        //uncomment if Poti connected
+// #define SUPPORT_SOFT_POTI // uncomment if Poti is emulated: The switch_disp button will store the current throttle value as poti value
 #define SUPPORT_THROTTLE    //uncomment if Throttle connected
 #define SUPPORT_PAS         //uncomment if PAS-sensor connected
 
