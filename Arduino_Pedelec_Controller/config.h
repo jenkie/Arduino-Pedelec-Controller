@@ -34,8 +34,8 @@ const int display_backlight_pin = 8;   // LCD backlight. Use a free pin here, f.
 
 //Config Options-----------------------------------------------------------------------------------------------------
 const int pas_tolerance=1;               //0... increase to make pas sensor slower but more tolerant against speed changes
-const int throttle_offset=196;           //Offset voltage of throttle control when in "0" position (0..255 = 0..5V)
-const int throttle_max=832;              //Offset voltage of throttle control when in "MAX" position (0..255 = 0..5V)
+const int throttle_offset=196;           //Offset voltage of throttle control when in "0" position (0..1023 = 0..5V)
+const int throttle_max=832;              //Offset voltage of throttle control when in "MAX" position (0..1023 = 0..5V)
 const int motor_offset=50;               //Offset for throttle output where Motor starts to spin (0..255 = 0..5V)
 const int motor_max=200;                 //Maximum input value for motor driver (0..255 = 0..5V)
 const boolean startingaidenable = true;  //enable starting aid?
