@@ -271,7 +271,7 @@ void loop()
     else
     {
         if (startingaidenable==true)                         //starting aid activated
-            {factor_speed=constrain((6.0-spd)/2,0,1);}
+            {factor_speed=constrain((startingaid_speed-spd)/2,0,1);}
         else
             {factor_speed=0;}                                    //no starting aid
     }
@@ -367,10 +367,12 @@ void loop()
         wh=wh+current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
 
         display_update();
-
         last_writetime=millis();
-        send_android_data();                                        //sends data over bluetooth to amarino - also visible at the serial monitor
-
+	
+#ifdef SUPPORT_ANDROID
+	send_android_data();                                        //sends data over bluetooth to amarino - also visible at the serial monitor
+#endif
+	
 #if HARDWARE_REV >= 2
 // Idle shutdown
         if (last_wheel_time != idle_shutdown_last_wheel_time)
@@ -420,7 +422,7 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
     }
 }
 #else
-#warning PAS sensor support is needed by EU-wide laws except Austria or Swiss.
+#warning PAS sensor support is required for legal operation of a Pedelec by EU-wide laws except Austria or Swiss.
 #endif
 
 void speed_change()    //Wheel Sensor Change------------------------------------------------------------------------------------------------------------------
