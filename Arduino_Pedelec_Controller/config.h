@@ -15,7 +15,14 @@
 #define DISPLAY_TYPE_NOKIA (DISPLAY_TYPE_NOKIA_5PIN|DISPLAY_TYPE_NOKIA_4PIN)
 #define DISPLAY_TYPE_16X2_LCD_4BIT (1<<2)    //16x2 LCD 4bit-mode
 #define DISPLAY_TYPE_J_LCD (1<<3)            //King-Meter J-LCD
-#define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_5PIN //Set your display type here
+#define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_5PIN //Set your display type here. CHANGES ONLY HERE!<-----------------------------
+
+#define SERIAL_MODE_DEBUG (1<<0)             //send debug data over Serial Monitor
+#define SERIAL_MODE_ANDROID (1<<1)           //send Amarino-compatible data over serial/bluetooth
+#define SERIAL_MODE_MMC (1<<2)               //send MMC-App compatible data over serial/bluetooth (for future use, not implemented yet)
+#define SERIAL_MODE_LOGVIEW (1<<3)          //send logview-compatible data over serial (for future use, not implemented yet)
+#define SERIAL_MODE SERIAL_MODE_DEBUG        //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------
+
 
 // #define SUPPORT_DISPLAY_BACKLIGHT // uncomment for LCD display backlight support
                                      // The Nokia 5110 display needs a 120 Ohm resistor on the backlight pin
@@ -41,11 +48,12 @@ const int throttle_max=832;              //Offset voltage of throttle control wh
 const int motor_offset=50;               //Offset for throttle output where Motor starts to spin (0..255 = 0..5V)
 const int motor_max=200;                 //Maximum input value for motor driver (0..255 = 0..5V)
 const boolean startingaidenable = true;  //enable starting aid?
+const int startingaid_speed = 6;         //starting aid up to this speed. 6km/h is the limit for legal operation of a Pedelec by EU-wide laws
 const float vcutoff=33.0;                //cutoff voltage in V;
 const float vemergency_shutdown = 28.0;  //emergency power off situation to save the battery from undervoltage
 const float wheel_circumference = 2.202; //wheel circumference in m
-const int spd_max1=22.0;                 //speed cutoff start in Km/h
-const int spd_max2=25.0;                 //speed cutoff stop (0W) in Km/h
+const int spd_max1=22;                   //speed cutoff start in Km/h
+const int spd_max2=25;                   //speed cutoff stop (0W) in Km/h
 const int power_max=500;                 //Maximum power in W
 const int whkm_max=30;                   //Maximum wh/km consumption in CONTROL_MODE_LIMIT_WH_PER_KM (controls poti-range)
 const unsigned int idle_shutdown_secs = 30 * 60;           // Idle shutdown in seconds. Max is ~1080 minutes or 18 hours

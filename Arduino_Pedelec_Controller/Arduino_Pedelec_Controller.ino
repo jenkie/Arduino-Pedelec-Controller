@@ -141,7 +141,7 @@ unsigned long idle_shutdown_last_wheel_time = millis();
 // Forward declarations for compatibility with new gcc versions
 void pas_change();
 void speed_change();
-void send_android_data();
+void send_serial_data();
 
 //Setup---------------------------------------------------------------------------------------------------------------------
 void setup()
@@ -288,7 +288,7 @@ void loop()
     else
     {
         if (startingaidenable==true)                         //starting aid activated
-            {factor_speed=constrain((6.0-spd)/2,0,1);}
+            {factor_speed=constrain((startingaid_speed-spd)/2,0,1);}
         else
             {factor_speed=0;}                                    //no starting aid
     }
@@ -411,8 +411,8 @@ void loop()
 #if !(DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
         display_update();
 #endif
-        last_writetime=millis();
-        send_android_data();                                        //sends data over bluetooth to amarino - also visible at the serial monitor
+        
+        send_serial_data();                                        //sends data over serial port depending on SERIAL_MODE
 
 #if HARDWARE_REV >= 2
 // Idle shutdown
@@ -441,6 +441,7 @@ void loop()
         }
 #endif
     }
+last_writetime=millis();
 //slow loop end------------------------------------------------------------------------------------------------------
 }
 
@@ -463,7 +464,7 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
     }
 }
 #else
-#warning PAS sensor support is needed by EU-wide laws except Austria or Swiss.
+#warning PAS sensor support is required for legal operation of a Pedelec  by EU-wide laws except Austria or Swiss.
 #endif
 
 void speed_change()    //Wheel Sensor Change------------------------------------------------------------------------------------------------------------------
@@ -486,8 +487,9 @@ void speed_change()    //Wheel Sensor Change------------------------------------
 }
 
 
-void send_android_data()  //send adroid data----------------------------------------------------------
+void send_serial_data()  //send serial data----------------------------------------------------------
 {
+#if (SERIAL_MODE & SERIAL_MODE_ANDROID)
     char ack=19;
     char startFlag=18; // used to communicate with Android (leads each message to Amarino)
     Serial.print(startFlag);
@@ -509,4 +511,61 @@ void send_android_data()  //send adroid data------------------------------------
     Serial.print(";");
     Serial.print(0);
     Serial.print(ack);
+#endif
+
+#if (SERIAL_MODE & SERIAL_MODE_LOGVIEW)
+    Serial.print("$1;1;0;"); 
+    Serial.print(voltage,2);
+    Serial.print(";"); 
+    Serial.print(current,2);
+    Serial.print(";");
+    Serial.print(wh,1);
+    Serial.print(";");
+    Serial.print(spd,2);
+    Serial.print(";");
+    Serial.print(km,3);
+    Serial.print(";");
+    Serial.print(cad);
+    Serial.print(";");
+    Serial.print(0);   //arbitrary user data here
+    Serial.print(";");
+    Serial.print(0);   //arbitrary user data here
+    Serial.print(";");
+    Serial.print(0);   //arbitrary user data here
+    Serial.print(";");
+    Serial.print(0);  //arbitrary user data here
+    Serial.print(";");
+    Serial.print(0);   //arbitrary user data here
+    Serial.print(";");
+    Serial.print(0);   //arbitrary user data here
+    Serial.print(";0"); 
+    Serial.println(13,DEC);
+#endif
+
+#if (SERIAL_MODE & SERIAL_MODE_DEBUG)
+    Serial.print("Voltage");
+    Serial.print(voltage,2);
+    Serial.print(" Current");
+    Serial.print(current,1);
+    Serial.print(" Power");
+    Serial.print(power,0);
+    Serial.print(" PAS_On");
+    Serial.print(pas_on_time);
+    Serial.print(" PAS_Off");
+    Serial.print(pas_off_time);
+    Serial.print(" PAS_factor");
+    Serial.print((float)pas_on_time/pas_off_time);
+    Serial.print(" Speed");
+    Serial.print(spd);
+    Serial.print(" Brake");
+    Serial.print(brake_stat);
+    Serial.print(" Poti");
+    Serial.print(poti_stat);
+    Serial.print(" Throttle");
+    Serial.println(throttle_stat); 
+#endif
 }
+
+
+
+
