@@ -17,16 +17,32 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 #include "display.h"
+#include "display_backlight.h"
 #include "config.h"
+
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 #include "PCD8544_nano.h"                    //for Nokia Display
 static PCD8544 lcd;                          //for Nokia Display
 #endif
 
+
+
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
 #include "LiquidCrystalDogm.h"             //for 4bit (e.g. EA-DOGM) Display
 LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   //for 4bit (e.g. EA-DOGM) Display
+#endif
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+#include <SoftwareSerial.h>                //for Kingmeter J-LCD
+SoftwareSerial mySerial(10, 11);           // RX (YELLOW cable of J-LCD), TX (GREEN-Cable) 
+byte jlcd_received[]={0,0,0,0,0,0};
+byte jlcd_receivecounter=0;
+byte jlcd_maxspeed=0;                      //max speed set on display
+byte jlcd_wheelsize=0;                     //wheel size set on display
+boolean jlcd_lighton=false;                //backlight switched on?
+byte jlcd_zerocounter=0;   
+unsigned long jlcd_last_transmission=millis(); //last time jlcd sent data--> still on?
 #endif
 
 static byte glyph1[] = {0x0b, 0xfc, 0x4e, 0xac, 0x0b}; //symbol for wh/km part 1
@@ -213,6 +229,61 @@ static void display_nokia_update()
 #endif // (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 }
 
+void jlcd_update(byte battery, unsigned int wheeltime, byte error)
+{
+#if (DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+  if (mySerial.available())
+  {
+    jlcd_last_transmission=millis();
+    jlcd_receivecounter++;
+    byte receivedbyte=mySerial.read();
+    if (receivedbyte == 0x46)                         //start of new transmission frame detected-->last one is complete?
+    {
+        if (jlcd_receivecounter==6)                  //--> yes it is
+        {
+          jlcd_zerocounter=0;
+          jlcd_lighton=(jlcd_received[1]&(byte)128)>>7; 
+          jlcd_received[1]=jlcd_received[1]&(byte)127;
+          if (jlcd_received[1]<6)                      //set the assist-level (via poti-stat)
+            poti_stat=map(jlcd_received[1],1,5,0,1023);         
+          if (jlcd_received[1]==16)                    //16 means walk-mode
+            throttle_stat=200;  
+          else
+           throttle_stat=0;
+          jlcd_maxspeed=10+jlcd_received[2]>>3;        //this is the max-speed set by J-LCD
+          jlcd_wheelsize=jlcd_received[2]&(byte)7;     //this is the wheel-size set by J-LCD
+        }
+        jlcd_receivecounter=0;
+        //-------------------------------------------Output to J-LCD start
+        mySerial.write(0X46);
+        mySerial.write(battery);
+        mySerial.write((byte)0x00);
+        mySerial.write(highByte(wheeltime));
+        mySerial.write(lowByte(wheeltime));
+        mySerial.write(0X7D);
+        mySerial.write(error);
+        mySerial.write(battery^(byte)0x00^highByte(wheeltime)^lowByte(wheeltime)^0X7D^error); //this is XOR-checksum
+        //-------------------------------------------Output to J-LCD end
+    }
+    else
+      jlcd_received[jlcd_receivecounter]=receivedbyte;
+    if (jlcd_receivecounter>5)
+      jlcd_receivecounter=0;
+ 
+  }
+if ((millis()-jlcd_last_transmission)>3000)
+      {
+        throttle_stat=0;
+        poti_stat=0;
+#if HARDWARE_REV >=2
+          digitalWrite(fet_out,HIGH);              //J-LCD turned off
+#endif
+       }
+#endif //(DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+
+}
+
+
 void display_init()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_5PIN)
@@ -226,6 +297,10 @@ void display_init()
 #elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
     display_4bit_setup();
 #endif
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+    mySerial.begin(9600);
+#endif
 }
 
 void display_update()
@@ -234,5 +309,8 @@ void display_update()
         display_nokia_update();
 #elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
         display_4bit_update();
+#endif
+#if (DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+        jlcd_update(5,wheel_time,0);
 #endif
 }

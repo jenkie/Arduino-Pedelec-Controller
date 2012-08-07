@@ -23,7 +23,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
 void enable_backlight();
-void enable_custom_backlight(int duration_ms);
+void enable_custom_backlight(unsigned int duration_ms);
 void blink_backlight();
 void blink_backlight_stay_on();
 void handle_backlight();

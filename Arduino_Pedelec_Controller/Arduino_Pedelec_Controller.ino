@@ -40,6 +40,14 @@ Features:
     BMP085 bmp;
 #endif
 
+#if defined(SUPPORT_POTI) && defined(SUPPORT_SOFT_POTI)
+#error You either have poti or soft-poti support. Disable one of them.
+#endif
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+#include <SoftwareSerial.h>      //for Kingmeter J-LCD
+#endif
+
 struct savings   //add variables if you want to store additional values to the eeprom
 {
     float voltage;
@@ -120,6 +128,7 @@ unsigned long switch_disp_pressed;       //time when display switch was pressed 
 boolean switch_disp_last=false; //was display switch already pressed since last loop run?
 unsigned long last_writetime = millis();  //last time display has been refreshed
 volatile unsigned long last_wheel_time = millis(); //last time of wheel sensor change 0->1
+volatile unsigned long wheel_time = 0;  //time for one revolution of the wheel
 volatile unsigned long last_pas_event = millis();  //last change-time of PAS sensor status
 volatile boolean pedaling = false;  //pedaling? (in forward direction!)
 boolean firstrun = true;  //first run of loop?
@@ -132,7 +141,7 @@ unsigned long idle_shutdown_last_wheel_time = millis();
 // Forward declarations for compatibility with new gcc versions
 void pas_change();
 void speed_change();
-void send_android_data();
+void send_serial_data();
 
 //Setup---------------------------------------------------------------------------------------------------------------------
 void setup()
@@ -189,6 +198,11 @@ void loop()
 #ifdef SUPPORT_POTI
     poti_stat=analogRead(poti_in);                       // 0...1023
 #endif
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+    display_update();
+#endif
+
 #ifdef SUPPORT_THROTTLE
     throttle_stat = constrain(map(analogRead(throttle_in),throttle_offset,throttle_max,0,1023),0,1023);   // 0...1023
 #endif
@@ -237,7 +251,10 @@ void loop()
 #endif
 
     if ((millis()-last_wheel_time)>3000)               //wheel did not spin for 3 seconds --> speed is zero
+    {
         spd=0;
+        wheel_time=0;
+    }
 
 
 //Power control-------------------------------------------------------------------------------------------------------------
@@ -298,6 +315,15 @@ void loop()
         {throttle_write=0;}
     analogWrite(throttle_out,throttle_write);
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
+    if (digitalRead(switch_disp_2)==0)  //switch backlight on for one minute
+    {
+#ifdef SUPPORT_DISPLAY_BACKLIGHT
+        enable_custom_backlight(60000);
+#endif
+    }
+#endif
+
     if (digitalRead(switch_disp)==0)  //switch on/off bluetooth if switch is pressed
     {
         if (switch_disp_last==false)
@@ -308,6 +334,11 @@ void loop()
         else if ((millis()-switch_disp_pressed)>1000)
         {
 #if HARDWARE_REV >=2
+#ifdef SUPPORT_SOFT_POTI
+            // Work around missing shutdown state machine
+            // Otherwise it might show "Tempomat set".
+            poti_stat = throttle_stat;
+#endif
             display_show_important_info(msg_shutdown, 60);
             digitalWrite(fet_out,HIGH);
 #endif
@@ -318,6 +349,17 @@ void loop()
         if (switch_disp_last==true)
         {
             switch_disp_last=false;
+#ifdef SUPPORT_SOFT_POTI
+            // Set soft poti if throttle value changed
+            if (poti_stat != throttle_stat)
+            {
+                poti_stat = throttle_stat;
+                if (poti_stat == 0)
+                    display_show_important_info("Tempomat reset", 0);
+                else
+                    display_show_important_info("Tempomat set", 0);
+            }
+#endif
 #if HARDWARE_REV >=2
             digitalWrite(bluetooth_pin, !digitalRead(bluetooth_pin));   //not available in 1.1!
 #endif
@@ -366,13 +408,21 @@ void loop()
         range=constrain(capacity/wh*km-km,0.0,200.0);               //range calculation from battery capacity
         wh=wh+current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
 
+#if !(DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
         display_update();
+<<<<<<< HEAD
         last_writetime=millis();
 	
 #ifdef SUPPORT_ANDROID
 	send_android_data();                                        //sends data over bluetooth to amarino - also visible at the serial monitor
 #endif
 	
+=======
+#endif
+        
+        send_serial_data();                                        //sends data over serial port depending on SERIAL_MODE
+
+>>>>>>> 83be1082b2eb88c2265a9de702ff5e261f8f3944
 #if HARDWARE_REV >= 2
 // Idle shutdown
         if (last_wheel_time != idle_shutdown_last_wheel_time)
@@ -400,6 +450,7 @@ void loop()
         }
 #endif
     }
+last_writetime=millis();
 //slow loop end------------------------------------------------------------------------------------------------------
 }
 
@@ -422,14 +473,19 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
     }
 }
 #else
+<<<<<<< HEAD
 #warning PAS sensor support is required for legal operation of a Pedelec by EU-wide laws except Austria or Swiss.
+=======
+#warning PAS sensor support is required for legal operation of a Pedelec  by EU-wide laws except Austria or Swiss.
+>>>>>>> 83be1082b2eb88c2265a9de702ff5e261f8f3944
 #endif
 
 void speed_change()    //Wheel Sensor Change------------------------------------------------------------------------------------------------------------------
 {
 //Speed and Km
     if (last_wheel_time>(millis()-50)) return;                         //debouncing reed-sensor
-    spd = (spd+3600*wheel_circumference/((millis()-last_wheel_time)))/2;  //a bit of averaging for smoother speed-cutoff
+    wheel_time=millis()-last_wheel_time;
+    spd = (spd+3600*wheel_circumference/wheel_time)/2;  //a bit of averaging for smoother speed-cutoff
     if (spd<100)
         {km=km+wheel_circumference/1000.0;}
     else
@@ -444,8 +500,9 @@ void speed_change()    //Wheel Sensor Change------------------------------------
 }
 
 
-void send_android_data()  //send adroid data----------------------------------------------------------
+void send_serial_data()  //send serial data----------------------------------------------------------
 {
+#if (SERIAL_MODE & SERIAL_MODE_ANDROID)
     char ack=19;
     char startFlag=18; // used to communicate with Android (leads each message to Amarino)
     Serial.print(startFlag);
@@ -467,4 +524,61 @@ void send_android_data()  //send adroid data------------------------------------
     Serial.print(";");
     Serial.print(0);
     Serial.print(ack);
+#endif
+
+#if (SERIAL_MODE & SERIAL_MODE_LOGVIEW)
+    Serial.print("$1;1;0;"); 
+    Serial.print(voltage,2);
+    Serial.print(";"); 
+    Serial.print(current,2);
+    Serial.print(";");
+    Serial.print(wh,1);
+    Serial.print(";");
+    Serial.print(spd,2);
+    Serial.print(";");
+    Serial.print(km,3);
+    Serial.print(";");
+    Serial.print(cad);
+    Serial.print(";");
+    Serial.print(0);   //arbitrary user data here
+    Serial.print(";");
+    Serial.print(0);   //arbitrary user data here
+    Serial.print(";");
+    Serial.print(0);   //arbitrary user data here
+    Serial.print(";");
+    Serial.print(0);  //arbitrary user data here
+    Serial.print(";");
+    Serial.print(0);   //arbitrary user data here
+    Serial.print(";");
+    Serial.print(0);   //arbitrary user data here
+    Serial.print(";0"); 
+    Serial.println(13,DEC);
+#endif
+
+#if (SERIAL_MODE & SERIAL_MODE_DEBUG)
+    Serial.print("Voltage");
+    Serial.print(voltage,2);
+    Serial.print(" Current");
+    Serial.print(current,1);
+    Serial.print(" Power");
+    Serial.print(power,0);
+    Serial.print(" PAS_On");
+    Serial.print(pas_on_time);
+    Serial.print(" PAS_Off");
+    Serial.print(pas_off_time);
+    Serial.print(" PAS_factor");
+    Serial.print((float)pas_on_time/pas_off_time);
+    Serial.print(" Speed");
+    Serial.print(spd);
+    Serial.print(" Brake");
+    Serial.print(brake_stat);
+    Serial.print(" Poti");
+    Serial.print(poti_stat);
+    Serial.print(" Throttle");
+    Serial.println(throttle_stat); 
+#endif
 }
+
+
+
+
