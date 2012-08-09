@@ -90,19 +90,21 @@ const int switch_disp_2 = 13;        //second Display switch with Nokia-Display 
 
 
 //Variable-Declarations-----------------------------------------------------------------------------------------------
-double pid_p=cfg_pid_p;
-double pid_i=cfg_pid_i;
-double pid_p_throttle=cfg_pid_p_throttle;
-double pid_i_throttle=cfg_pid_i_throttle;
+double pid_p = cfg_pid_p;
+double pid_i = cfg_pid_i;
+double pid_p_throttle = cfg_pid_p_throttle;
+double pid_i_throttle = cfg_pid_i_throttle;
 
 double pid_out,pid_set;        //pid output, pid set value
 int throttle_stat = 0;         //Throttle reading
-int throttle_write=0;          //Throttle write value
+int throttle_write = 0;        //Throttle write value
 float poti_stat = 0.0;         //Poti reading
 volatile int pas_on_time = 0;  //High-Time of PAS-Sensor-Signal (needed to determine pedaling direction)
 volatile int pas_off_time = 0; //Low-Time of PAS-Sensor-Signal  (needed to determine pedaling direction)
 volatile int pas_failtime = 0; //how many subsequent "wrong" PAS values?
-double power_set = 0;          //Set Power
+double power_set = 0;          //set Power, motor command value
+double power_set_poti = 0.0;   //set power, calculated with current poti setting
+double power_set_throttle=0.0; //set power, calculated with current throttle setting
 volatile int cad=0;            //Cadence
 int looptime=0;                //Loop Time in milliseconds (for testing)
 float battery_percent=0.0;     //battery capacity
@@ -113,8 +115,8 @@ float voltage_1s,voltage_2s = 0.0; //Voltage history 1s and 2s before "now"
 float voltage_display = 0.0;   //averaged voltage
 float current_display = 0.0;   //averaged current
 double power=0.0;              //calculated power
-float factor_speed=1.0;        //factor controling the speed
-float factor_volt=1.0;         //factor controling voltage cutoff
+float factor_speed=1.0;        //factor controlling the speed
+float factor_volt=1.0;         //factor controlling voltage cutoff
 float wh=0.0;                  //watthours drawn from battery
 float temperature = 0.0;       //temperature
 float altitude = 0.0;          //altitude
@@ -199,7 +201,7 @@ void loop()
     poti_stat=analogRead(poti_in);                       // 0...1023
 #endif
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+#if (DISPLAY_TYPE && DISPLAY_TYPE_J_LCD)		// don't update if we are using the J_LCD
     display_update();
 #endif
 
@@ -208,7 +210,7 @@ void loop()
 #endif
     brake_stat = digitalRead(brake_in);
 //voltage, current, power
-    voltage = analogRead(voltage_in)*voltage_amplitude+voltage_offset; //check with multimeter, change in config.h if needed!
+    voltage = analogRead(voltage_in) * voltage_amplitude + voltage_offset; //check with multimeter, change in config.h if needed!
 #if HARDWARE_REV <= 2
     // Read in current and auto-calibrate the shift offset:
     // There is a constant offset depending on the
@@ -217,22 +219,22 @@ void loop()
     int raw_current = analogRead(current_in);
     if (raw_current < lowest_raw_current)
         lowest_raw_current = raw_current;
-    current = (raw_current-lowest_raw_current)*current_amplitude_R11; //check with multimeter, change in config.h if needed!
+    current = (raw_current - lowest_raw_current) * current_amplitude_R11; //check with multimeter, change in config.h if needed!
     current = constrain(current,0,30);
 #endif
 #if HARDWARE_REV >= 3
-    current = (analogRead(current_in)-512)*current_amplitude_R13+current_offset;    //check with multimeter, change in config.h if needed!
-    current = constrain(current,-30,30);
+    current = (analogRead(current_in) - 512) * current_amplitude_R13 + current_offset;    //check with multimeter, change in config.h if needed!
+    current = constrain(current, - 30,30);
 #endif
 
-    voltage_display = 0.99*voltage_display + 0.01*voltage; //averaged voltage for display
-    current_display = 0.99*current_display + 0.01*current; //averaged voltage for display
-    power=current*voltage;
+    voltage_display = 0.99 * voltage_display + 0.01 * voltage; //averaged voltage for display
+    current_display = 0.99 * current_display + 0.01 * current; //averaged voltage for display
+    power=current * voltage;
 
 //Check if Battery was charged since last power down-----------------------------------------------------------------------
     if (firstrun==true)
     {
-        if (variable.voltage>(voltage - 2))                //charging detected if voltage is 2V higher than last stored voltage
+        if (variable.voltage > (voltage - 2))                //charging detected if voltage is 2V higher than last stored voltage
         {
             wh=variable.capacity;
             km=variable.kilometers;
@@ -245,78 +247,86 @@ void loop()
 
 //Are we pedaling?---------------------------------------------------------------------------------------------------------
 #ifdef SUPPORT_PAS
-    if (((millis()-last_pas_event)>500)||((millis()-last_pas_event)>2*pas_on_time)||(pas_failtime>pas_tolerance))
+    if (((millis() - last_pas_event) > 500)||((millis() - last_pas_event) > 2 * pas_on_time)||(pas_failtime > pas_tolerance))
         {pedaling = false;}                               //we are not pedaling anymore, if pas did not change for > 0,5 s
-    cad=cad*pedaling;
+    cad = cad * pedaling;
 #endif
 
-    if ((millis()-last_wheel_time)>3000)               //wheel did not spin for 3 seconds --> speed is zero
-    {
-        spd=0;
-        wheel_time=0;
+    if ((millis()-last_wheel_time) > 3000)               //wheel did not spin for 3 seconds --> speed is zero
+    {                                                    //necessary here, because speed_change only gets called via Interrupt
+        spd = 0;
+        wheel_time = 0;
     }
-
 
 //Power control-------------------------------------------------------------------------------------------------------------
-#if CONTROL_MODE == CONTROL_MODE_NORMAL             //power-control-mode
-    if (throttle_stat > poti_stat)                  //throttle mode: throttle sets power with "agressive" p and i parameters
+#if CONTROL_MODE == CONTROL_MODE_NORMAL                         //power-control-mode
+    power_set_throttle = throttle_stat / 1023.0 * power_max;    //power currently set by throttle
+    power_set_poti = poti_stat / 1023.0 * power_poti_max;       //power currently set by poti
+    
+    if ((power_set_throttle) > (power_set_poti))                   //IF set power by throttle IS GREATER THAN set power by poti
     {
-        myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);
-        power_set=throttle_stat/1023.0*power_max;
+        myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);      //THEN throttle mode: throttle sets power with "agressive" p and i parameters
+        power_set = power_set_throttle;
     }
-    else                                            //poti mode: poti sets power with "soft" p and i parameters
-    {
-        myPID.SetTunings(pid_p,pid_i,0);
-        power_set=poti_stat/1023.0*power_max;
-    }
-#endif
-#if CONTROL_MODE == CONTROL_MODE_LIMIT_WH_PER_KM    //wh/km control mode
-    if (throttle_stat > poti_stat)                  //throttle mode: throttle sets power with "agressive" p and i parameters
-    {
-        myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);
-    }
-    else                                            //poti mode: poti sets power with "soft" p and i parameters
+    else                                                        //ELSE poti mode: poti sets power with "soft" p and i parameters
     {
         myPID.SetTunings(pid_p,pid_i,0);
+        power_set = power_set_poti;
     }
-    power_set=max(poti_stat/1023.0*whkm_max*spd,throttle_stat/1023.0*power_max);
 #endif
+
+#if CONTROL_MODE == CONTROL_MODE_LIMIT_WH_PER_KM                //wh/km control mode
+    power_set_throttle = throttle_stat / 1023.0 * power_max;    //power currently set by throttle
+    power_set_poti = poti_stat / 1023.0 * whkm_max * spd;       //power set by poti in relation to speed and maximum wattage per km
+   
+    if ((power_set_throttle) > (power_set_poti))                   //IF set power by throttle IS GREATER THAN set power by poti 
+    {
+        myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);      //THEN throttle mode: throttle sets power with "agressive" p and i parameters
+	power_set = power_set_throttle;
+    }
+    else                                                        //ELSE poti mode: poti sets power with "soft" p and i parameters
+    {
+        myPID.SetTunings(pid_p,pid_i,0);
+	power_set = power_set_poti;
+    }
+#endif
+
 //Speed cutoff-------------------------------------------------------------------------------------------------------------
 
+    if ((startingaidenable==true) && (spd<=startingaid_speed) && (throttle_stat > 5))    //starting aid
+                                                               //IF   starting aid is enabled AND the current speed is lower or equal than the starting aid speed
+                                                               //AND  throttle is pressed at least more than 5, don't get triggered by poti!
+        {pedaling = true;}                                     //THEN set pedaling to true, e.g. act as if we would pedal
+        
     if (pedaling==true)
-        {factor_speed=constrain(1-(spd-spd_max1)/(spd_max2-spd_max1),0,1);} //linear decrease of maximum power for speeds higher than spd_max1
+        {factor_speed = constrain(1 - (spd - spd_max1)/(spd_max2 - spd_max1),0,1);} //linear decrease of maximum power for speeds higher than spd_max1
     else
-    {
-        if (startingaidenable==true)                         //starting aid activated
-            {factor_speed=constrain((startingaid_speed-spd)/2,0,1);}
-        else
-            {factor_speed=0;}                                    //no starting aid
-    }
+        {factor_speed = 0;}                                    //if we don't pedal, we don't get power assist!
 
-    if (power_set>power_max*factor_speed)
-        {power_set=power_max*factor_speed;}                  //Maximum allowed power including Speed-Cutoff
+    if (power_set > power_max * factor_speed)
+        {power_set = power_max * factor_speed;}                  //Maximum allowed power including Speed-Cutoff
     if ((((poti_stat<=throttle_stat)||(pedaling==false))&&(throttle_stat<5))||(brake_stat==0))  //power_set is set to -60W when you stop pedaling or brake (this is the pid-input)
-        {power_set=-60;}
+        {power_set = -60;}
 
  
  //Voltage cutoff----------------------------------------------------------------------------------------------------------
     if (voltage<vcutoff)
-        {factor_volt=factor_volt*0.9997;}
+        {factor_volt = factor_volt * 0.9997;}
     else
-        {factor_volt=factor_volt*0.9997+0.0003;}
+        {factor_volt = factor_volt * 0.9997 + 0.0003;}
 
 //Throttle output-------------------------------------------------------------------------------------------------------
 
-    pid_set=power_set;
+    pid_set = power_set;
     myPID.Compute();                                      //this computes the needed drive voltage for the motor controller to maintain the "power_set" based on the current "power" measurment
 
-    throttle_write=map(pid_out*brake_stat*factor_volt,0,1023,motor_offset,motor_max);
-    if ((pedaling==false)&&(throttle_stat<5))
-        {throttle_write=0;}
-    analogWrite(throttle_out,throttle_write);
+    throttle_write = map(pid_out * brake_stat * factor_volt,0,1023,motor_offset,motor_max);
+    if ((pedaling==false)&&(throttle_stat<5))             //IF    we don't pedal AND we don't push throttle
+        {throttle_write = 0;}                               //THEN  set voltage to 0, e.g. switch motor off
+    analogWrite(throttle_out,throttle_write);             //write the computed voltage in <throttle_write> to the motor-controller
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
-    if (digitalRead(switch_disp_2)==0)  //switch backlight on for one minute
+    if (digitalRead(switch_disp_2) ==0)  //switch backlight on for one minute
     {
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
         enable_custom_backlight(60000);
@@ -328,10 +338,10 @@ void loop()
     {
         if (switch_disp_last==false)
         {
-            switch_disp_last=true;
-            switch_disp_pressed=millis();
+            switch_disp_last = true;
+            switch_disp_pressed = millis();
         }
-        else if ((millis()-switch_disp_pressed)>1000)
+        else if ((millis()-switch_disp_pressed) > 1000)
         {
 #if HARDWARE_REV >=2
 #ifdef SUPPORT_SOFT_POTI
@@ -348,7 +358,7 @@ void loop()
     {
         if (switch_disp_last==true)
         {
-            switch_disp_last=false;
+            switch_disp_last = false;
 #ifdef SUPPORT_SOFT_POTI
             // Set soft poti if throttle value changed
             if (poti_stat != throttle_stat)
@@ -369,11 +379,11 @@ void loop()
 //Save capacity to EEPROM
     if ((voltage<20.0)&&(variables_saved==false))    //save to EEPROM when Switch-Off detected
     {
-        variable.voltage=voltage_2s;   //save the voltage value 2 seconds before switch-off-detection
-        variable.capacity=wh;          //save watthours drawn from battery
-        variable.kilometers=km;        //save trip kilometers
+        variable.voltage = voltage_2s;   //save the voltage value 2 seconds before switch-off-detection
+        variable.capacity = wh;          //save watthours drawn from battery
+        variable.kilometers = km;        //save trip kilometers
         EEPROM_writeAnything(0,variable);
-        variables_saved=true;
+        variables_saved = true;
     }
 
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
@@ -383,8 +393,8 @@ void loop()
 //slow loop start----------------------//use this subroutine to place any functions which should happen only once a second
     if (millis()-last_writetime > 1000)              //don't do this more than once a second
     {
-        voltage_2s=voltage_1s;                           //update voltage history
-        voltage_1s=voltage;                              //update voltage history
+        voltage_2s = voltage_1s;                           //update voltage history
+        voltage_1s = voltage;                              //update voltage history
 
 #ifdef SUPPORT_BMP085
         temperature = bmp.readTemperature();
@@ -392,37 +402,29 @@ void loop()
 #endif
 
 /* //-----battery percent calculation start, valid for turnigy 5000mAh-LiPo (polynomial fit to discharge curve at 150W)
-        if (voltage_display>38.6)
-            {battery_percent=-15.92628+0.71422*voltage_display-0.007398*pow(voltage_display,2);}
+        if (voltage_display > 38.6)
+            {battery_percent = -15.92628 + 0.71422 * voltage_display - 0.007398 * pow(voltage_display,2);}
         else
         {
-            if (voltage_display>36.76)
-                {battery_percent=5414.20057-431.39368*voltage_display+11.449212*pow(voltage_display,2)-0.1012069*pow(voltage_display,3);}
+            if (voltage_display > 36.76)
+                {battery_percent = 5414.20057 - 431.39368 * voltage_display + 11.449212 * pow(voltage_display,2) - 0.1012069 * pow(voltage_display,3);}
             else
-                {battery_percent=0.0025*pow(voltage_display-33,3);}
+                {battery_percent = 0.0025 * pow(voltage_display - 33,3);}
         }
-        battery_percent=constrain(battery_percent*100,0,100);
+        battery_percent = constrain(battery_percent * 100,0,100);
 //-----battery percent calculation end */
 
-        battery_percent = constrain((1-wh/capacity)*100,0,100);     //battery percent calculation from battery capacity. For voltage-based calculation see above
-        range=constrain(capacity/wh*km-km,0.0,200.0);               //range calculation from battery capacity
-        wh=wh+current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
+        battery_percent = constrain((1 - wh/capacity) * 100,0,100);     //battery percent calculation from battery capacity. For voltage-based calculation see above
+        range = constrain(capacity/wh * km - km,0.0,200.0);               //range calculation from battery capacity
+        wh = wh + current * (millis() - last_writetime)/3600000.0 * voltage;  //watthours calculation
 
 #if !(DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
         display_update();
-<<<<<<< HEAD
-        last_writetime=millis();
-	
-#ifdef SUPPORT_ANDROID
-	send_android_data();                                        //sends data over bluetooth to amarino - also visible at the serial monitor
-#endif
-	
-=======
+
 #endif
         
         send_serial_data();                                        //sends data over serial port depending on SERIAL_MODE
 
->>>>>>> 83be1082b2eb88c2265a9de702ff5e261f8f3944
 #if HARDWARE_REV >= 2
 // Idle shutdown
         if (last_wheel_time != idle_shutdown_last_wheel_time)
@@ -450,61 +452,60 @@ void loop()
         }
 #endif
     }
-last_writetime=millis();
+last_writetime = millis();
 //slow loop end------------------------------------------------------------------------------------------------------
 }
 
 #ifdef SUPPORT_PAS
 void pas_change()       //Are we pedaling? PAS Sensor Change------------------------------------------------------------------------------------------------------------------
 {
-    if (last_pas_event>(millis()-10)) return;
+    if (last_pas_event > (millis()-10)) return;
     if (digitalRead(pas_in)==true)
-        {pas_off_time=millis()-last_pas_event;}
+        {pas_off_time = millis()-last_pas_event;}
     else
-        {pas_on_time=millis()-last_pas_event;}
+        {pas_on_time = millis()-last_pas_event;}
     last_pas_event = millis();
-    pas_failtime=pas_failtime+1;
-    cad=12000/(pas_on_time+pas_off_time);
-    double pas_factor=(double)pas_on_time/(double)pas_off_time;
-    if ((pas_factor>pas_factor_min)&&(pas_factor<pas_factor_max)) 
+    pas_failtime = pas_failtime + 1;
+    cad = 12000/(pas_on_time + pas_off_time);
+    double pas_factor = (double)pas_on_time/(double)pas_off_time;
+    if ((pas_factor > pas_factor_min)&&(pas_factor<pas_factor_max)) 
     {
-        pedaling=true;
-        pas_failtime=0;
+        pedaling = true;
+        pas_failtime = 0;
     }
 }
 #else
-<<<<<<< HEAD
+
 #warning PAS sensor support is required for legal operation of a Pedelec by EU-wide laws except Austria or Swiss.
-=======
-#warning PAS sensor support is required for legal operation of a Pedelec  by EU-wide laws except Austria or Swiss.
->>>>>>> 83be1082b2eb88c2265a9de702ff5e261f8f3944
+
 #endif
 
 void speed_change()    //Wheel Sensor Change------------------------------------------------------------------------------------------------------------------
 {
 //Speed and Km
-    if (last_wheel_time>(millis()-50)) return;                         //debouncing reed-sensor
-    wheel_time=millis()-last_wheel_time;
-    spd = (spd+3600*wheel_circumference/wheel_time)/2;  //a bit of averaging for smoother speed-cutoff
-    if (spd<100)
-        {km=km+wheel_circumference/1000.0;}
+//function gets call via Interrupt by the rising edge of the wheel-sensor
+    if (last_wheel_time > (millis() - 50)) return;          //debouncing wheel-sensor (mostly reed-contact)
+    wheel_time = millis() - last_wheel_time;                //set the new wheel_time as the differenced from now to last_wheel_time
+    last_wheel_time = millis();                           //set last_wheel_time to now
+    spd = (spd + (3600 * wheel_circumference / wheel_time)) / 2;  //a bit of averaging for smoother speed-cutoff
+    if (spd < 100)
+        {km = km + wheel_circumference / 1000.0;}
     else
-        {spd=0;}
+        {spd = 0;}
 #ifdef SUPPORT_BMP085
 //slope-stuff start-------------------------------
-    slope=0.98*slope+2*(altitude-last_altitude)/wheel_circumference;
-    last_altitude=altitude;  
+    slope = 0.98 * slope + 2 * (altitude - last_altitude)/wheel_circumference;
+    last_altitude = altitude;  
 //slope-stuff end---------------------------------
 #endif
-    last_wheel_time=millis();
 }
 
 
 void send_serial_data()  //send serial data----------------------------------------------------------
 {
 #if (SERIAL_MODE & SERIAL_MODE_ANDROID)
-    char ack=19;
-    char startFlag=18; // used to communicate with Android (leads each message to Amarino)
+    char ack = 19;
+    char startFlag = 18; // used to communicate with Android (leads each message to Amarino)
     Serial.print(startFlag);
     Serial.print(voltage,2);
     Serial.print(";");
