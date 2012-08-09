@@ -440,9 +440,9 @@ void loop()
             digitalWrite(fet_out,HIGH);
         }
 #endif
-    }
-last_writetime=millis();
+    last_writetime=millis();
 //slow loop end------------------------------------------------------------------------------------------------------
+    }
 }
 
 #ifdef SUPPORT_PAS
