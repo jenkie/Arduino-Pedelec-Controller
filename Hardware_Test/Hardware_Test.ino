@@ -166,7 +166,11 @@ void loop()
     looptime=millis();
 //Readings-----------------------------------------------------------------------------------------------------------------
     poti_stat=analogRead(poti_in);                       // 0...1023
+<<<<<<< HEAD
+    throttle_stat = constrain(map(analogRead(throttle_in),throttle_offset,throttle_max,0,1023),0,1023);   // 0...1023
+=======
     throttle_stat = constrain(map(analogRead(throttle_in),throttle_offset,throttle_max,0,1023),0,1023);   // 0...1023    
+>>>>>>> 83be1082b2eb88c2265a9de702ff5e261f8f3944
     brake_stat = digitalRead(brake_in);
 //voltage, current, power
     voltage = analogRead(voltage_in)*0.05859375;          //check with multimeter and change if needed!
@@ -193,7 +197,11 @@ void loop()
                    
 //Throttle output-------------------------------------------------------------------------------------------------------
 
+<<<<<<< HEAD
+    throttle_write=map(throttle_stat,0,1023,motor_offset,motor_max); //be careful if motor connected!
+=======
     throttle_write=map(throttle_stat,0,1023,motor_offset,motor_max); //be careful if motor connected!    
+>>>>>>> 83be1082b2eb88c2265a9de702ff5e261f8f3944
     analogWrite(throttle_out,throttle_write);
 
     if (digitalRead(switch_disp)==0)  //switch on/off bluetooth if switch is pressed
