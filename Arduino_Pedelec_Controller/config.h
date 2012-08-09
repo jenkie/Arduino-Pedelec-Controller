@@ -53,14 +53,10 @@ const int startingaid_speed = 6;         //starting aid up to this speed. 6km/h 
 const float vcutoff=33.0;                //cutoff voltage in V;
 const float vemergency_shutdown = 28.0;  //emergency power off situation to save the battery from undervoltage
 const float wheel_circumference = 2.202; //wheel circumference in m
-<<<<<<< HEAD
 const int spd_max1=23;                   //speed cutoff start in Km/h
-=======
-const int spd_max1=22;                   //speed cutoff start in Km/h
->>>>>>> 83be1082b2eb88c2265a9de702ff5e261f8f3944
 const int spd_max2=25;                   //speed cutoff stop (0W) in Km/h
-const int power_max=500;                 //Maximum power in W set by throttle, giving us quick power with a tip of a finger
-const int power_poti_max=250;		 //Maximum power set by the poti, giving us a continuous support
+const int power_max=500;                 //Maximum power in W set by throttle, giving us lots of quick power with a tip of a finger
+const int power_poti_max=250;		 //Maximum power set by the poti, giving us a continuous support with a nice scalability
 const int whkm_max=30;                   //Maximum wh/km consumption in CONTROL_MODE_LIMIT_WH_PER_KM (controls poti-range)
 const unsigned int idle_shutdown_secs = 30 * 60;           // Idle shutdown in seconds. Max is ~1080 minutes or 18 hours
 const double capacity = 166.0;           //battery capacity in watthours for range calculation
