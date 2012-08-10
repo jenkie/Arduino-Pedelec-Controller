@@ -242,7 +242,7 @@ void loop()
         if (voltage<6.0)                                   //do not write new data to eeprom when on USB Power
             {variables_saved=true;}
     }
-    firstrun=false;                                     //first loop run done (ok, up to this line :))
+    firstrun=false;                                        //first loop run done (ok, up to this line :))
 
 
 //Are we pedaling?---------------------------------------------------------------------------------------------------------
@@ -250,9 +250,15 @@ void loop()
     if (((millis()-last_pas_event)>500)||((millis()-last_pas_event)>2*pas_on_time)||(pas_failtime>pas_tolerance))
         {pedaling = false;}                               //we are not pedaling anymore, if pas did not change for > 0,5 s
     cad=cad*pedaling;
+    
+    if ((startingaidenable == true) && (spd <= startingaid_speed) && (throttle_stat > 5))    //starting aid with throttle
+                                                          //IF   starting aid is enabled AND the current speed is lower or equal than the starting aid speed
+                                                          //AND  throttle is pressed at least more than 5, don't get triggered by poti!
+        {pedaling = true;}                                //THEN set pedaling to true, e.g. act as if we would pedal
+        
 #endif
 
-    if ((millis()-last_wheel_time)>3000)               //wheel did not spin for 3 seconds --> speed is zero
+    if ((millis()-last_wheel_time)>3000)                  //wheel did not spin for 3 seconds --> speed is zero
     {
         spd=0;
         wheel_time=0;
