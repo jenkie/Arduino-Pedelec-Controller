@@ -102,7 +102,6 @@ float poti_stat = 0.0;         //Poti reading
 volatile int pas_on_time = 0;  //High-Time of PAS-Sensor-Signal (needed to determine pedaling direction)
 volatile int pas_off_time = 0; //Low-Time of PAS-Sensor-Signal  (needed to determine pedaling direction)
 volatile int pas_failtime = 0; //how many subsequent "wrong" PAS values?
-double power_set = 0;          //Set Power
 volatile int cad=0;            //Cadence
 int looptime=0;                //Loop Time in milliseconds (for testing)
 float battery_percent=0.0;     //battery capacity
@@ -113,6 +112,9 @@ float voltage_1s,voltage_2s = 0.0; //Voltage history 1s and 2s before "now"
 float voltage_display = 0.0;   //averaged voltage
 float current_display = 0.0;   //averaged current
 double power=0.0;              //calculated power
+double power_set = 0;          //Set Power
+double power_poti = 0.0;   //set power, calculated with current poti setting
+double power_throttle=0.0; //set power, calculated with current throttle setting
 float factor_speed=1.0;        //factor controling the speed
 float factor_volt=1.0;         //factor controling voltage cutoff
 float wh=0.0;                  //watthours drawn from battery
@@ -240,7 +242,7 @@ void loop()
         if (voltage<6.0)                                   //do not write new data to eeprom when on USB Power
             {variables_saved=true;}
     }
-    firstrun=false;                                     //first loop run done (ok, up to this line :))
+    firstrun=false;                                        //first loop run done (ok, up to this line :))
 
 
 //Are we pedaling?---------------------------------------------------------------------------------------------------------
@@ -248,9 +250,15 @@ void loop()
     if (((millis()-last_pas_event)>500)||((millis()-last_pas_event)>2*pas_on_time)||(pas_failtime>pas_tolerance))
         {pedaling = false;}                               //we are not pedaling anymore, if pas did not change for > 0,5 s
     cad=cad*pedaling;
+    
+    if ((startingaidenable == true) && (spd <= startingaid_speed) && (throttle_stat > 5))    //starting aid with throttle
+                                                          //IF   starting aid is enabled AND the current speed is lower or equal than the starting aid speed
+                                                          //AND  throttle is pressed at least more than 5, don't get triggered by poti!
+        {pedaling = true;}                                //THEN set pedaling to true, e.g. act as if we would pedal
+        
 #endif
 
-    if ((millis()-last_wheel_time)>3000)               //wheel did not spin for 3 seconds --> speed is zero
+    if ((millis()-last_wheel_time)>3000)                  //wheel did not spin for 3 seconds --> speed is zero
     {
         spd=0;
         wheel_time=0;
@@ -259,28 +267,36 @@ void loop()
 
 //Power control-------------------------------------------------------------------------------------------------------------
 #if CONTROL_MODE == CONTROL_MODE_NORMAL             //power-control-mode
-    if (throttle_stat > poti_stat)                  //throttle mode: throttle sets power with "agressive" p and i parameters
+    power_throttle = throttle_stat / 1023.0 * power_max;     //power currently set by throttle
+    power_poti = poti_stat / 1023.0 * power_poti_max;        //power currently set by poti
+    
+    if ((power_throttle) > (power_poti))                     //IF power set by throttle IS GREATER THAN power set by poti
     {
-        myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);
-        power_set=throttle_stat/1023.0*power_max;
+        myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);   //THEN throttle mode: throttle sets power with "agressive" p and i parameters
+        power_set = power_throttle;
     }
-    else                                            //poti mode: poti sets power with "soft" p and i parameters
+    else                                                     //ELSE poti mode: poti sets power with "soft" p and i parameters
     {
         myPID.SetTunings(pid_p,pid_i,0);
-        power_set=poti_stat/1023.0*power_max;
+        power_set = power_poti;
     }
 #endif
 #if CONTROL_MODE == CONTROL_MODE_LIMIT_WH_PER_KM    //wh/km control mode
-    if (throttle_stat > poti_stat)                  //throttle mode: throttle sets power with "agressive" p and i parameters
+    power_throttle = throttle_stat / 1023.0 * power_max;     //power currently set by throttle
+    power_poti = poti_stat / 1023.0 * whkm_max * spd;        //power currently set by poti in relation to speed and maximum wattage per km
+   
+    if ((power_throttle) > (power_poti))                     //IF power set by throttle IS GREATER THAN power set by poti 
     {
-        myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);
+        myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);   //THEN throttle mode: throttle sets power with "agressive" p and i parameters
+	power_set = power_throttle;
     }
-    else                                            //poti mode: poti sets power with "soft" p and i parameters
+    else                                                     //ELSE poti mode: poti sets power with "soft" p and i parameters
     {
         myPID.SetTunings(pid_p,pid_i,0);
+	power_set = power_poti;
     }
-    power_set=max(poti_stat/1023.0*whkm_max*spd,throttle_stat/1023.0*power_max);
 #endif
+
 //Speed cutoff-------------------------------------------------------------------------------------------------------------
 
     if (pedaling==true)

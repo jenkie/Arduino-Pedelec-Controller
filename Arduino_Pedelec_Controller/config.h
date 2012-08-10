@@ -57,6 +57,7 @@ const float wheel_circumference = 2.202; //wheel circumference in m
 const int spd_max1=22;                   //speed cutoff start in Km/h
 const int spd_max2=25;                   //speed cutoff stop (0W) in Km/h
 const int power_max=500;                 //Maximum power in W
+const int power_poti_max=250;		 //Maximum power set by the poti
 const int whkm_max=30;                   //Maximum wh/km consumption in CONTROL_MODE_LIMIT_WH_PER_KM (controls poti-range)
 const unsigned int idle_shutdown_secs = 30 * 60;           // Idle shutdown in seconds. Max is ~1080 minutes or 18 hours
 const double capacity = 166.0;           //battery capacity in watthours for range calculation
