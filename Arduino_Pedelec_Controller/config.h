@@ -16,7 +16,7 @@
 #define DISPLAY_TYPE_NOKIA (DISPLAY_TYPE_NOKIA_5PIN|DISPLAY_TYPE_NOKIA_4PIN)
 #define DISPLAY_TYPE_16X2_LCD_4BIT (1<<3)    //16x2 LCD 4bit-mode
 #define DISPLAY_TYPE_J_LCD (1<<4)            //King-Meter J-LCD
-#define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_5PIN //Set your display type here. CHANGES ONLY HERE!<-----------------------------
+#define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_4PIN //Set your display type here. CHANGES ONLY HERE!<-----------------------------
 
 #define SERIAL_MODE_NONE (1<<0)              //don't send serial data at all
 #define SERIAL_MODE_DEBUG (1<<1)             //send debug data over Serial Monitor

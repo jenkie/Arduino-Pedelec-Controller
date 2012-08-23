@@ -22,9 +22,10 @@
  * THE SOFTWARE.
  */
 
-
+#include "config.h"
 #ifndef PCD8544_H
 #define PCD8544_H
+
 
 
 #if ARDUINO < 100
@@ -41,13 +42,22 @@
 
 class PCD8544: public Print
 {
+  
 public:
-    // All the pins can be changed from the default values...
+// All the pins can be changed from the default values...
+
     PCD8544(unsigned char sclk  = 9,   /* clock       (display pin 2) */
             unsigned char sdin  = 10,   /* data-in     (display pin 3) */
             unsigned char dc    = 11,   /* data select (display pin 4) */
+#if (DISPLAY_TYPE==DISPLAY_TYPE_NOKIA_4PIN)
+            unsigned char reset = 13,   /* reset       (display pin 8) */
+            unsigned char sce   = 12);  /* enable      (display pin 5) */
+#endif
+#if (DISPLAY_TYPE==DISPLAY_TYPE_NOKIA_5PIN)
             unsigned char reset = 12,   /* reset       (display pin 8) */
             unsigned char sce   = 13);  /* enable      (display pin 5) */
+#endif 
+
 
     // Display initialization (dimensions in pixels)...
     void begin(unsigned char width=84, unsigned char height=48, unsigned char model=CHIP_PCD8544);

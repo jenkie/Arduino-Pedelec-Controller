@@ -22,7 +22,7 @@ EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMW
 */
 
 #define DISPLAY_TYPE 0      //display type 0:Nokia5110 5-pin-mode 1: Nokia5110 4-pin-mode (SCE pin tied to GND) 2: 16x2 LCD 4bit-mode
-#define HARDWARE_REV 2      //place your hardware revision (1-3) here: x means hardware-revision 1.x
+#define HARDWARE_REV 3      //place your hardware revision (1-3) here: x means hardware-revision 1.x
 
 
 #include "EEPROM.h"          //

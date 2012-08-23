@@ -84,7 +84,7 @@ const int throttle_out = 6;          //Throttle out-Pin
 const int bluetooth_pin = 7;         //Bluetooth-Supply, do not use in Rev. 1.1!!!
 const int switch_disp = 8;           //Display switch
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
-const int switch_disp_2 = 13;        //second Display switch with Nokia-Display in 4-pin-mode
+const int switch_disp_2 = 12;        //second Display switch with Nokia-Display in 4-pin-mode
 #endif
 
 
