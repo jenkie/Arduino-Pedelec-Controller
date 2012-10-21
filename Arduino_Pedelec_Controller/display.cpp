@@ -218,7 +218,7 @@ static void display_nokia_update()
     lcd.print(" ");
 #endif
     lcd.print(range,0);
-    lcd.print("km ");    
+    lcd.print("km ");
 #if HARDWARE_REV >=2
     lcd.setCursor(13,5);
     if (digitalRead(bluetooth_pin)==1)

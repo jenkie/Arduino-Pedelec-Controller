@@ -45,5 +45,7 @@ extern float poti_stat;
 extern int throttle_stat;
 extern volatile unsigned long wheel_time;
 extern const int fet_out;
-
+#ifdef SUPPORT_XCELL_RT
+extern double power_human;
+#endif
 #endif

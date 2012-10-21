@@ -139,6 +139,16 @@ boolean brake_stat = true; //brake activated?
 PID myPID(&power, &pid_out,&pid_set,pid_p,pid_i,0, DIRECT);
 unsigned int idle_shutdown_count = 0;
 unsigned long idle_shutdown_last_wheel_time = millis();
+double torque=0.0;           //cyclist's torque
+double power_human=0.0;      //cyclist's power
+#ifdef SUPPORT_XCELL_RT
+volatile int torquevalues[10]={0,0,0,0,0,0,0,0,0,0}; //stores the 10 torque values per pedal roundtrip
+volatile byte torqueindex=0;        //index to write next torque value
+volatile boolean readtorque=false;  //true if pas-interrupt received -> read torque in main loop. unfortunately analogRead gives wrong values inside the PAS-interrupt-routine
+#endif
+
+
+
 
 // Forward declarations for compatibility with new gcc versions
 void pas_change();
@@ -160,7 +170,7 @@ void setup()
     digitalWrite(switch_disp_2, HIGH);    // turn on pullup resistors on display-switch 2
 #endif
     pinMode(brake_in, INPUT);
-    pinMode(option_pin,OUTPUT);
+    pinMode(option_pin,INPUT);
 #if HARDWARE_REV >= 2
     pinMode(fet_out,OUTPUT);
     pinMode(bluetooth_pin,OUTPUT);
@@ -230,6 +240,24 @@ void loop()
     voltage_display = 0.99*voltage_display + 0.01*voltage; //averaged voltage for display
     current_display = 0.99*current_display + 0.01*current; //averaged voltage for display
     power=current*voltage;
+    
+#ifdef SUPPORT_XCELL_RT    
+if (readtorque==true)
+{
+    torquevalues[torqueindex]=analogRead(option_pin)-torque_offset;
+    torqueindex++;
+    torque=0.0; 
+    for (int i = 0; i < 10; i++) 
+      {
+        torque+=torquevalues[i];
+      }
+    if (torqueindex==10)
+      {torqueindex=0;}
+    readtorque=false;
+    torque=abs((torque)*0.049);
+    power_human=0.104719755*cad*torque;   //power=2*pi*cadence*torque/60s
+}
+#endif
 
 //Check if Battery was charged since last power down-----------------------------------------------------------------------
     if (firstrun==true)
@@ -247,7 +275,7 @@ void loop()
 
 //Are we pedaling?---------------------------------------------------------------------------------------------------------
 #ifdef SUPPORT_PAS
-    if (((millis()-last_pas_event)>500)||((millis()-last_pas_event)>2*pas_on_time)||(pas_failtime>pas_tolerance))
+    if (((millis()-last_pas_event)>500)||(pas_failtime>pas_tolerance))
         {pedaling = false;}                               //we are not pedaling anymore, if pas did not change for > 0,5 s
     cad=cad*pedaling;
 #endif
@@ -260,6 +288,22 @@ void loop()
 
 
 //Power control-------------------------------------------------------------------------------------------------------------
+#if CONTROL_MODE == CONTROL_MODE_TORQUE                      //human power control mode
+#ifdef SUPPORT_XCELL_RT
+    power_throttle = throttle_stat / 1023.0 * power_max;     //power currently set by throttle
+    power_poti = poti_stat/200.0 * power_human;
+    if ((power_throttle) > (power_poti))                     //IF power set by throttle IS GREATER THAN power set by poti
+    {
+        myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);   //THEN throttle mode: throttle sets power with "agressive" p and i parameters        power_set=throttle_stat/1023.0*power_max;
+        power_set = power_throttle;
+    }
+    else                                                     //ELSE poti mode: poti sets power with "soft" p and i parameters
+    {
+        myPID.SetTunings(pid_p,pid_i,0);
+        power_set = power_poti; 
+    }
+#endif
+#endif
 #if CONTROL_MODE == CONTROL_MODE_NORMAL             //power-control-mode
     power_throttle = throttle_stat / 1023.0 * power_max;     //power currently set by throttle
     power_poti = poti_stat / 1023.0 * power_poti_max;        //power currently set by poti
@@ -457,20 +501,30 @@ void loop()
 void pas_change()       //Are we pedaling? PAS Sensor Change------------------------------------------------------------------------------------------------------------------
 {
     if (last_pas_event>(millis()-10)) return;
-    if (digitalRead(pas_in)==true)
-        {pas_off_time=millis()-last_pas_event;}
+    boolean pas_stat=digitalRead(pas_in);
+    if (pas_stat)
+     {
+       pas_off_time=millis()-last_pas_event;
+#ifdef SUPPORT_XCELL_RT
+       readtorque=true;
+#endif
+     }
     else
         {pas_on_time=millis()-last_pas_event;}
     last_pas_event = millis();
     pas_failtime=pas_failtime+1;
+#ifdef SUPPORT_XCELL_RT
+    cad=6000/(pas_on_time+pas_off_time);
+#else
     cad=12000/(pas_on_time+pas_off_time);
+#endif
     double pas_factor=(double)pas_on_time/(double)pas_off_time;
     if ((pas_factor>pas_factor_min)&&(pas_factor<pas_factor_max)) 
     {
         pedaling=true;
         pas_failtime=0;
     }
-}
+  }
 #else
 #warning PAS sensor support is required for legal operation of a Pedelec  by EU-wide laws except Austria or Swiss.
 #endif
@@ -515,9 +569,9 @@ void send_serial_data()  //send serial data-------------------------------------
     Serial.print(";");
     Serial.print(wh);
     Serial.print(";");
-    Serial.print(altitude,2);
+    Serial.print(torque,1);
     Serial.print(";");
-    Serial.print(0);
+    Serial.print(power_human,1);
     Serial.print(ack);
 #endif
 

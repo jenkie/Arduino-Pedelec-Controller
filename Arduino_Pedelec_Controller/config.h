@@ -37,10 +37,11 @@ const int display_backlight_pin = 8;   // LCD backlight. Use a free pin here, f.
 // #define SUPPORT_SOFT_POTI // uncomment if Poti is emulated: The switch_disp button will store the current throttle value as poti value
 #define SUPPORT_THROTTLE    //uncomment if Throttle connected
 #define SUPPORT_PAS         //uncomment if PAS-sensor connected
-
+// #define SUPPORT_XCELL_RT    //uncomment if X-CELL RT connected. use pas_factor_min=0.2 and pas_factor_max=0.5 for X-CELL RT
 
 #define CONTROL_MODE_NORMAL 0            //Normal mode: poti and throttle control motor power
 #define CONTROL_MODE_LIMIT_WH_PER_KM 1   //Limit wh/km consumption: poti controls wh/km, throttle controls power to override poti
+#define CONTROL_MODE_TORQUE 2            //power = x*power of the biker
 #define CONTROL_MODE CONTROL_MODE_NORMAL //Set your control mode here
 
 //Config Options-----------------------------------------------------------------------------------------------------
@@ -49,6 +50,7 @@ const int throttle_offset=196;           //Offset voltage of throttle control wh
 const int throttle_max=832;              //Offset voltage of throttle control when in "MAX" position (0..1023 = 0..5V)
 const int motor_offset=50;               //Offset for throttle output where Motor starts to spin (0..255 = 0..5V)
 const int motor_max=200;                 //Maximum input value for motor driver (0..255 = 0..5V)
+const int torque_offset=533;             //Offset of X-Cell RT torque sensor
 const boolean startingaidenable = true;  //enable starting aid?
 const int startingaid_speed = 6;         //starting aid up to this speed. 6km/h is the limit for legal operation of a Pedelec by EU-wide laws
 const float vcutoff=33.0;                //cutoff voltage in V;
