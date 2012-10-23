@@ -329,12 +329,46 @@ void PCD8544::drawColumn(unsigned char lines, unsigned char value)
 
 void PCD8544::send(unsigned char type, unsigned char data)
 {
+    
+    //
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
+    if (type)
+    bitSet(PORTB,this->pin_dc - 8);
+    else
+    bitClear(PORTB,this->pin_dc -8);
+    this->shiftOutFast(this->pin_sdin, this->pin_sclk, data);  //modified, see https://github.com/jenkie/Arduino-Pedelec-Controller/issues/22 Many thanks to pillepalle
+#else 
     digitalWrite(this->pin_dc, type);
-
-    //digitalWrite(this->pin_sce, LOW);
     shiftOut(this->pin_sdin, this->pin_sclk, MSBFIRST, data);
-    //digitalWrite(this->pin_sce, HIGH);
+#endif
+    
 }
+
+//--- shiftOutFast - Shiftout method done in a faster way .. needed for tighter timer process
+void PCD8544::shiftOutFast(unsigned char myDataPin, unsigned char myClockPin, unsigned char myDataOut) {
+//=== This function shifts 8 bits out MSB first much faster than the normal shiftOut function by writing directly to the memory address for port
+//--- clear data pin
+bitClear(PORTB,myDataPin);
+
+//Send each bit of the myDataOut byte MSBFIRST
+for (int i=7; i>=0; i--) {
+bitClear(PORTB,myClockPin-8);
+//--- Turn data on or off based on value of bit
+if ( bitRead(myDataOut,i) == 1) {
+bitSet(PORTB,myDataPin-8);
+}
+else {
+bitClear(PORTB,myDataPin-8);
+}
+//register shifts bits on upstroke of clock pin
+bitSet(PORTB,myClockPin-8);
+//zero the data pin after shift to prevent bleed through
+bitClear(PORTB,myDataPin-8);
+}
+//stop shifting
+bitClear(PORTB,myClockPin-8);
+}
+
 
 
 /* vim: set expandtab ts=4 sw=4: */

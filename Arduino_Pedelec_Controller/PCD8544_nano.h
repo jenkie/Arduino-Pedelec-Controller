@@ -85,6 +85,8 @@ public:
 
     // Assign a user-defined glyph (5x8) to an ASCII character (0-31)...
     void createChar(unsigned char chr, const unsigned char *glyph);
+    
+    void shiftOutFast(unsigned char myDataPin, unsigned char myClockPin, unsigned char myDataOut);
 
     // Write an ASCII character at the current cursor position (7-bit)...
 #if ARDUINO < 100
