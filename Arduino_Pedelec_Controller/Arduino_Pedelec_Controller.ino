@@ -142,7 +142,7 @@ unsigned long idle_shutdown_last_wheel_time = millis();
 double torque=0.0;           //cyclist's torque
 double power_human=0.0;      //cyclist's power
 #ifdef SUPPORT_XCELL_RT
-volatile int torquevalues[10]={0,0,0,0,0,0,0,0,0,0}; //stores the 10 torque values per pedal roundtrip
+volatile int torquevalues[10]={0,0,0,0,0,0,0,0}; //stores the 8 torque values per pedal roundtrip
 volatile byte torqueindex=0;        //index to write next torque value
 volatile boolean readtorque=false;  //true if pas-interrupt received -> read torque in main loop. unfortunately analogRead gives wrong values inside the PAS-interrupt-routine
 #endif
@@ -247,15 +247,15 @@ if (readtorque==true)
     torquevalues[torqueindex]=analogRead(option_pin)-torque_offset;
     torqueindex++;
     torque=0.0; 
-    for (int i = 0; i < 10; i++) 
+    for (int i = 0; i < 8; i++) 
       {
         torque+=torquevalues[i];
       }
-    if (torqueindex==10)
+    if (torqueindex==8)
       {torqueindex=0;}
     readtorque=false;
     torque=abs((torque)*0.049);
-    power_human=0.104719755*cad*torque;   //power=2*pi*cadence*torque/60s
+    power_human=0.20943951*cad*torque;   //power=2*pi*cadence*torque/60s*2 (*2 because only left side torque is measured by x-cell rt)
 }
 #endif
 
@@ -514,7 +514,7 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
     last_pas_event = millis();
     pas_failtime=pas_failtime+1;
 #ifdef SUPPORT_XCELL_RT
-    cad=6000/(pas_on_time+pas_off_time);
+    cad=7500/(pas_on_time+pas_off_time);
 #else
     cad=12000/(pas_on_time+pas_off_time);
 #endif
