@@ -29,7 +29,7 @@
 // #define SUPPORT_DISPLAY_BACKLIGHT // uncomment for LCD display backlight support
                                      // The Nokia 5110 display needs a 120 Ohm resistor on the backlight pin
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
-const int display_backlight_pin = 8;   // LCD backlight. Use a free pin here, f.e. instead of display switch #2.
+const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f.e. instead of display switch #2 (12, default).
 #endif
 
 // #define SUPPORT_BMP085   //uncomment if BMP085 available

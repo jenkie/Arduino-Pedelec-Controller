@@ -33,6 +33,7 @@ Features:
 #include "EEPROM.h"
 #include "EEPROMAnything.h"  //to enable data storage when powered off
 #include "PID_v1_nano.h"
+#include "switches.h"        //contains switch handling functions
 
 #ifdef SUPPORT_BMP085
     #include <Wire.h>
@@ -126,8 +127,6 @@ float slope = 0.0;             //current slope
 volatile float km=0.0;         //trip-km
 volatile float spd=0.0;        //speed
 float range = 0.0;             //expected range
-unsigned long switch_disp_pressed;       //time when display switch was pressed down (to decide if long or short press)
-boolean switch_disp_last=false; //was display switch already pressed since last loop run?
 unsigned long last_writetime = millis();  //last time display has been refreshed
 volatile unsigned long last_wheel_time = millis(); //last time of wheel sensor change 0->1
 volatile unsigned long wheel_time = 0;  //time for one revolution of the wheel
@@ -259,6 +258,11 @@ if (readtorque==true)
 }
 #endif
 
+//handle switches----------------------------------------------------------------------------------------------------------
+handle_switch_thr(digitalRead(switch_thr));
+handle_switch_disp(digitalRead(switch_disp));
+handle_switch_disp2(digitalRead(switch_disp_2));
+
 //Check if Battery was charged since last power down-----------------------------------------------------------------------
     if (firstrun==true)
     {
@@ -366,57 +370,6 @@ if (readtorque==true)
     if ((pedaling==false)&&(throttle_stat<5))
         {throttle_write=0;}
     analogWrite(throttle_out,throttle_write);
-
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
-    if (digitalRead(switch_disp_2)==0)  //switch backlight on for one minute
-    {
-#ifdef SUPPORT_DISPLAY_BACKLIGHT
-        enable_custom_backlight(60000);
-#endif
-    }
-#endif
-
-    if (digitalRead(switch_disp)==0)  //switch on/off bluetooth if switch is pressed
-    {
-        if (switch_disp_last==false)
-        {
-            switch_disp_last=true;
-            switch_disp_pressed=millis();
-        }
-        else if ((millis()-switch_disp_pressed)>1000)
-        {
-#if HARDWARE_REV >=2
-#ifdef SUPPORT_SOFT_POTI
-            // Work around missing shutdown state machine
-            // Otherwise it might show "Tempomat set".
-            poti_stat = throttle_stat;
-#endif
-            display_show_important_info(msg_shutdown, 60);
-            digitalWrite(fet_out,HIGH);
-#endif
-        }
-    }
-    else
-    {
-        if (switch_disp_last==true)
-        {
-            switch_disp_last=false;
-#ifdef SUPPORT_SOFT_POTI
-            // Set soft poti if throttle value changed
-            if (poti_stat != throttle_stat)
-            {
-                poti_stat = throttle_stat;
-                if (poti_stat == 0)
-                    display_show_important_info("Tempomat reset", 0);
-                else
-                    display_show_important_info("Tempomat set", 0);
-            }
-#endif
-#if HARDWARE_REV >=2
-            digitalWrite(bluetooth_pin, !digitalRead(bluetooth_pin));   //not available in 1.1!
-#endif
-        }
-    }
 
 //Save capacity to EEPROM
     if ((voltage<20.0)&&(variables_saved==false))    //save to EEPROM when Switch-Off detected
