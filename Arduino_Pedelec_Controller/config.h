@@ -38,6 +38,7 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 #define SUPPORT_THROTTLE    //uncomment if Throttle connected
 #define SUPPORT_PAS         //uncomment if PAS-sensor connected
 // #define SUPPORT_XCELL_RT    //uncomment if X-CELL RT connected. use pas_factor_min=0.2 and pas_factor_max=0.5 for X-CELL RT
+// #define SUPPORT_HRMI         //uncomment if polar heart-rate monitor interface connected to i2c port
 
 #define CONTROL_MODE_NORMAL 0            //Normal mode: poti and throttle control motor power
 #define CONTROL_MODE_LIMIT_WH_PER_KM 1   //Limit wh/km consumption: poti controls wh/km, throttle controls power to override poti
@@ -69,6 +70,8 @@ const double cfg_pid_p=0.0;              //pid p-value, default: 0.0
 const double cfg_pid_i=2.0;              //pid i-value, default: 2.0
 const double cfg_pid_p_throttle=0.05;    //pid p-value for throttle mode
 const double cfg_pid_i_throttle=2.5;     //pid i-value for throttle mode
+const byte pulse_min=150;                //lowest value of desired pulse range in bpm
+const byte pulse_range=20;               //width of desired pulse range in bpm
 
 // voltage and current calibration
 const float voltage_amplitude = 0.0587;       // set this value according to your own voltage-calibration. Default: 0.0587

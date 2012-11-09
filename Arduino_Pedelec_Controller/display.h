@@ -19,6 +19,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+#include "Arduino.h"
+
+
 
 void display_init();
 void display_update();
@@ -45,6 +48,7 @@ extern float poti_stat;
 extern int throttle_stat;
 extern volatile unsigned long wheel_time;
 extern const int fet_out;
+extern byte pulse_human;
 #ifdef SUPPORT_XCELL_RT
 extern double power_human;
 #endif

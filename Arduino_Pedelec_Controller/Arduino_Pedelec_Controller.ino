@@ -41,6 +41,11 @@ Features:
     BMP085 bmp;
 #endif
 
+#ifdef SUPPORT_HRMI
+  #include <Wire.h>
+  #include "hrmi_funcs.h"
+#endif
+
 #if defined(SUPPORT_POTI) && defined(SUPPORT_SOFT_POTI)
 #error You either have poti or soft-poti support. Disable one of them.
 #endif
@@ -138,6 +143,7 @@ boolean brake_stat = true; //brake activated?
 PID myPID(&power, &pid_out,&pid_set,pid_p,pid_i,0, DIRECT);
 unsigned int idle_shutdown_count = 0;
 unsigned long idle_shutdown_last_wheel_time = millis();
+byte pulse_human=0;          //cyclist's heart rate
 double torque=0.0;           //cyclist's torque
 double power_human=0.0;      //cyclist's power
 #ifdef SUPPORT_XCELL_RT
@@ -196,6 +202,9 @@ void setup()
     Wire.begin();                         //initialize i2c-bus
     bmp.begin();                          //initialize barometric altitude sensor
     altitude_start=bmp.readAltitude();    //initialize barometric altitude sensor
+#endif
+#ifdef SUPPORT_HRMI
+  hrmi_open();
 #endif
 #ifndef SUPPORT_PAS
     pedaling=true;
@@ -337,6 +346,13 @@ handle_switch_disp2(digitalRead(switch_disp_2));
     }
 #endif
 
+#ifdef SUPPORT_HRMI                                          //limit heart rate to specified range if possible
+    if (pulse_human>0)
+    {
+      power_set=power_set+power_max*constrain((pulse_human-pulse_min)/pulse_range,0.0,1.0);
+    }
+#endif
+
 //Speed cutoff-------------------------------------------------------------------------------------------------------------
 
     if (pedaling==true)
@@ -445,7 +461,10 @@ handle_switch_disp2(digitalRead(switch_disp_2));
             digitalWrite(fet_out,HIGH);
         }
 #endif
-    last_writetime=millis();
+#ifdef SUPPORT_HRMI  
+     pulse_human=getHeartRate();
+#endif
+     last_writetime=millis();
 //slow loop end------------------------------------------------------------------------------------------------------
     }
 }

@@ -217,6 +217,10 @@ static void display_nokia_update()
     lcd.print((int)altitude);
     lcd.print(" ");
 #endif
+#ifdef SUPPORT_HRMI
+    lcd.print((byte) pulse_human);
+    lcd.print(" ");
+#endif
     lcd.print(range,0);
     lcd.print("km ");
 #if HARDWARE_REV >=2
