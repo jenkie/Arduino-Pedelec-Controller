@@ -82,6 +82,9 @@ public:
 
     // Place the cursor at position (column, line)...
     void setCursor(unsigned char column, unsigned char line);
+    
+    //same as SetCursor, but the column is specified in pixels, not in 6-pixel wide characters
+    void setCursorInPixels(unsigned char column, unsigned char line);  
 
     // Assign a user-defined glyph (5x8) to an ASCII character (0-31)...
     void createChar(unsigned char chr, const unsigned char *glyph);
@@ -100,6 +103,10 @@ public:
 
     // Draw a chart element at the current cursor position...
     void drawColumn(unsigned char lines, unsigned char value);
+    
+    //Draws a vertical bargraph with an outer and inner frame. One pixel line at the bottom is left free. It is not used because of 1 pixel necessary distance to the next line of text below the bar.
+    //An (optional) horizontal limit line is drawn into the bar. If you do not want to use the limit line, then set limit to the same value as maxValue. E.G. drawVerticalBar(100,100,50);
+    void drawVerticalBar(word maxValue, word limit, word value, byte widthInPixels, byte heightInBytes, byte outerFrameInPixels=2, byte innerFrameInPixels=1);
 
 private:
     unsigned char pin_sclk;

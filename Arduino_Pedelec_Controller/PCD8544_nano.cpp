@@ -177,13 +177,21 @@ void PCD8544::home()
 
 void PCD8544::setCursor(unsigned char column, unsigned char line)
 {
-    this->column = (column % this->width)*6;                                        //in original Library there is no *6
+    this->column = (column*6) % this->width;                                //in original Library there is no *6
     this->line = (line % (this->height/9 + 1));
 
     this->send(PCD8544_CMD, 0x80 | this->column);
     this->send(PCD8544_CMD, 0x40 | this->line);
 }
 
+void PCD8544::setCursorInPixels(unsigned char column, unsigned char line)  //same as SetCursor, but the column is specified in pixels, not in 6-pixel wide characters
+{
+    this->column = (column % this->width);                                         
+    this->line = (line % (this->height/9 + 1));
+
+    this->send(PCD8544_CMD, 0x80 | this->column);
+    this->send(PCD8544_CMD, 0x40 | this->line);
+}
 
 void PCD8544::createChar(unsigned char chr, const unsigned char *glyph)
 {
@@ -271,7 +279,7 @@ void PCD8544::drawBitmap(const unsigned char *data, unsigned char columns, unsig
 
     for (unsigned char y = 0; y < my; y++)
     {
-        this->setCursor(scolumn, sline + y);
+        this->setCursorInPixels(scolumn, sline + y);
 
         for (unsigned char x = 0; x < mx; x++)
         {
@@ -280,7 +288,7 @@ void PCD8544::drawBitmap(const unsigned char *data, unsigned char columns, unsig
     }
 
     // Leave the cursor in a consistent position...
-    this->setCursor(scolumn + columns, sline);
+    this->setCursorInPixels(scolumn + columns, sline);
 }
 
 
@@ -369,6 +377,98 @@ bitClear(PORTB,myDataPin-8);
 bitClear(PORTB,myClockPin-8);
 }
 
-
+//Draws a vertical bargraph with an outer and inner frame. One pixel line at the bottom is left free. It is not used because of 1 pixel necessary distance to the next line of text below the bar.
+//An (optional) horizontal limit line is drawn into the bar. If you do not want to use the limit line, then set limit to the same value as maxValue. E.G. drawVerticalBar(100,100,50);
+//outerFrameInPixels: valid range:0..7
+//innerFrameInPixels: valid range: outerFrameInPixels+innerFrameInPixels <=7 !!
+void PCD8544::drawVerticalBar(word maxValue, word limit, word value, byte widthInPixels, byte heightInBytes, byte outerFrameInPixels, byte innerFrameInPixels)
+{
+  const byte xpos=this->column;
+  const byte yposInBytes=this->line;
+  const byte heightInPixels=8*heightInBytes;
+  enum {OUTERFRAME, INNERFRAME, BAR} category;
+  byte distanceFromTop;
+  byte limitLinePattern[6]={0,0,0,0,0,0}; //  Array size of 6 is sufficient, because display height is max 6 bytes = 48 Pixels
+  byte pixelLimit=constrain((byte)map(limit,0, maxValue,0, heightInPixels-outerFrameInPixels-1), 0, heightInPixels-outerFrameInPixels-1); //calc distance of the limit line from the bottom of the bar graph
+  byte pixelValue;
+  //calculate the number of pixels of the data bar depending on "value"
+  if(value<=limit) //normal case: the "value" is less or equal the "limit"
+  {
+    pixelValue=constrain((byte)map(value, 0,limit,0, max(pixelLimit-outerFrameInPixels-2*innerFrameInPixels,0)), 0, max(pixelLimit-outerFrameInPixels-2*innerFrameInPixels,0)); 
+  }
+  else //special case: if the "value" is higher than the "limit", then the bar should be drawn through the limit line.
+  {
+    pixelValue=constrain((byte)map(value, 0,maxValue,0, heightInPixels-2*outerFrameInPixels-2*innerFrameInPixels-1), 0, heightInPixels-2*outerFrameInPixels-2*innerFrameInPixels-1); 
+  }
+  //the limit line has the same number of pixels as the outer Frame (e.g. 1 or 2 pixels usually), but at least 1 pixel
+  for(byte i=0; i<max(outerFrameInPixels,1);i++)  //for all pixels of the limit line: create the bit pattern
+  {  
+    distanceFromTop=heightInPixels-pixelLimit-outerFrameInPixels-1+i;
+    limitLinePattern[distanceFromTop/8] |= 1<<distanceFromTop%8;  //draw limit line
+  }
+  //calculate top line of the data bar
+  distanceFromTop=heightInPixels-pixelValue-outerFrameInPixels-innerFrameInPixels-1;
+ 
+  for(byte y=0; y<heightInBytes; y++)
+  {
+    byte barPattern; //calculate the bit pattern for the data bar
+    if(y <distanceFromTop/8) 
+      barPattern=0x00; //clear lines above the end of the bar
+    else if(y >distanceFromTop/8) 
+      barPattern=0xff; //fill lines below the end of the bar
+    else 
+      barPattern= 0xff<<(distanceFromTop%8); //calculate bit pattern
+ 
+    setCursorInPixels(xpos,y+yposInBytes);
+    for(byte x=0; x<widthInPixels; x++) 
+    {
+      byte b=0; //1 byte is 8 vertical pixels on the display, LSB is on top.
+      if(x<outerFrameInPixels) //x position is in OUTERFRAME
+      {
+        category=OUTERFRAME;
+      }
+      else if(x<outerFrameInPixels+innerFrameInPixels) //x position is in INNERFRAME
+      {
+        category=INNERFRAME;
+      }
+      else if(x<widthInPixels-outerFrameInPixels-innerFrameInPixels) //x position is in the BAR area
+      {
+        category=BAR;
+      }
+      else if(x<widthInPixels-outerFrameInPixels) //x position is in INNERFRAME
+      {
+        category=INNERFRAME; 
+      }
+      else //x position is in OUTERFRAME
+      {      
+        category=OUTERFRAME;
+      }
+      switch(category)
+      {
+        case OUTERFRAME: b=0xff; //all pixels filled
+          break;
+        case INNERFRAME: b=0x00; //all pixels cleared
+          break;
+        case BAR: b=barPattern;
+          break;
+      }
+       
+      //draw the top outer frame 
+      if(y==0) b|= (1<<outerFrameInPixels)-1; //calculate the bit pattern. e.g. for 2 pixels outer frame:  1<<2-1=4-1=3= 00000011
+      //draw the bottom frame
+      if(y==heightInBytes-1)
+      { 
+        b|= 0xff<<(7-outerFrameInPixels);
+        if(category==BAR)
+        {  b&= ~(0xff<<(7-outerFrameInPixels-innerFrameInPixels) & 0xff>>(1+outerFrameInPixels));} //clear the inner frame
+        b&= 0x7F; //Clear last pixel line. It is not used because of 1 pixel necessary distance to the next line of text below the bar
+      }
+      b|=limitLinePattern[y]; //last action is to draw the limit line on top over everything
+      send(PCD8544_DATA, b);
+    }
+  }
+  // Leave the cursor in a consistent position...
+  setCursorInPixels(xpos+widthInPixels+1,yposInBytes); //set cursor on the right side of the bar with 1 pixel distance
+}
 
 /* vim: set expandtab ts=4 sw=4: */
