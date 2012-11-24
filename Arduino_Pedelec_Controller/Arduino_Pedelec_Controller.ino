@@ -432,7 +432,9 @@ handle_switch_disp2(digitalRead(switch_disp_2));
         wh=wh+current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
 
 #if !(DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+#if !(DISPLAY_TYPE & DISPLAY_TYPE_NONE)
         display_update();
+#endif
 #endif
         
         send_serial_data();                                        //sends data over serial port depending on SERIAL_MODE

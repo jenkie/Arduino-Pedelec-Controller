@@ -22,7 +22,10 @@
  * THE SOFTWARE.
  */
 
+
 #include "config.h"
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 #ifndef PCD8544_H
 #define PCD8544_H
 
@@ -135,3 +138,4 @@ private:
 
 
 /* vim: set expandtab ts=4 sw=4: */
+#endif

@@ -22,7 +22,10 @@
  * THE SOFTWARE.
  */
 
+
 #include "PCD8544_nano.h"
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 
 #if ARDUINO < 100
 #include <WProgram.h>
@@ -472,3 +475,4 @@ void PCD8544::drawVerticalBar(word maxValue, word limit, word value, byte widthI
 }
 
 /* vim: set expandtab ts=4 sw=4: */
+#endif
