@@ -39,8 +39,9 @@ LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   //for 4bit (e.g. EA-DOGM) Display
 struct savings   //add variables if you want to store additional values to the eeprom
 {
     float voltage;
-    float capacity;
+    float wh;
     float kilometers;
+    float mah;
 };
 savings variable = {0.0,0.0,0.0}; //variable stores last voltage and capacity read from EEPROM
 
@@ -184,8 +185,9 @@ void loop()
     if (firstrun==true)
     {
         variable.voltage=0.0;   
-        variable.capacity=0.0;          
-        variable.kilometers=0.0;        
+        variable.wh=0.0;          
+        variable.kilometers=0.0;   
+        variable.mah=0.0;
         EEPROM_writeAnything(0,variable);
         variables_saved=true;                             //do not write new data to eeprom when on USB Power
     }

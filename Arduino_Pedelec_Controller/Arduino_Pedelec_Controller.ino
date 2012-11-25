@@ -57,8 +57,9 @@ Features:
 struct savings   //add variables if you want to store additional values to the eeprom
 {
     float voltage;
-    float capacity;
+    float wh; //watthours
     float kilometers;
+    float mah; //milliamphours
 };
 savings variable = {0.0,0.0,0.0}; //variable stores last voltage and capacity read from EEPROM
 
@@ -124,7 +125,7 @@ double power_poti = 0.0;   //set power, calculated with current poti setting
 double power_throttle=0.0; //set power, calculated with current throttle setting
 float factor_speed=1.0;        //factor controling the speed
 float factor_volt=1.0;         //factor controling voltage cutoff
-float wh=0.0;                  //watthours drawn from battery
+float wh,mah=0.0;              //watthours, mah drawn from battery
 float temperature = 0.0;       //temperature
 float altitude = 0.0;          //altitude
 float altitude_start=0.0;      //altitude at start
@@ -151,6 +152,12 @@ double power_human=0.0;      //cyclist's power
 volatile int torquevalues[10]={0,0,0,0,0,0,0,0}; //stores the 8 torque values per pedal roundtrip
 volatile byte torqueindex=0;        //index to write next torque value
 volatile boolean readtorque=false;  //true if pas-interrupt received -> read torque in main loop. unfortunately analogRead gives wrong values inside the PAS-interrupt-routine
+#endif
+
+#if (SERIAL_MODE & SERIAL_MODE_MMC)           //communicate with mmc-app
+String mmc_command="";
+byte mmc_value=0;
+boolean mmc_nextisvalue=false;
 #endif
 
 
@@ -279,8 +286,9 @@ handle_switch_disp2(digitalRead(switch_disp_2));
     {
         if (variable.voltage>(voltage - 2))                //charging detected if voltage is 2V higher than last stored voltage
         {
-            wh=variable.capacity;
+            wh=variable.wh;
             km=variable.kilometers;
+            mah=variable.mah;
         }
         if (voltage<6.0)                                   //do not write new data to eeprom when on USB Power
             {variables_saved=true;}
@@ -393,14 +401,58 @@ handle_switch_disp2(digitalRead(switch_disp_2));
     if ((voltage<20.0)&&(variables_saved==false))    //save to EEPROM when Switch-Off detected
     {
         variable.voltage=voltage_2s;   //save the voltage value 2 seconds before switch-off-detection
-        variable.capacity=wh;          //save watthours drawn from battery
+        variable.wh=wh;          //save watthours drawn from battery
         variable.kilometers=km;        //save trip kilometers
+        variable.mah=mah;        //save milliamperehours drawn from battery
         EEPROM_writeAnything(0,variable);
         variables_saved=true;
     }
 
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
     handle_backlight();
+#endif
+
+#if (SERIAL_MODE & SERIAL_MODE_MMC)           //communicate with mmc-app
+ if(Serial.available()){
+   while(Serial.available()) {
+     char readchar=Serial.read();
+     //Serial.println((char)readchar);
+     if (readchar==13)                        //command without value received
+     {
+       if (mmc_command=="at-ccap")            //reset capacity
+       {
+         wh=0;
+         mah=0;
+       }
+       if (mmc_command=="at-cdist")          //reset distance
+         km=0;
+       if (mmc_command=="at-0")              //anybody there?
+         Serial.println("ok");
+       readchar=0;
+       mmc_command="";
+       return;
+     }
+     if (readchar==10)                       //ignore newline
+     {return;}
+     if (mmc_nextisvalue)                    //command with value received
+     {                   
+       mmc_value=(char)readchar;
+       //if (mmc_command=="at-light")        //switch on and off light
+           //Serial.println((char)mmc_value);
+
+       mmc_command="";
+       mmc_nextisvalue=false;
+     }  
+     else
+     {  
+       if (readchar==61)                        //equal-sign received
+         mmc_nextisvalue=true;
+       else
+         mmc_command+=readchar;
+     }
+   
+  }
+ }
 #endif
 
 //slow loop start----------------------//use this subroutine to place any functions which should happen only once a second
@@ -429,7 +481,8 @@ handle_switch_disp2(digitalRead(switch_disp_2));
 
         battery_percent_fromcapacity = constrain((1-wh/capacity)*100,0,100);     //battery percent calculation from battery capacity. For voltage-based calculation see above
         range=constrain(capacity/wh*km-km,0.0,200.0);               //range calculation from battery capacity
-        wh=wh+current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
+        wh+=current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
+        mah+=current*(millis()-last_writetime)/3600.0;  //mah calculation
 
 #if !(DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
 #if !(DISPLAY_TYPE & DISPLAY_TYPE_NONE)
@@ -601,6 +654,22 @@ void send_serial_data()  //send serial data-------------------------------------
     Serial.print(poti_stat);
     Serial.print(" Throttle");
     Serial.println(throttle_stat); 
+#endif
+
+#if (SERIAL_MODE & SERIAL_MODE_MMC)
+    Serial.print((int)(voltage_display*10));
+    Serial.print("\t");
+    Serial.print((int)(current*1000));
+    Serial.print("\t");
+    Serial.print((int)(spd*10));
+    Serial.print("\t");
+    Serial.print((long)(mah*3600));
+    Serial.print("\t");
+    Serial.print((int)0); //naximum current
+    Serial.print("\t");
+    Serial.print((long)(km*1000/wheel_circumference)); //distance
+    Serial.print("\t");
+    Serial.println((int)0); //profile
 #endif
 }
 
