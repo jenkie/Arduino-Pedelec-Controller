@@ -440,6 +440,7 @@ static void display_nokia_update_graphic()
   //todo: implement real trip time measurement, including timeouts. Currently it is only the time after the last reset 
   printTime(millis() / 1000UL);  //millis can be used, because they roll over only after 50 days
 }
+#endif
 
 void display_update()
 {
@@ -469,7 +470,7 @@ switch(nokia_screen)
 #endif
 }
 
-#endif
+
 
 
 
