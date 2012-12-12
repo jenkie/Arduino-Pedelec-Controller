@@ -50,7 +50,7 @@ Features:
 #error You either have poti or soft-poti support. Disable one of them.
 #endif
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
 #include <SoftwareSerial.h>      //for Kingmeter J-LCD
 #endif
 
@@ -227,7 +227,7 @@ void loop()
     poti_stat=analogRead(poti_in);                       // 0...1023
 #endif
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
     display_update();
 #endif
 
@@ -484,7 +484,7 @@ handle_switch_disp2(digitalRead(switch_disp_2));
         wh+=current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
         mah+=current*(millis()-last_writetime)/3600.0;  //mah calculation
 
-#if !(DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+#if !(DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
 #if !(DISPLAY_TYPE & DISPLAY_TYPE_NONE)
         display_update();
 #endif

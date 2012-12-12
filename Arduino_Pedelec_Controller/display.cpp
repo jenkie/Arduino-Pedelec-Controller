@@ -36,7 +36,7 @@ nokia_screen_type nokia_screen_last = NOKIA_SCREEN_TEXT; //last screen type on t
 LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   //for 4bit (e.g. EA-DOGM) Display
 #endif
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
 #include <SoftwareSerial.h>                //for Kingmeter J-LCD
 SoftwareSerial mySerial(10, 11);           // RX (YELLOW cable of J-LCD), TX (GREEN-Cable) 
 byte jlcd_received[]={0,0,0,0,0,0};
@@ -236,9 +236,9 @@ static void display_nokia_update()
 #endif // (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 }
 
-void jlcd_update(byte battery, unsigned int wheeltime, byte error)
+void jlcd_update(byte battery, unsigned int wheeltime, byte error, int power)
 {
-#if (DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
   if (mySerial.available())
   {
     jlcd_last_transmission=millis();
@@ -264,12 +264,12 @@ void jlcd_update(byte battery, unsigned int wheeltime, byte error)
         //-------------------------------------------Output to J-LCD start
         mySerial.write(0X46);
         mySerial.write(battery);
-        mySerial.write((byte)0x00);
+        mySerial.write((byte)(power/12.7));
         mySerial.write(highByte(wheeltime));
         mySerial.write(lowByte(wheeltime));
         mySerial.write(0X7D);
         mySerial.write(error);
-        mySerial.write(battery^(byte)0x00^highByte(wheeltime)^lowByte(wheeltime)^0X7D^error); //this is XOR-checksum
+        mySerial.write(battery^(byte)(power/12.7)^highByte(wheeltime)^lowByte(wheeltime)^0X7D^error); //this is XOR-checksum
         //-------------------------------------------Output to J-LCD end
     }
     else
@@ -286,7 +286,7 @@ if ((millis()-jlcd_last_transmission)>3000)
           digitalWrite(fet_out,HIGH);              //J-LCD turned off
 #endif
        }
-#endif //(DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+#endif //(DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
 
 }
 
@@ -305,7 +305,7 @@ void display_init()
     display_4bit_setup();
 #endif
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
     mySerial.begin(9600);
 #endif
 }
@@ -465,8 +465,8 @@ switch(nokia_screen)
 #elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
         display_4bit_update();
 #endif
-#if (DISPLAY_TYPE & DISPLAY_TYPE_J_LCD)
-        jlcd_update(5,wheel_time,0);
+#if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
+        jlcd_update(2,wheel_time,0,power);
 #endif
 }
 
