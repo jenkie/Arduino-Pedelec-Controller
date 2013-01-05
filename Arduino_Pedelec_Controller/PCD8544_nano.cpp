@@ -24,6 +24,7 @@
 
 
 #include "PCD8544_nano.h"
+#include "config.h"
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 
@@ -94,7 +95,7 @@ void PCD8544::begin(unsigned char width, unsigned char height, unsigned char mod
     }
     else
     {
-        this->send(PCD8544_CMD, 0xc2);  // default Vop (3.06 + 66 * 0.06 = 7V)
+        this->send(PCD8544_CMD, NOKIA_LCD_CONTRAST);  // default Vop (3.06 + 66 * 0.06 = 7V)
         this->send(PCD8544_CMD, 0x06);  // Temperature Control Mode 2
     }
 

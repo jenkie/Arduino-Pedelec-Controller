@@ -18,6 +18,8 @@
 #define DISPLAY_TYPE_KINGMETER (1<<4)            //King-Meter J-LCD or SW-LCD
 #define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_4PIN //Set your display type here. CHANGES ONLY HERE!<-----------------------------
 
+#define NOKIA_LCD_CONTRAST 190                   //set display contrast here. values around 190 should do the job
+
 #define SERIAL_MODE_NONE (1<<0)              //don't send serial data at all
 #define SERIAL_MODE_DEBUG (1<<1)             //send debug data over Serial Monitor
 #define SERIAL_MODE_ANDROID (1<<2)           //send Amarino-compatible data over serial/bluetooth
