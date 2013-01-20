@@ -311,42 +311,34 @@ handle_switch_disp2(digitalRead(switch_disp_2));
 
 
 //Power control-------------------------------------------------------------------------------------------------------------
+power_throttle = throttle_stat / 1023.0 * power_max;         //power currently set by throttle
+
 #if CONTROL_MODE == CONTROL_MODE_TORQUE                      //human power control mode
 #ifdef SUPPORT_XCELL_RT
-    power_throttle = throttle_stat / 1023.0 * power_max;     //power currently set by throttle
     power_poti = poti_stat/400.0 * power_human*(1+spd/20.0);
-    if ((power_throttle) > (power_poti))                     //IF power set by throttle IS GREATER THAN power set by poti
-    {
-        myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);   //THEN throttle mode: throttle sets power with "agressive" p and i parameters        power_set=throttle_stat/1023.0*power_max;
-        power_set = power_throttle;
-    }
-    else                                                     //ELSE poti mode: poti sets power with "soft" p and i parameters
-    {
-        myPID.SetTunings(pid_p,pid_i,0);
-        power_set = power_poti; 
-    }
 #endif
 #endif
-#if CONTROL_MODE == CONTROL_MODE_NORMAL             //power-control-mode
-    power_throttle = throttle_stat / 1023.0 * power_max;     //power currently set by throttle
-    power_poti = poti_stat / 1023.0 * power_poti_max;        //power currently set by poti
-    if ((power_throttle) > (power_poti))                     //IF power set by throttle IS GREATER THAN power set by poti
-    {
-        myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);   //THEN throttle mode: throttle sets power with "agressive" p and i parameters        power_set=throttle_stat/1023.0*power_max;
-        power_set = power_throttle;
-    }
-    else                                                     //ELSE poti mode: poti sets power with "soft" p and i parameters
-    {
-        myPID.SetTunings(pid_p,pid_i,0);
-        power_set = power_poti; 
-    }
+
+#if CONTROL_MODE == CONTROL_MODE_NORMAL                      //constant power mode
+    power_poti = poti_stat / 1023.0 * power_poti_max;
 #endif
-#if CONTROL_MODE == CONTROL_MODE_LIMIT_WH_PER_KM    //wh/km control mode
-    power_throttle = throttle_stat / 1023.0 * power_max;     //power currently set by throttle
+
+#if CONTROL_MODE == CONTROL_MODE_LIMIT_WH_PER_KM            //wh/km control mode
     power_poti = poti_stat / 1023.0 * whkm_max * spd;        //power currently set by poti in relation to speed and maximum wattage per km    
-    if ((power_throttle) > (power_poti))                     //IF power set by throttle IS GREATER THAN power set by poti 
+#endif
+
+#ifdef SUPPORT_HRMI                                          //limit heart rate to specified range if possible
+    if (pulse_human>0)
     {
-        myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);   //THEN throttle mode: throttle sets power with "agressive" p and i parameters
+      power_poti=min(power_poti+power_max*constrain((pulse_human-pulse_min)/pulse_range,0.0,1.0),power_poti_max);
+    }
+#endif
+
+power_poti = min(power_poti,thermal_limit+(power_poti_max-thermal_limit)*constrain(spd/thermal_safe_speed,0,1)); //thermal limiting
+
+if ((power_throttle) > (power_poti))                     //IF power set by throttle IS GREATER THAN power set by poti (throttle override)
+    {
+        myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);   //THEN throttle mode: throttle sets power with "agressive" p and i parameters        power_set=throttle_stat/1023.0*power_max;
         power_set = power_throttle;
     }
     else                                                     //ELSE poti mode: poti sets power with "soft" p and i parameters
@@ -354,14 +346,6 @@ handle_switch_disp2(digitalRead(switch_disp_2));
         myPID.SetTunings(pid_p,pid_i,0);
         power_set = power_poti;
     }
-#endif
-
-#ifdef SUPPORT_HRMI                                          //limit heart rate to specified range if possible
-    if (pulse_human>0)
-    {
-      power_set=power_set+power_max*constrain((pulse_human-pulse_min)/pulse_range,0.0,1.0);
-    }
-#endif
 
 //Speed cutoff-------------------------------------------------------------------------------------------------------------
 
