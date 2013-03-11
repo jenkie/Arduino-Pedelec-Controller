@@ -1,7 +1,7 @@
 /*
-Arduino Pedelec "Forumscontroller" for Hardware 1.1-1.3
-written by jenkie / pedelecforum.de
-Copyright (C) 2012
+Arduino Pedelec "Forumscontroller" for Hardware 1.1-1.4
+written by jenkie and others / pedelecforum.de
+Copyright (C) 2012-2013
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
