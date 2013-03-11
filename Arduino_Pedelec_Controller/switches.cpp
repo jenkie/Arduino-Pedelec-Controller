@@ -22,13 +22,13 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "display_backlight.h"
 
 
-unsigned long switch_disp_pressed,switch_disp2_pressed,switch_thr_pressed;  //time when switch was pressed down (to decide if long or short press)
-boolean switch_disp_last, switch_disp2_last,switch_thr_last;                //was switch already pressed since last loop run?
-boolean switch_disp_enable,switch_disp2_enable,switch_thr_enable;         //disable switch if long-press action has been done until switch is released
+unsigned long switch_disp_pressed=0,switch_disp2_pressed=0,switch_thr_pressed=0;    //time when switch was pressed down (to decide if long or short press)
+boolean switch_disp_last=false, switch_disp2_last=false,switch_thr_last=false;      //was switch already pressed since last loop run?
+boolean switch_disp_enable=false,switch_disp2_enable=false,switch_thr_enable=false; //disable switch if long-press action has been done until switch is released
 
 void handle_switch_thr(boolean switch_thr) //throttle switch detection -----------------------------------------------------
 {
-  if (switch_thr==0)                        
+  if (switch_thr==0)
     {
         if (switch_thr_last==1)
         {
@@ -39,7 +39,7 @@ void handle_switch_thr(boolean switch_thr) //throttle switch detection ---------
           switch_thr_pressed=millis();
           switch_thr_enable=0;
           //long-press action of throttle switch: begin >>>>>>>>>>>>>>>>>>>>>>>
-          
+
           //long-press action of throttle switch: end   <<<<<<<<<<<<<<<<<<<<<<<
         }
     }
@@ -62,15 +62,15 @@ void handle_switch_thr(boolean switch_thr) //throttle switch detection ---------
 #endif
             //long-press action of throttle switch: end  <<<<<<<<<<<<<<<<<<<<<<<
         }
-        else switch_thr_enable=1;
+    else switch_thr_enable=1;
 switch_thr_last=switch_thr;
 }
 
 
-        
+
 void handle_switch_disp(boolean switch_disp) //display switch 1 detection  -----------------------------------------------------
 {
-    if (switch_disp==0)                  
+    if (switch_disp==0)
     {
         if (switch_disp_last==1)
         {
@@ -99,7 +99,7 @@ void handle_switch_disp(boolean switch_disp) //display switch 1 detection  -----
 #endif
             //short-press action of display switch: end <<<<<<<<<<<<<<<<<<<<<<<
         }
-        else switch_disp_enable=1;         //display switch detection end -----------------------------------------------------
+    else switch_disp_enable=1;         //display switch detection end -----------------------------------------------------
 switch_disp_last=switch_disp;
 }
 
@@ -107,7 +107,7 @@ void handle_switch_disp2(boolean switch_disp2) //display switch 2 detection ----
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
 #ifndef SUPPORT_DISPLAY_BACKLIGHT
-    if (switch_disp2==0)                    
+    if (switch_disp2==0)
     {
         if (switch_disp2_last==1)
         {
@@ -128,7 +128,7 @@ void handle_switch_disp2(boolean switch_disp2) //display switch 2 detection ----
 
           //short-press action of display switch 2: end   <<<<<<<<<<<<<<<<<<<<<<<
         }
-        else switch_disp2_enable=1;       //display switch 2 detection end -----------------------------------------------------
+    else switch_disp2_enable=1;       //display switch 2 detection end -----------------------------------------------------
 #endif
 #endif
 switch_disp2_last=switch_disp2;
