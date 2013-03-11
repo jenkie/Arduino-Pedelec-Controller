@@ -19,14 +19,21 @@ configure_file(Arduino_Pedelec_Controller.ino main.cpp COPYONLY)
 
 set(${FIRMWARE_NAME}_SRCS                          # Source code
     BMP085.cpp
+    BMP085.h
     ${CMAKE_CURRENT_BINARY_DIR}/main.cpp
     PCD8544_charset.cpp
     PCD8544_nano.cpp
+    PCD8544_nano.h
     PID_v1_nano.cpp
+    PID_v1_nano.h
     display.cpp
     display.h
     display_backlight.cpp
     display_backlight.h
+    hrmi_funcs.cpp
+    hrmi_funcs.h
+    switches.cpp
+    switches.h
     )
 generate_arduino_firmware(${FIRMWARE_NAME})
 
