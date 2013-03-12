@@ -41,22 +41,22 @@ enum switch_result { PRESSED_NONE=0, PRESSED_SHORT=1, PRESSED_LONG=2 };
 static enum switch_result _handle_switch(switch_state *state, boolean switch_current)
 {
     enum switch_result res = PRESSED_NONE;
+    const unsigned long now = millis();
 
     if (switch_current==BUTTON_ON)
     {
         if (state->previous_state==BUTTON_OFF)
         {
             // first press
-            state->first_press_time=millis();
+            state->first_press_time=now;
         }
-        else if ((millis()-state->first_press_time)>1000)
+        else if ((now - state->first_press_time)>1000 && state->action_enabled)
         {
-            state->first_press_time=millis();
             state->action_enabled = false;
             res = PRESSED_LONG;
         }
     }
-    else if (state->previous_state==BUTTON_ON && (millis()-state->first_press_time)<1000 && state->action_enabled)
+    else if (state->previous_state==BUTTON_ON && (now - state->first_press_time)<1000 && state->action_enabled)
     {
         res = PRESSED_SHORT;
     }
@@ -80,7 +80,7 @@ void handle_switch_thr(boolean current_state)
             if (poti_stat != throttle_stat)
             {
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
-                enable_custom_backlight(5000);  //switch backlight on for one minute
+                enable_custom_backlight(5000);  //switch backlight on for five seconds
 #endif
                 poti_stat = throttle_stat;
                 if (poti_stat == 0)
