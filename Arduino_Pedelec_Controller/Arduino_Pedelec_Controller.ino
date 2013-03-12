@@ -149,7 +149,8 @@ byte pulse_human=0;          //cyclist's heart rate
 double torque=0.0;           //cyclist's torque
 double power_human=0.0;      //cyclist's power
 #ifdef SUPPORT_XCELL_RT
-volatile int torquevalues[10]= {0,0,0,0,0,0,0,0}; //stores the 8 torque values per pedal roundtrip
+const int torquevalues_count=8;
+volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0}; //stores the 8 torque values per pedal roundtrip
 volatile byte torqueindex=0;        //index to write next torque value
 volatile boolean readtorque=false;  //true if pas-interrupt received -> read torque in main loop. unfortunately analogRead gives wrong values inside the PAS-interrupt-routine
 #endif
@@ -263,12 +264,13 @@ void loop()
         torquevalues[torqueindex]=analogRead(option_pin)-torque_offset;
         torqueindex++;
         torque=0.0;
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < torquevalues_count; i++)
         {
             torque+=torquevalues[i];
         }
-        if (torqueindex==8)
-        {torqueindex=0;}
+        if (torqueindex==torquevalues_count)
+            torqueindex=0;
+
         readtorque=false;
         torque=abs((torque)*0.049);
         power_human=0.20943951*cad*torque;   //power=2*pi*cadence*torque/60s*2 (*2 because only left side torque is measured by x-cell rt)
