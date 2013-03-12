@@ -1,4 +1,4 @@
-//place all your personal configurations here and keep this file when updating!   
+//place all your personal configurations here and keep this file when updating!
 #ifndef CONFIG_H
 #define CONFIG_H
 
