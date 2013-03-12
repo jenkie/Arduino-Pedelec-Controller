@@ -1,6 +1,6 @@
 /*
 Switch handling functions: short and long press detection
-(c) 2012 jenkie / pedelecforum.de
+(c) 2012-2013 jenkie and Thomas Jarosch / pedelecforum.de
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ extern float poti_stat;
 extern int throttle_stat;
 extern nokia_screen_type nokia_screen; //currently displayed screen on the Nokia display
 
+void init_switches();
 void handle_switch_thr(boolean switch_thr);
 void handle_switch_disp(boolean switch_disp);
 void handle_switch_disp2(boolean switch_disp2);

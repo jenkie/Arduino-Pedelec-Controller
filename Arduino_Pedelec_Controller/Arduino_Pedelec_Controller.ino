@@ -172,6 +172,7 @@ void send_serial_data();
 //Setup---------------------------------------------------------------------------------------------------------------------
 void setup()
 {
+    init_switches();
     display_init();
 
     Serial.begin(115200);     //bluetooth-module requires 115200

@@ -1,6 +1,6 @@
 /*
 Switch handling functions: short and long press detection
-(c) 2012 jenkie / pedelecforum.de
+(c) 2012-2013 jenkie and Thomas Jarosch / pedelecforum.de
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,116 +21,117 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "display.h"
 #include "display_backlight.h"
 
-
-unsigned long switch_disp_pressed=0,switch_disp2_pressed=0,switch_thr_pressed=0;    //time when switch was pressed down (to decide if long or short press)
-boolean switch_disp_last=false, switch_disp2_last=false,switch_thr_last=false;      //was switch already pressed since last loop run?
-boolean switch_disp_enable=false,switch_disp2_enable=false,switch_thr_enable=false; //disable switch if long-press action has been done until switch is released
-
-void handle_switch_thr(boolean switch_thr) //throttle switch detection -----------------------------------------------------
+struct switch_state
 {
-    if (switch_thr==0)
-    {
-        if (switch_thr_last==1)
-        {
-            switch_thr_pressed=millis();
-        }
-        else if ((millis()-switch_thr_pressed)>1000)  //long press detected
-        {
-            switch_thr_pressed=millis();
-            switch_thr_enable=0;
-            //long-press action of throttle switch: begin >>>>>>>>>>>>>>>>>>>>>>>
+    unsigned long first_press_time;    // time when switch was pressed down (to decide if long or short press)
+    bool previous_state;               // state of the switch in the previous loop run
+    bool action_enabled;               // disable switch if long-press action has been done until switch is released
+} swt_throttle, swt_display1, swt_display2;
 
-            //long-press action of throttle switch: end   <<<<<<<<<<<<<<<<<<<<<<<
-        }
-    }
-    else if ((switch_thr_last==0)&&((millis()-switch_thr_pressed)<1000)&&(switch_thr_enable))
-    {
-        //short-press action of throttle switch: begin >>>>>>>>>>>>>>>>>>>>>>>
-#ifdef SUPPORT_SOFT_POTI
-        // Set soft poti if throttle value changed
-        if (poti_stat != throttle_stat)
-        {
-#ifdef SUPPORT_DISPLAY_BACKLIGHT
-            enable_custom_backlight(5000);  //switch backlight on for one minute
-#endif
-            poti_stat = throttle_stat;
-            if (poti_stat == 0)
-                display_show_important_info("Tempomat reset", 0);
-            else
-                display_show_important_info("Tempomat set", 0);
-        }
-#endif
-        //long-press action of throttle switch: end  <<<<<<<<<<<<<<<<<<<<<<<
-    }
-    else switch_thr_enable=1;
-    switch_thr_last=switch_thr;
+void init_switches()
+{
+    memset(&swt_throttle, 0, sizeof(struct switch_state));
+    memset(&swt_display1, 0, sizeof(struct switch_state));
+    memset(&swt_display2, 0, sizeof(struct switch_state));
 }
 
-
-
-void handle_switch_disp(boolean switch_disp) //display switch 1 detection  -----------------------------------------------------
+// Generic switch handler. Returns a 'switch_result'
+enum button_state { BUTTON_ON=0, BUTTON_OFF=1 };
+enum switch_result { PRESSED_NONE=0, PRESSED_SHORT=1, PRESSED_LONG=2 };
+static enum switch_result _handle_switch(switch_state *state, boolean switch_current)
 {
-    if (switch_disp==0)
+    enum switch_result res = PRESSED_NONE;
+
+    if (switch_current==BUTTON_ON)
     {
-        if (switch_disp_last==1)
+        if (state->previous_state==BUTTON_OFF)
         {
-            switch_disp_pressed=millis();
+            // first press
+            state->first_press_time=millis();
         }
-        else if ((millis()-switch_disp_pressed)>1000)
+        else if ((millis()-state->first_press_time)>1000)
         {
-            switch_disp_pressed=millis();
-            switch_disp_enable=0;
-            //long-press action of display switch: begin >>>>>>>>>>>>>>>>>>>>>>>
+            state->first_press_time=millis();
+            state->action_enabled = false;
+            res = PRESSED_LONG;
+        }
+    }
+    else if (state->previous_state==BUTTON_ON && (millis()-state->first_press_time)<1000 && state->action_enabled)
+    {
+        res = PRESSED_SHORT;
+    }
+    else
+        state->action_enabled = true;
+
+    state->previous_state = switch_current;
+
+    return res;
+}
+
+void handle_switch_thr(boolean current_state)
+{
+    switch(_handle_switch(&swt_throttle, current_state))
+    {
+        case PRESSED_LONG:
+            break;
+        case PRESSED_SHORT:
+#ifdef SUPPORT_SOFT_POTI
+            // Set soft poti if throttle value changed
+            if (poti_stat != throttle_stat)
+            {
+#ifdef SUPPORT_DISPLAY_BACKLIGHT
+                enable_custom_backlight(5000);  //switch backlight on for one minute
+#endif
+                poti_stat = throttle_stat;
+                if (poti_stat == 0)
+                    display_show_important_info("Tempomat reset", 0);
+                else
+                    display_show_important_info("Tempomat set", 0);
+            }
+#endif
+            break;
+        case PRESSED_NONE:
+        default:
+            break;
+    }
+}
+
+void handle_switch_disp(boolean current_state)
+{
+    switch(_handle_switch(&swt_display1, current_state))
+    {
+        case PRESSED_LONG:
+            // Shut down system
 #if HARDWARE_REV >=2
             display_show_important_info(msg_shutdown, 60);
             digitalWrite(fet_out,HIGH);
 #endif
-            //long-press action of display switch: end   <<<<<<<<<<<<<<<<<<<<<<<
-        }
-    }
-    else if ((switch_disp_last==0)&&((millis()-switch_disp_pressed)<1000)&&(switch_disp_enable))
-    {
-        //short-press action of display switch: begin >>>>>>>>>>>>>>>>>>>>>>>
+            break;
+        case PRESSED_SHORT:
+            // Toggle bluetooth and backlight
 #if HARDWARE_REV >=2
-        digitalWrite(bluetooth_pin, !digitalRead(bluetooth_pin));   //not available in 1.1!
+            digitalWrite(bluetooth_pin, !digitalRead(bluetooth_pin));   //not available in 1.1!
 #endif
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
-        enable_custom_backlight(60000);  //switch backlight on for one minute
+            enable_custom_backlight(60000);  //switch backlight on for one minute
 #endif
-        //short-press action of display switch: end <<<<<<<<<<<<<<<<<<<<<<<
+            break;
+        case PRESSED_NONE:
+        default:
+            break;
     }
-    else switch_disp_enable=1;         //display switch detection end -----------------------------------------------------
-    switch_disp_last=switch_disp;
 }
 
-void handle_switch_disp2(boolean switch_disp2) //display switch 2 detection -----------------------------------------------------
+void handle_switch_disp2(boolean current_state)
 {
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
-#ifndef SUPPORT_DISPLAY_BACKLIGHT
-    if (switch_disp2==0)
+    switch(_handle_switch(&swt_display2, current_state))
     {
-        if (switch_disp2_last==1)
-        {
-            switch_disp2_pressed=millis();
-        }
-        else if ((millis()-switch_disp2_pressed)>1000)
-        {
-            switch_disp2_pressed=millis();
-            switch_disp2_enable=0;
-            //long-press action of display switch 2: begin >>>>>>>>>>>>>>>>>>>>>>>
-
-            //long-press action of display switch: end     <<<<<<<<<<<<<<<<<<<<<<<
-        }
+        case PRESSED_LONG:
+            break;
+        case PRESSED_SHORT:
+            break;
+        case PRESSED_NONE:
+        default:
+            break;
     }
-    else if ((switch_disp2_last==0)&&((millis()-switch_disp2_pressed)<1000)&&(switch_disp2_enable))
-    {
-        //short-press action of display switch 2: begin >>>>>>>>>>>>>>>>>>>>>>>
-
-        //short-press action of display switch 2: end   <<<<<<<<<<<<<<<<<<<<<<<
-    }
-    else switch_disp2_enable=1;       //display switch 2 detection end -----------------------------------------------------
-#endif
-#endif
-    switch_disp2_last=switch_disp2;
 }
-
