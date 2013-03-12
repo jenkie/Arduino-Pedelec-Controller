@@ -58,6 +58,7 @@ static enum switch_result _handle_switch(switch_state *state, boolean switch_cur
     }
     else if (state->previous_state==BUTTON_ON && (now - state->first_press_time)<1000 && state->action_enabled)
     {
+        state->action_enabled = false;
         res = PRESSED_SHORT;
     }
     else
