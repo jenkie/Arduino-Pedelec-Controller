@@ -36,14 +36,14 @@ Features:
 #include "switches.h"        //contains switch handling functions
 
 #ifdef SUPPORT_BMP085
-    #include <Wire.h>
-    #include "BMP085.h"          //library for altitude and temperature measurement using http://www.watterott.com/de/Breakout-Board-mit-dem-BMP085-absoluten-Drucksensor     
-    BMP085 bmp;
+#include <Wire.h>
+#include "BMP085.h"          //library for altitude and temperature measurement using http://www.watterott.com/de/Breakout-Board-mit-dem-BMP085-absoluten-Drucksensor     
+BMP085 bmp;
 #endif
 
 #ifdef SUPPORT_HRMI
-  #include <Wire.h>
-  #include "hrmi_funcs.h"
+#include <Wire.h>
+#include "hrmi_funcs.h"
 #endif
 
 #if defined(SUPPORT_POTI) && defined(SUPPORT_SOFT_POTI)
@@ -129,7 +129,7 @@ float wh,mah=0.0;              //watthours, mah drawn from battery
 float temperature = 0.0;       //temperature
 float altitude = 0.0;          //altitude
 float altitude_start=0.0;      //altitude at start
-float last_altitude;           //height 
+float last_altitude;           //height
 float slope = 0.0;             //current slope
 volatile float km=0.0;         //trip-km
 volatile float spd=0.0;        //speed
@@ -149,7 +149,7 @@ byte pulse_human=0;          //cyclist's heart rate
 double torque=0.0;           //cyclist's torque
 double power_human=0.0;      //cyclist's power
 #ifdef SUPPORT_XCELL_RT
-volatile int torquevalues[10]={0,0,0,0,0,0,0,0}; //stores the 8 torque values per pedal roundtrip
+volatile int torquevalues[10]= {0,0,0,0,0,0,0,0}; //stores the 8 torque values per pedal roundtrip
 volatile byte torqueindex=0;        //index to write next torque value
 volatile boolean readtorque=false;  //true if pas-interrupt received -> read torque in main loop. unfortunately analogRead gives wrong values inside the PAS-interrupt-routine
 #endif
@@ -212,7 +212,7 @@ void setup()
     altitude_start=bmp.readAltitude();    //initialize barometric altitude sensor
 #endif
 #ifdef SUPPORT_HRMI
-  hrmi_open();
+    hrmi_open();
 #endif
 #ifndef SUPPORT_PAS
     pedaling=true;
@@ -256,30 +256,30 @@ void loop()
     voltage_display = 0.99*voltage_display + 0.01*voltage; //averaged voltage for display
     current_display = 0.99*current_display + 0.01*current; //averaged voltage for display
     power=current*voltage;
-    
-#ifdef SUPPORT_XCELL_RT    
-if (readtorque==true)
-{
-    torquevalues[torqueindex]=analogRead(option_pin)-torque_offset;
-    torqueindex++;
-    torque=0.0; 
-    for (int i = 0; i < 8; i++) 
-      {
-        torque+=torquevalues[i];
-      }
-    if (torqueindex==8)
-      {torqueindex=0;}
-    readtorque=false;
-    torque=abs((torque)*0.049);
-    power_human=0.20943951*cad*torque;   //power=2*pi*cadence*torque/60s*2 (*2 because only left side torque is measured by x-cell rt)
-}
+
+#ifdef SUPPORT_XCELL_RT
+    if (readtorque==true)
+    {
+        torquevalues[torqueindex]=analogRead(option_pin)-torque_offset;
+        torqueindex++;
+        torque=0.0;
+        for (int i = 0; i < 8; i++)
+        {
+            torque+=torquevalues[i];
+        }
+        if (torqueindex==8)
+        {torqueindex=0;}
+        readtorque=false;
+        torque=abs((torque)*0.049);
+        power_human=0.20943951*cad*torque;   //power=2*pi*cadence*torque/60s*2 (*2 because only left side torque is measured by x-cell rt)
+    }
 #endif
 
 //handle switches----------------------------------------------------------------------------------------------------------
-handle_switch_thr(digitalRead(switch_thr));
-handle_switch_disp(digitalRead(switch_disp));
+    handle_switch_thr(digitalRead(switch_thr));
+    handle_switch_disp(digitalRead(switch_disp));
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
-handle_switch_disp2(digitalRead(switch_disp_2));
+    handle_switch_disp2(digitalRead(switch_disp_2));
 #endif
 //Check if Battery was charged since last power down-----------------------------------------------------------------------
     if (firstrun==true)
@@ -291,7 +291,7 @@ handle_switch_disp2(digitalRead(switch_disp_2));
             mah=variable.mah;
         }
         if (voltage<6.0)                                   //do not write new data to eeprom when on USB Power
-            {variables_saved=true;}
+        {variables_saved=true;}
     }
     firstrun=false;                                     //first loop run done (ok, up to this line :))
 
@@ -299,7 +299,7 @@ handle_switch_disp2(digitalRead(switch_disp_2));
 //Are we pedaling?---------------------------------------------------------------------------------------------------------
 #ifdef SUPPORT_PAS
     if (((millis()-last_pas_event)>500)||(pas_failtime>pas_tolerance))
-        {pedaling = false;}                               //we are not pedaling anymore, if pas did not change for > 0,5 s
+    {pedaling = false;}                               //we are not pedaling anymore, if pas did not change for > 0,5 s
     cad=cad*pedaling;
 #endif
 
@@ -311,7 +311,7 @@ handle_switch_disp2(digitalRead(switch_disp_2));
 
 
 //Power control-------------------------------------------------------------------------------------------------------------
-power_throttle = throttle_stat / 1023.0 * power_max;         //power currently set by throttle
+    power_throttle = throttle_stat / 1023.0 * power_max;         //power currently set by throttle
 
 #if CONTROL_MODE == CONTROL_MODE_TORQUE                      //human power control mode
 #ifdef SUPPORT_XCELL_RT
@@ -324,19 +324,19 @@ power_throttle = throttle_stat / 1023.0 * power_max;         //power currently s
 #endif
 
 #if CONTROL_MODE == CONTROL_MODE_LIMIT_WH_PER_KM            //wh/km control mode
-    power_poti = poti_stat / 1023.0 * whkm_max * spd;        //power currently set by poti in relation to speed and maximum wattage per km    
+    power_poti = poti_stat / 1023.0 * whkm_max * spd;        //power currently set by poti in relation to speed and maximum wattage per km
 #endif
 
 #ifdef SUPPORT_HRMI                                          //limit heart rate to specified range if possible
     if (pulse_human>0)
     {
-      power_poti=min(power_poti+power_max*constrain((pulse_human-pulse_min)/pulse_range,0.0,1.0),power_poti_max);
+        power_poti=min(power_poti+power_max*constrain((pulse_human-pulse_min)/pulse_range,0.0,1.0),power_poti_max);
     }
 #endif
 
-power_poti = min(power_poti,thermal_limit+(power_poti_max-thermal_limit)*constrain(spd/thermal_safe_speed,0,1)); //thermal limiting
+    power_poti = min(power_poti,thermal_limit+(power_poti_max-thermal_limit)*constrain(spd/thermal_safe_speed,0,1)); //thermal limiting
 
-if ((power_throttle) > (power_poti))                     //IF power set by throttle IS GREATER THAN power set by poti (throttle override)
+    if ((power_throttle) > (power_poti))                     //IF power set by throttle IS GREATER THAN power set by poti (throttle override)
     {
         myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);   //THEN throttle mode: throttle sets power with "agressive" p and i parameters        power_set=throttle_stat/1023.0*power_max;
         power_set = power_throttle;
@@ -350,26 +350,26 @@ if ((power_throttle) > (power_poti))                     //IF power set by throt
 //Speed cutoff-------------------------------------------------------------------------------------------------------------
 
     if (pedaling==true)
-        {factor_speed=constrain(1-(spd-spd_max1)/(spd_max2-spd_max1),0,1);} //linear decrease of maximum power for speeds higher than spd_max1
+    {factor_speed=constrain(1-(spd-spd_max1)/(spd_max2-spd_max1),0,1);} //linear decrease of maximum power for speeds higher than spd_max1
     else
     {
         if (startingaidenable==true)                         //starting aid activated
-            {factor_speed=constrain((startingaid_speed-spd)/2,0,1);}
+        {factor_speed=constrain((startingaid_speed-spd)/2,0,1);}
         else
-            {factor_speed=0;}                                    //no starting aid
+        {factor_speed=0;}                                    //no starting aid
     }
 
     if (power_set>power_max*factor_speed)
-        {power_set=power_max*factor_speed;}                  //Maximum allowed power including Speed-Cutoff
+    {power_set=power_max*factor_speed;}                  //Maximum allowed power including Speed-Cutoff
     if ((((poti_stat<=throttle_stat)||(pedaling==false))&&(throttle_stat<5))||(brake_stat==0))  //power_set is set to -60W when you stop pedaling or brake (this is the pid-input)
-        {power_set=-60;}
+    {power_set=-60;}
 
- 
- //Voltage cutoff----------------------------------------------------------------------------------------------------------
+
+//Voltage cutoff----------------------------------------------------------------------------------------------------------
     if (voltage<vcutoff)
-        {factor_volt=factor_volt*0.9997;}
+    {factor_volt=factor_volt*0.9997;}
     else
-        {factor_volt=factor_volt*0.9997+0.0003;}
+    {factor_volt=factor_volt*0.9997+0.0003;}
 
 //Throttle output-------------------------------------------------------------------------------------------------------
 
@@ -378,7 +378,7 @@ if ((power_throttle) > (power_poti))                     //IF power set by throt
 
     throttle_write=map(pid_out*brake_stat*factor_volt,0,1023,motor_offset,motor_max);
     if ((pedaling==false)&&(throttle_stat<5))
-        {throttle_write=0;}
+    {throttle_write=0;}
     analogWrite(throttle_out,throttle_write);
 
 //Save capacity to EEPROM
@@ -397,46 +397,48 @@ if ((power_throttle) > (power_poti))                     //IF power set by throt
 #endif
 
 #if (SERIAL_MODE & SERIAL_MODE_MMC)           //communicate with mmc-app
- if(Serial.available()){
-   while(Serial.available()) {
-     char readchar=Serial.read();
-     //Serial.println((char)readchar);
-     if (readchar==13)                        //command without value received
-     {
-       if (mmc_command=="at-ccap")            //reset capacity
-       {
-         wh=0;
-         mah=0;
-       }
-       if (mmc_command=="at-cdist")          //reset distance
-         km=0;
-       if (mmc_command=="at-0")              //anybody there?
-         Serial.println("ok");
-       readchar=0;
-       mmc_command="";
-       return;
-     }
-     if (readchar==10)                       //ignore newline
-     {return;}
-     if (mmc_nextisvalue)                    //command with value received
-     {                   
-       mmc_value=(char)readchar;
-       //if (mmc_command=="at-light")        //switch on and off light
-           //Serial.println((char)mmc_value);
+    if(Serial.available())
+    {
+        while(Serial.available())
+        {
+            char readchar=Serial.read();
+            //Serial.println((char)readchar);
+            if (readchar==13)                        //command without value received
+            {
+                if (mmc_command=="at-ccap")            //reset capacity
+                {
+                    wh=0;
+                    mah=0;
+                }
+                if (mmc_command=="at-cdist")          //reset distance
+                    km=0;
+                if (mmc_command=="at-0")              //anybody there?
+                    Serial.println("ok");
+                readchar=0;
+                mmc_command="";
+                return;
+            }
+            if (readchar==10)                       //ignore newline
+            {return;}
+            if (mmc_nextisvalue)                    //command with value received
+            {
+                mmc_value=(char)readchar;
+                //if (mmc_command=="at-light")        //switch on and off light
+                //Serial.println((char)mmc_value);
 
-       mmc_command="";
-       mmc_nextisvalue=false;
-     }  
-     else
-     {  
-       if (readchar==61)                        //equal-sign received
-         mmc_nextisvalue=true;
-       else
-         mmc_command+=readchar;
-     }
-   
-  }
- }
+                mmc_command="";
+                mmc_nextisvalue=false;
+            }
+            else
+            {
+                if (readchar==61)                        //equal-sign received
+                    mmc_nextisvalue=true;
+                else
+                    mmc_command+=readchar;
+            }
+
+        }
+    }
 #endif
 
 //slow loop start----------------------//use this subroutine to place any functions which should happen only once a second
@@ -452,16 +454,16 @@ if ((power_throttle) > (power_poti))                     //IF power set by throt
 
 //-----battery percent calculation start, valid for 10S turnigy 5000mAh-LiPo (polynomial fit to discharge curve at 150W)
         if (voltage_display>38.6)
-            {battery_percent_fromvoltage=(-15.92628+0.71422*voltage_display-0.007398*pow(voltage_display,2))*100;}
+        {battery_percent_fromvoltage=(-15.92628+0.71422*voltage_display-0.007398*pow(voltage_display,2))*100;}
         else
         {
             if (voltage_display>36.76)
-                {battery_percent_fromvoltage=(5414.20057-431.39368*voltage_display+11.449212*pow(voltage_display,2)-0.1012069*pow(voltage_display,3))*100;}
+            {battery_percent_fromvoltage=(5414.20057-431.39368*voltage_display+11.449212*pow(voltage_display,2)-0.1012069*pow(voltage_display,3))*100;}
             else
-                {battery_percent_fromvoltage=(0.0025*pow(voltage_display-33,3))*100;}
+            {battery_percent_fromvoltage=(0.0025*pow(voltage_display-33,3))*100;}
         }
         battery_percent_fromvoltage=constrain(battery_percent_fromvoltage,0,100);
-//-----battery percent calculation end 
+//-----battery percent calculation end
 
         battery_percent_fromcapacity = constrain((1-wh/capacity)*100,0,100);     //battery percent calculation from battery capacity. For voltage-based calculation see above
         range=constrain(capacity/wh*km-km,0.0,200.0);               //range calculation from battery capacity
@@ -473,7 +475,7 @@ if ((power_throttle) > (power_poti))                     //IF power set by throt
         display_update();
 #endif
 #endif
-        
+
         send_serial_data();                                        //sends data over serial port depending on SERIAL_MODE
 
 #if HARDWARE_REV >= 2
@@ -482,7 +484,8 @@ if ((power_throttle) > (power_poti))                     //IF power set by throt
         {
             idle_shutdown_last_wheel_time = last_wheel_time;
             idle_shutdown_count = 0;
-        } else
+        }
+        else
         {
             ++idle_shutdown_count;
             if (idle_shutdown_count > idle_shutdown_secs)
@@ -496,16 +499,16 @@ if ((power_throttle) > (power_poti))                     //IF power set by throt
 // Also checks averaged voltage to prevent ADC read errors killing the system.
 // Don't shut down on USB power, too.
         if (voltage < vemergency_shutdown && voltage_display < vemergency_shutdown
-            && voltage > 6.0)
+                && voltage > 6.0)
         {
             display_show_important_info("Battery undervoltage detected. Emergency shutdown.", 60);
             digitalWrite(fet_out,HIGH);
         }
 #endif
-#ifdef SUPPORT_HRMI  
-     pulse_human=getHeartRate();
+#ifdef SUPPORT_HRMI
+        pulse_human=getHeartRate();
 #endif
-     last_writetime=millis();
+        last_writetime=millis();
 //slow loop end------------------------------------------------------------------------------------------------------
     }
 }
@@ -516,14 +519,14 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
     if (last_pas_event>(millis()-10)) return;
     boolean pas_stat=digitalRead(pas_in);
     if (pas_stat)
-     {
-       pas_off_time=millis()-last_pas_event;
+    {
+        pas_off_time=millis()-last_pas_event;
 #ifdef SUPPORT_XCELL_RT
-       readtorque=true;
+        readtorque=true;
 #endif
-     }
+    }
     else
-        {pas_on_time=millis()-last_pas_event;}
+    {pas_on_time=millis()-last_pas_event;}
     last_pas_event = millis();
     pas_failtime=pas_failtime+1;
 #ifdef SUPPORT_XCELL_RT
@@ -532,12 +535,12 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
     cad=12000/(pas_on_time+pas_off_time);
 #endif
     double pas_factor=(double)pas_on_time/(double)pas_off_time;
-    if ((pas_factor>pas_factor_min)&&(pas_factor<pas_factor_max)) 
+    if ((pas_factor>pas_factor_min)&&(pas_factor<pas_factor_max))
     {
         pedaling=true;
         pas_failtime=0;
     }
-  }
+}
 #else
 #warning PAS sensor support is required for legal operation of a Pedelec  by EU-wide laws except Austria or Swiss.
 #endif
@@ -549,13 +552,13 @@ void speed_change()    //Wheel Sensor Change------------------------------------
     wheel_time=millis()-last_wheel_time;
     spd = (spd+3600*wheel_circumference/wheel_time)/2;  //a bit of averaging for smoother speed-cutoff
     if (spd<100)
-        {km=km+wheel_circumference/1000.0;}
+    {km=km+wheel_circumference/1000.0;}
     else
-        {spd=0;}
+    {spd=0;}
 #ifdef SUPPORT_BMP085
 //slope-stuff start-------------------------------
     slope=0.98*slope+2*(altitude-last_altitude)/wheel_circumference;
-    last_altitude=altitude;  
+    last_altitude=altitude;
 //slope-stuff end---------------------------------
 #endif
     last_wheel_time=millis();
@@ -589,9 +592,9 @@ void send_serial_data()  //send serial data-------------------------------------
 #endif
 
 #if (SERIAL_MODE & SERIAL_MODE_LOGVIEW)
-    Serial.print("$1;1;0;"); 
+    Serial.print("$1;1;0;");
     Serial.print(voltage,2);
-    Serial.print(";"); 
+    Serial.print(";");
     Serial.print(current,2);
     Serial.print(";");
     Serial.print(wh,1);
@@ -613,7 +616,7 @@ void send_serial_data()  //send serial data-------------------------------------
     Serial.print(0);   //arbitrary user data here
     Serial.print(";");
     Serial.print(0);   //arbitrary user data here
-    Serial.print(";0"); 
+    Serial.print(";0");
     Serial.println(13,DEC);
 #endif
 
@@ -637,7 +640,7 @@ void send_serial_data()  //send serial data-------------------------------------
     Serial.print(" Poti");
     Serial.print(poti_stat);
     Serial.print(" Throttle");
-    Serial.println(throttle_stat); 
+    Serial.println(throttle_stat);
 #endif
 
 #if (SERIAL_MODE & SERIAL_MODE_MMC)

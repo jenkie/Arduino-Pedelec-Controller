@@ -28,7 +28,7 @@ boolean switch_disp_enable=false,switch_disp2_enable=false,switch_thr_enable=fal
 
 void handle_switch_thr(boolean switch_thr) //throttle switch detection -----------------------------------------------------
 {
-  if (switch_thr==0)
+    if (switch_thr==0)
     {
         if (switch_thr_last==1)
         {
@@ -36,34 +36,34 @@ void handle_switch_thr(boolean switch_thr) //throttle switch detection ---------
         }
         else if ((millis()-switch_thr_pressed)>1000)  //long press detected
         {
-          switch_thr_pressed=millis();
-          switch_thr_enable=0;
-          //long-press action of throttle switch: begin >>>>>>>>>>>>>>>>>>>>>>>
+            switch_thr_pressed=millis();
+            switch_thr_enable=0;
+            //long-press action of throttle switch: begin >>>>>>>>>>>>>>>>>>>>>>>
 
-          //long-press action of throttle switch: end   <<<<<<<<<<<<<<<<<<<<<<<
+            //long-press action of throttle switch: end   <<<<<<<<<<<<<<<<<<<<<<<
         }
     }
     else if ((switch_thr_last==0)&&((millis()-switch_thr_pressed)<1000)&&(switch_thr_enable))
-        {
-          //short-press action of throttle switch: begin >>>>>>>>>>>>>>>>>>>>>>>
+    {
+        //short-press action of throttle switch: begin >>>>>>>>>>>>>>>>>>>>>>>
 #ifdef SUPPORT_SOFT_POTI
-            // Set soft poti if throttle value changed
-            if (poti_stat != throttle_stat)
-            {
+        // Set soft poti if throttle value changed
+        if (poti_stat != throttle_stat)
+        {
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
-                enable_custom_backlight(5000);  //switch backlight on for one minute
+            enable_custom_backlight(5000);  //switch backlight on for one minute
 #endif
-                poti_stat = throttle_stat;
-                if (poti_stat == 0)
-                    display_show_important_info("Tempomat reset", 0);
-                else
-                    display_show_important_info("Tempomat set", 0);
-            }
-#endif
-            //long-press action of throttle switch: end  <<<<<<<<<<<<<<<<<<<<<<<
+            poti_stat = throttle_stat;
+            if (poti_stat == 0)
+                display_show_important_info("Tempomat reset", 0);
+            else
+                display_show_important_info("Tempomat set", 0);
         }
+#endif
+        //long-press action of throttle switch: end  <<<<<<<<<<<<<<<<<<<<<<<
+    }
     else switch_thr_enable=1;
-switch_thr_last=switch_thr;
+    switch_thr_last=switch_thr;
 }
 
 
@@ -78,29 +78,29 @@ void handle_switch_disp(boolean switch_disp) //display switch 1 detection  -----
         }
         else if ((millis()-switch_disp_pressed)>1000)
         {
-          switch_disp_pressed=millis();
-          switch_disp_enable=0;
-          //long-press action of display switch: begin >>>>>>>>>>>>>>>>>>>>>>>
+            switch_disp_pressed=millis();
+            switch_disp_enable=0;
+            //long-press action of display switch: begin >>>>>>>>>>>>>>>>>>>>>>>
 #if HARDWARE_REV >=2
-          display_show_important_info(msg_shutdown, 60);
-          digitalWrite(fet_out,HIGH);
+            display_show_important_info(msg_shutdown, 60);
+            digitalWrite(fet_out,HIGH);
 #endif
-          //long-press action of display switch: end   <<<<<<<<<<<<<<<<<<<<<<<
+            //long-press action of display switch: end   <<<<<<<<<<<<<<<<<<<<<<<
         }
     }
     else if ((switch_disp_last==0)&&((millis()-switch_disp_pressed)<1000)&&(switch_disp_enable))
-        {
-          //short-press action of display switch: begin >>>>>>>>>>>>>>>>>>>>>>>
+    {
+        //short-press action of display switch: begin >>>>>>>>>>>>>>>>>>>>>>>
 #if HARDWARE_REV >=2
-            digitalWrite(bluetooth_pin, !digitalRead(bluetooth_pin));   //not available in 1.1!
+        digitalWrite(bluetooth_pin, !digitalRead(bluetooth_pin));   //not available in 1.1!
 #endif
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
-            enable_custom_backlight(60000);  //switch backlight on for one minute
+        enable_custom_backlight(60000);  //switch backlight on for one minute
 #endif
-            //short-press action of display switch: end <<<<<<<<<<<<<<<<<<<<<<<
-        }
+        //short-press action of display switch: end <<<<<<<<<<<<<<<<<<<<<<<
+    }
     else switch_disp_enable=1;         //display switch detection end -----------------------------------------------------
-switch_disp_last=switch_disp;
+    switch_disp_last=switch_disp;
 }
 
 void handle_switch_disp2(boolean switch_disp2) //display switch 2 detection -----------------------------------------------------
@@ -115,22 +115,22 @@ void handle_switch_disp2(boolean switch_disp2) //display switch 2 detection ----
         }
         else if ((millis()-switch_disp2_pressed)>1000)
         {
-          switch_disp2_pressed=millis();
-          switch_disp2_enable=0;
-          //long-press action of display switch 2: begin >>>>>>>>>>>>>>>>>>>>>>>
+            switch_disp2_pressed=millis();
+            switch_disp2_enable=0;
+            //long-press action of display switch 2: begin >>>>>>>>>>>>>>>>>>>>>>>
 
-          //long-press action of display switch: end     <<<<<<<<<<<<<<<<<<<<<<<
+            //long-press action of display switch: end     <<<<<<<<<<<<<<<<<<<<<<<
         }
     }
     else if ((switch_disp2_last==0)&&((millis()-switch_disp2_pressed)<1000)&&(switch_disp2_enable))
-        {
-          //short-press action of display switch 2: begin >>>>>>>>>>>>>>>>>>>>>>>
+    {
+        //short-press action of display switch 2: begin >>>>>>>>>>>>>>>>>>>>>>>
 
-          //short-press action of display switch 2: end   <<<<<<<<<<<<<<<<<<<<<<<
-        }
+        //short-press action of display switch 2: end   <<<<<<<<<<<<<<<<<<<<<<<
+    }
     else switch_disp2_enable=1;       //display switch 2 detection end -----------------------------------------------------
 #endif
 #endif
-switch_disp2_last=switch_disp2;
+    switch_disp2_last=switch_disp2;
 }
 

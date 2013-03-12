@@ -190,7 +190,7 @@ void PCD8544::setCursor(unsigned char column, unsigned char line)
 
 void PCD8544::setCursorInPixels(unsigned char column, unsigned char line)  //same as SetCursor, but the column is specified in pixels, not in 6-pixel wide characters
 {
-    this->column = (column % this->width);                                         
+    this->column = (column % this->width);
     this->line = (line % (this->height/9 + 1));
 
     this->send(PCD8544_CMD, 0x80 | this->column);
@@ -341,44 +341,48 @@ void PCD8544::drawColumn(unsigned char lines, unsigned char value)
 
 void PCD8544::send(unsigned char type, unsigned char data)
 {
-    
+
     //
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
     if (type)
-    bitSet(PORTB,this->pin_dc - 8);
+        bitSet(PORTB,this->pin_dc - 8);
     else
-    bitClear(PORTB,this->pin_dc -8);
+        bitClear(PORTB,this->pin_dc -8);
     this->shiftOutFast(this->pin_sdin, this->pin_sclk, data);  //modified, see https://github.com/jenkie/Arduino-Pedelec-Controller/issues/22 Many thanks to pillepalle
-#else 
+#else
     digitalWrite(this->pin_dc, type);
     shiftOut(this->pin_sdin, this->pin_sclk, MSBFIRST, data);
 #endif
-    
+
 }
 
 //--- shiftOutFast - Shiftout method done in a faster way .. needed for tighter timer process
-void PCD8544::shiftOutFast(unsigned char myDataPin, unsigned char myClockPin, unsigned char myDataOut) {
+void PCD8544::shiftOutFast(unsigned char myDataPin, unsigned char myClockPin, unsigned char myDataOut)
+{
 //=== This function shifts 8 bits out MSB first much faster than the normal shiftOut function by writing directly to the memory address for port
 //--- clear data pin
-bitClear(PORTB,myDataPin);
+    bitClear(PORTB,myDataPin);
 
 //Send each bit of the myDataOut byte MSBFIRST
-for (int i=7; i>=0; i--) {
-bitClear(PORTB,myClockPin-8);
+    for (int i=7; i>=0; i--)
+    {
+        bitClear(PORTB,myClockPin-8);
 //--- Turn data on or off based on value of bit
-if ( bitRead(myDataOut,i) == 1) {
-bitSet(PORTB,myDataPin-8);
-}
-else {
-bitClear(PORTB,myDataPin-8);
-}
+        if ( bitRead(myDataOut,i) == 1)
+        {
+            bitSet(PORTB,myDataPin-8);
+        }
+        else
+        {
+            bitClear(PORTB,myDataPin-8);
+        }
 //register shifts bits on upstroke of clock pin
-bitSet(PORTB,myClockPin-8);
+        bitSet(PORTB,myClockPin-8);
 //zero the data pin after shift to prevent bleed through
-bitClear(PORTB,myDataPin-8);
-}
+        bitClear(PORTB,myDataPin-8);
+    }
 //stop shifting
-bitClear(PORTB,myClockPin-8);
+    bitClear(PORTB,myClockPin-8);
 }
 
 //Draws a vertical bargraph with an outer and inner frame. One pixel line at the bottom is left free. It is not used because of 1 pixel necessary distance to the next line of text below the bar.
@@ -387,92 +391,92 @@ bitClear(PORTB,myClockPin-8);
 //innerFrameInPixels: valid range: outerFrameInPixels+innerFrameInPixels <=7 !!
 void PCD8544::drawVerticalBar(word maxValue, word limit, word value, byte widthInPixels, byte heightInBytes, byte outerFrameInPixels, byte innerFrameInPixels)
 {
-  const byte xpos=this->column;
-  const byte yposInBytes=this->line;
-  const byte heightInPixels=8*heightInBytes;
-  enum {OUTERFRAME, INNERFRAME, BAR} category;
-  byte distanceFromTop;
-  byte limitLinePattern[6]={0,0,0,0,0,0}; //  Array size of 6 is sufficient, because display height is max 6 bytes = 48 Pixels
-  byte pixelLimit=constrain((byte)map(limit,0, maxValue,0, heightInPixels-outerFrameInPixels-1), 0, heightInPixels-outerFrameInPixels-1); //calc distance of the limit line from the bottom of the bar graph
-  byte pixelValue;
-  //calculate the number of pixels of the data bar depending on "value"
-  if(value<=limit) //normal case: the "value" is less or equal the "limit"
-  {
-    pixelValue=constrain((byte)map(value, 0,limit,0, max(pixelLimit-outerFrameInPixels-2*innerFrameInPixels,0)), 0, max(pixelLimit-outerFrameInPixels-2*innerFrameInPixels,0)); 
-  }
-  else //special case: if the "value" is higher than the "limit", then the bar should be drawn through the limit line.
-  {
-    pixelValue=constrain((byte)map(value, 0,maxValue,0, heightInPixels-2*outerFrameInPixels-2*innerFrameInPixels-1), 0, heightInPixels-2*outerFrameInPixels-2*innerFrameInPixels-1); 
-  }
-  //the limit line has the same number of pixels as the outer Frame (e.g. 1 or 2 pixels usually), but at least 1 pixel
-  for(byte i=0; i<max(outerFrameInPixels,1);i++)  //for all pixels of the limit line: create the bit pattern
-  {  
-    distanceFromTop=heightInPixels-pixelLimit-outerFrameInPixels-1+i;
-    limitLinePattern[distanceFromTop/8] |= 1<<distanceFromTop%8;  //draw limit line
-  }
-  //calculate top line of the data bar
-  distanceFromTop=heightInPixels-pixelValue-outerFrameInPixels-innerFrameInPixels-1;
- 
-  for(byte y=0; y<heightInBytes; y++)
-  {
-    byte barPattern; //calculate the bit pattern for the data bar
-    if(y <distanceFromTop/8) 
-      barPattern=0x00; //clear lines above the end of the bar
-    else if(y >distanceFromTop/8) 
-      barPattern=0xff; //fill lines below the end of the bar
-    else 
-      barPattern= 0xff<<(distanceFromTop%8); //calculate bit pattern
- 
-    setCursorInPixels(xpos,y+yposInBytes);
-    for(byte x=0; x<widthInPixels; x++) 
+    const byte xpos=this->column;
+    const byte yposInBytes=this->line;
+    const byte heightInPixels=8*heightInBytes;
+    enum {OUTERFRAME, INNERFRAME, BAR} category;
+    byte distanceFromTop;
+    byte limitLinePattern[6]= {0,0,0,0,0,0}; //  Array size of 6 is sufficient, because display height is max 6 bytes = 48 Pixels
+    byte pixelLimit=constrain((byte)map(limit,0, maxValue,0, heightInPixels-outerFrameInPixels-1), 0, heightInPixels-outerFrameInPixels-1); //calc distance of the limit line from the bottom of the bar graph
+    byte pixelValue;
+    //calculate the number of pixels of the data bar depending on "value"
+    if(value<=limit) //normal case: the "value" is less or equal the "limit"
     {
-      byte b=0; //1 byte is 8 vertical pixels on the display, LSB is on top.
-      if(x<outerFrameInPixels) //x position is in OUTERFRAME
-      {
-        category=OUTERFRAME;
-      }
-      else if(x<outerFrameInPixels+innerFrameInPixels) //x position is in INNERFRAME
-      {
-        category=INNERFRAME;
-      }
-      else if(x<widthInPixels-outerFrameInPixels-innerFrameInPixels) //x position is in the BAR area
-      {
-        category=BAR;
-      }
-      else if(x<widthInPixels-outerFrameInPixels) //x position is in INNERFRAME
-      {
-        category=INNERFRAME; 
-      }
-      else //x position is in OUTERFRAME
-      {      
-        category=OUTERFRAME;
-      }
-      switch(category)
-      {
-        case OUTERFRAME: b=0xff; //all pixels filled
-          break;
-        case INNERFRAME: b=0x00; //all pixels cleared
-          break;
-        case BAR: b=barPattern;
-          break;
-      }
-       
-      //draw the top outer frame 
-      if(y==0) b|= (1<<outerFrameInPixels)-1; //calculate the bit pattern. e.g. for 2 pixels outer frame:  1<<2-1=4-1=3= 00000011
-      //draw the bottom frame
-      if(y==heightInBytes-1)
-      { 
-        b|= 0xff<<(7-outerFrameInPixels);
-        if(category==BAR)
-        {  b&= ~(0xff<<(7-outerFrameInPixels-innerFrameInPixels) & 0xff>>(1+outerFrameInPixels));} //clear the inner frame
-        b&= 0x7F; //Clear last pixel line. It is not used because of 1 pixel necessary distance to the next line of text below the bar
-      }
-      b|=limitLinePattern[y]; //last action is to draw the limit line on top over everything
-      send(PCD8544_DATA, b);
+        pixelValue=constrain((byte)map(value, 0,limit,0, max(pixelLimit-outerFrameInPixels-2*innerFrameInPixels,0)), 0, max(pixelLimit-outerFrameInPixels-2*innerFrameInPixels,0));
     }
-  }
-  // Leave the cursor in a consistent position...
-  setCursorInPixels(xpos+widthInPixels+1,yposInBytes); //set cursor on the right side of the bar with 1 pixel distance
+    else //special case: if the "value" is higher than the "limit", then the bar should be drawn through the limit line.
+    {
+        pixelValue=constrain((byte)map(value, 0,maxValue,0, heightInPixels-2*outerFrameInPixels-2*innerFrameInPixels-1), 0, heightInPixels-2*outerFrameInPixels-2*innerFrameInPixels-1);
+    }
+    //the limit line has the same number of pixels as the outer Frame (e.g. 1 or 2 pixels usually), but at least 1 pixel
+    for(byte i=0; i<max(outerFrameInPixels,1); i++) //for all pixels of the limit line: create the bit pattern
+    {
+        distanceFromTop=heightInPixels-pixelLimit-outerFrameInPixels-1+i;
+        limitLinePattern[distanceFromTop/8] |= 1<<distanceFromTop%8;  //draw limit line
+    }
+    //calculate top line of the data bar
+    distanceFromTop=heightInPixels-pixelValue-outerFrameInPixels-innerFrameInPixels-1;
+
+    for(byte y=0; y<heightInBytes; y++)
+    {
+        byte barPattern; //calculate the bit pattern for the data bar
+        if(y <distanceFromTop/8)
+            barPattern=0x00; //clear lines above the end of the bar
+        else if(y >distanceFromTop/8)
+            barPattern=0xff; //fill lines below the end of the bar
+        else
+            barPattern= 0xff<<(distanceFromTop%8); //calculate bit pattern
+
+        setCursorInPixels(xpos,y+yposInBytes);
+        for(byte x=0; x<widthInPixels; x++)
+        {
+            byte b=0; //1 byte is 8 vertical pixels on the display, LSB is on top.
+            if(x<outerFrameInPixels) //x position is in OUTERFRAME
+            {
+                category=OUTERFRAME;
+            }
+            else if(x<outerFrameInPixels+innerFrameInPixels) //x position is in INNERFRAME
+            {
+                category=INNERFRAME;
+            }
+            else if(x<widthInPixels-outerFrameInPixels-innerFrameInPixels) //x position is in the BAR area
+            {
+                category=BAR;
+            }
+            else if(x<widthInPixels-outerFrameInPixels) //x position is in INNERFRAME
+            {
+                category=INNERFRAME;
+            }
+            else //x position is in OUTERFRAME
+            {
+                category=OUTERFRAME;
+            }
+            switch(category)
+            {
+                case OUTERFRAME: b=0xff; //all pixels filled
+                    break;
+                case INNERFRAME: b=0x00; //all pixels cleared
+                    break;
+                case BAR: b=barPattern;
+                    break;
+            }
+
+            //draw the top outer frame
+            if(y==0) b|= (1<<outerFrameInPixels)-1; //calculate the bit pattern. e.g. for 2 pixels outer frame:  1<<2-1=4-1=3= 00000011
+            //draw the bottom frame
+            if(y==heightInBytes-1)
+            {
+                b|= 0xff<<(7-outerFrameInPixels);
+                if(category==BAR)
+                {  b&= ~(0xff<<(7-outerFrameInPixels-innerFrameInPixels) & 0xff>>(1+outerFrameInPixels));} //clear the inner frame
+                b&= 0x7F; //Clear last pixel line. It is not used because of 1 pixel necessary distance to the next line of text below the bar
+            }
+            b|=limitLinePattern[y]; //last action is to draw the limit line on top over everything
+            send(PCD8544_DATA, b);
+        }
+    }
+    // Leave the cursor in a consistent position...
+    setCursorInPixels(xpos+widthInPixels+1,yposInBytes); //set cursor on the right side of the bar with 1 pixel distance
 }
 
 /* vim: set expandtab ts=4 sw=4: */
