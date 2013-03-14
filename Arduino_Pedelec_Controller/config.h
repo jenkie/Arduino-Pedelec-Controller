@@ -44,7 +44,7 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 
 #define CONTROL_MODE_NORMAL 0            //Normal mode: poti and throttle control motor power
 #define CONTROL_MODE_LIMIT_WH_PER_KM 1   //Limit wh/km consumption: poti controls wh/km, throttle controls power to override poti
-#define CONTROL_MODE_TORQUE 2            //power = x*power of the biker
+#define CONTROL_MODE_TORQUE 2            //power = x*power of the biker, see also description of power_poti_max!
 #define CONTROL_MODE CONTROL_MODE_NORMAL //Set your control mode here
 
 //Config Options-----------------------------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ const float wheel_circumference = 2.202; //wheel circumference in m
 const int spd_max1=22;                   //speed cutoff start in Km/h
 const int spd_max2=25;                   //speed cutoff stop (0W) in Km/h
 const int power_max=500;                 //Maximum power in W (throttle mode)
-const int power_poti_max=500;            //Maximum power in W (poti mode)
+const int power_poti_max=500;            //Maximum power in W (poti mode) or maximum percentage of human power drawn by motor (torque mode)
 const int thermal_limit=150;             //Maximum continuous thermal load motor can withstand
 const int thermal_safe_speed=12;         //Speed above which motor is thermally safe at maximum current, see EPACSim
 const int whkm_max=30;                   //Maximum wh/km consumption in CONTROL_MODE_LIMIT_WH_PER_KM (controls poti-range)

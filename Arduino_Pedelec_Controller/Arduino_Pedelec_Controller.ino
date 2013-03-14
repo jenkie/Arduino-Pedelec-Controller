@@ -273,7 +273,7 @@ void loop()
             torqueindex=0;
 
         readtorque=false;
-        torque=abs((torque)*0.049);
+        torque=abs((torque)*0.061);
         power_human=0.20943951*cad*torque;   //power=2*pi*cadence*torque/60s*2 (*2 because only left side torque is measured by x-cell rt)
     }
 #endif
@@ -318,7 +318,7 @@ void loop()
 
 #if CONTROL_MODE == CONTROL_MODE_TORQUE                      //human power control mode
 #ifdef SUPPORT_XCELL_RT
-    power_poti = poti_stat/400.0 * power_human*(1+spd/20.0);
+    power_poti = poti_stat/102300.0*power_poti_max*power_human*(1+spd/20.0); //power_poti_max is in this control mode interpreted as percentage. Example: power_poti_max=200 means; motor power = 200% of human power
 #endif
 #endif
 
