@@ -643,7 +643,18 @@ void send_serial_data()  //send serial data-------------------------------------
     Serial.print(" Poti");
     Serial.print(poti_stat);
     Serial.print(" Throttle");
-    Serial.println(throttle_stat);
+    Serial.print(throttle_stat);
+    //now: data for Arduino Pedelec Configurator
+    //0:voltage 1:current 2:pasfactor*100 3:option-pin 4:poti 5:throttle 6: brake
+    Serial.print("---raw---");
+    Serial.print(analogRead(voltage_in));Serial.print(";");
+    Serial.print(analogRead(current_in));Serial.print(";");
+    Serial.print(((int)(100*(double)pas_on_time/(double)pas_off_time)));Serial.print(";");
+    Serial.print(analogRead(option_pin));Serial.print(";");
+    Serial.print(analogRead(poti_in));Serial.print(";");
+    Serial.print(analogRead(throttle_in));Serial.print(";");
+    Serial.println(digitalRead(brake_in));
+   
 #endif
 
 #if (SERIAL_MODE & SERIAL_MODE_MMC)
