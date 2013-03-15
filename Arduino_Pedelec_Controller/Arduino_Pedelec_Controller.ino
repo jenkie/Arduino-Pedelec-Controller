@@ -75,7 +75,7 @@ const int voltage_in = A1;           //Voltage read-Pin
 const int option_pin = A2;           //Analog option
 const int current_in = A3;           //Current read-Pin
 #endif
-#if HARDWARE_REV == 3
+#if HARDWARE_REV >= 3
 const int voltage_in = A0;           //Voltage read-Pin
 const int fet_out = A1;              //FET: Pull high to switch off
 const int current_in = A2;           //Current read-Pin

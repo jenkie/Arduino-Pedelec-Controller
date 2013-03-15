@@ -8,7 +8,7 @@
 #include <Arduino.h>
 #endif
 
-#define HARDWARE_REV 3      //place your hardware revision (1-3) here: x means hardware-revision 1.x
+#define HARDWARE_REV 4      //place your hardware revision (1-4) here: x means hardware-revision 1.x
 
 #define DISPLAY_TYPE_NONE (1<<0)             //no display at all
 #define DISPLAY_TYPE_NOKIA_5PIN (1<<1)       //Nokia 5110 5 pin mode
