@@ -6,12 +6,15 @@
 
 #define HRMI_I2C_ADDR      127
 
+// Forward declarations
+static void writeRegister(int deviceAddress, byte address, byte val);
+static boolean hrmiGetData(byte addr, byte numBytes, byte* dataArray);
+
 void hrmi_open()
 {
     Wire.begin();
     writeRegister(HRMI_I2C_ADDR, 0x53, 1); // Configure the HRMI with the requested algorithm mode
 }
-
 
 int getHeartRate()
 {
@@ -32,7 +35,7 @@ int getHeartRate()
     }
 }
 
-void writeRegister(int deviceAddress, byte address, byte val)
+static void writeRegister(int deviceAddress, byte address, byte val)
 {
     //I2C command to send data to a specific address on the device
     Wire.beginTransmission(deviceAddress); // start transmission to device
@@ -41,7 +44,7 @@ void writeRegister(int deviceAddress, byte address, byte val)
     Wire.endTransmission();     // end transmission
 }
 
-boolean hrmiGetData(byte addr, byte numBytes, byte* dataArray)
+static boolean hrmiGetData(byte addr, byte numBytes, byte* dataArray)
 {
     //Get data from heart rate monitor and fill dataArray byte with responce
     //Returns true if it was able to get it, false if not
