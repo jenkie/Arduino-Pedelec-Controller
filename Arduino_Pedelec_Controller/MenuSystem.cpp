@@ -118,7 +118,7 @@ Menu const* Menu::add_menu(Menu* pMenu)
     return pMenu;
 }
 
-MenuComponent const* Menu::get_menu_component(int index) const
+MenuComponent const* Menu::get_menu_component(byte index) const
 {
   return _menu_components[index];
 }
@@ -197,10 +197,15 @@ void MenuSystem::select()
     }
 }
 
-void MenuSystem::back()
+boolean MenuSystem::back()
 {
-    if (_p_curr_menu != _p_root_menu)
+    if (_p_curr_menu != _p_root_menu) {
         _p_curr_menu = const_cast<Menu*>(_p_curr_menu->get_parent());
+        return true;
+    }
+
+    // We are already in the root menu
+    return false;
 }
 
 void MenuSystem::set_root_menu(Menu* p_root_menu)
