@@ -69,7 +69,9 @@ static void handle_reset_km(MenuItem* p_menu_item)
 
 static void handle_graphical_onoff(MenuItem* p_menu_item)
 {
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     display_force_text = !display_force_text;
+#endif
 
     menu_active = false;
 }
@@ -97,7 +99,9 @@ void init_menu()
 
     menu_display.add_item(&m_display_reset_wh, &handle_reset_wh);
     menu_display.add_item(&m_display_reset_km, &handle_reset_km);
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     menu_display.add_item(&m_display_graphical_onoff, &handle_graphical_onoff);
+#endif
     menu_display.add_item(&m_go_back, &handle_go_back);
 
 #if HARDWARE_REV >=2
