@@ -28,6 +28,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 static PCD8544 lcd;                          //for Nokia Display
 nokia_screen_type nokia_screen = NOKIA_SCREEN_GRAPHIC; //startup screen on the Nokia display
 nokia_screen_type nokia_screen_last = NOKIA_SCREEN_TEXT; //last screen type on the Nokia display
+boolean display_force_text = false;
 #endif
 
 
@@ -146,6 +147,25 @@ static void display_4bit_update()
 
 static void display_nokia_menu()
 {
+    // Display the menu
+    Menu const* menu = menu_system.get_current_menu();
+    MenuComponent const* selected = menu->get_selected();
+
+    lcd.clear();
+    // TODO: Implement scrolling to currently selected item
+
+    for (byte i = 0; i < menu->get_num_menu_components(); ++i)
+    {
+        lcd.setCursor(0,i);
+
+        MenuComponent const *item = menu->get_menu_component(i);
+        if (item == selected)
+            lcd.print("> ");
+        else
+            lcd.print("  ");
+
+        lcd.print(item->get_name());
+    }
 }
 
 static void display_nokia_update()
@@ -453,10 +473,11 @@ void display_update()
 
     if (menu_active)
         nokia_screen=NOKIA_SCREEN_MENU;
-    else if (spd>0)
+    else if (spd>0 && !display_force_text)
         nokia_screen=NOKIA_SCREEN_GRAPHIC;
     else
         nokia_screen=NOKIA_SCREEN_TEXT;
+
     if (nokia_screen!=nokia_screen_last)
     {
         if (nokia_screen==NOKIA_SCREEN_TEXT)
@@ -465,6 +486,7 @@ void display_update()
             lcd.clear();
         nokia_screen_last=nokia_screen;
     }
+
     switch(nokia_screen)
     {
         case NOKIA_SCREEN_MENU:

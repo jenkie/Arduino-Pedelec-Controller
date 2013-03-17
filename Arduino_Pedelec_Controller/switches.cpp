@@ -94,10 +94,8 @@ void handle_switch_disp(boolean current_state)
 #endif
             break;
         case PRESSED_SHORT:
-            // Toggle bluetooth and backlight
-#if HARDWARE_REV >=2
-            digitalWrite(bluetooth_pin, !digitalRead(bluetooth_pin));   //not available in 1.1!
-#endif
+            // TODO idea: Cycle through shown big number in graphical display
+            // Toggle backlight
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
             enable_custom_backlight(60000);  //switch backlight on for one minute
 #endif
@@ -126,6 +124,9 @@ void handle_switch_disp2(boolean current_state)
             {
                 // Activate on the go menu
                 menu_active = true;
+
+                // Reset to top level menu
+                while (menu_system.back());
             }
             break;
         case PRESSED_SHORT:
@@ -172,4 +173,28 @@ static enum switch_result _handle_switch(switch_state *state, boolean switch_cur
 
 static void _handle_menu_switch(const enum switch_name sw, const enum switch_result res)
 {
+    if (sw == SWITCH_DISP1)
+    {
+        switch (res)
+        {
+            case PRESSED_SHORT:
+                menu_system.prev();
+                break;
+            case PRESSED_LONG:
+                menu_system.select();
+                break;
+            default:
+                break;
+        }
+    } else if (sw == SWITCH_DISP2)
+    {
+        switch (res)
+        {
+            case PRESSED_SHORT:
+                menu_system.next();
+                break;
+            default:
+                break;
+        }
+    }
 }
