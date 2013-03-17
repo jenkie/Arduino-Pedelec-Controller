@@ -146,9 +146,6 @@ static void display_4bit_update()
 static void display_nokia_update()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
-    if (handle_important_info_expire())
-        return;
-
     lcd.setCursor(0,0);
     lcd.print(voltage_display,1);
 
@@ -446,6 +443,9 @@ static void display_nokia_update_graphic()
 void display_update()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+    if (handle_important_info_expire())
+        return;
+
     if (spd>0)
         nokia_screen=NOKIA_SCREEN_GRAPHIC;
     else
