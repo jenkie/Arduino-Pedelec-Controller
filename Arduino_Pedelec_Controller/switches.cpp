@@ -197,6 +197,10 @@ static enum switch_result _read_switch(switch_state *state, boolean switch_curre
 
 static void _handle_menu_switch(const enum switch_name sw, const enum switch_result res)
 {
+#ifdef SUPPORT_DISPLAY_BACKLIGHT
+    enable_custom_backlight(15 * 1000);  //switch backlight on for fifteen seconds
+#endif
+
     switch(res)
     {
         case PRESSED_SHORT:
