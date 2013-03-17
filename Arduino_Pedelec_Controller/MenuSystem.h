@@ -16,7 +16,7 @@
 #endif
 
 
-#define MAX_MENU_ITEMS 5
+#define MAX_MENU_ITEMS 10
 
 
 class MenuComponent
