@@ -146,9 +146,18 @@ static void display_4bit_update()
 
 static void display_nokia_menu()
 {
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+    // Check if user has been idle for too long
+    if (menu_activity_expire && millis() > menu_activity_expire)
+    {
+        menu_active = false;
+        return;
+    }
     if (!menu_changed)
         return;
+
     menu_changed = false;
+    menu_activity_expire = millis() + menu_idle_timeout_secs * 1000;
 
     // Display the menu
     Menu const* menu = menu_system.get_current_menu();
@@ -187,6 +196,7 @@ static void display_nokia_menu()
         if (current_lcd_row == nokia_screen_rows)
             break;
     }
+#endif
 }
 
 static void display_nokia_update()

@@ -103,6 +103,7 @@ static void action_enter_menu()
 #endif
 
     // Activate on the go menu
+    menu_activity_expire = 0;
     menu_active = true;
     menu_changed = true;
 
