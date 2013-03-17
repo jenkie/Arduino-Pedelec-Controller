@@ -98,6 +98,10 @@ static void action_enter_menu()
     if (menu_active)
         return;
 
+#ifdef SUPPORT_DISPLAY_BACKLIGHT
+    enable_custom_backlight(15 * 1000);  //switch backlight on for fifteen minute
+#endif
+
     // Activate on the go menu
     menu_active = true;
     menu_changed = true;

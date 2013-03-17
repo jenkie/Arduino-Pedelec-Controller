@@ -118,9 +118,8 @@ static bool handle_important_info_expire()
 
         // Important info expired
         show_important_info_until = 0;
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
-        display_nokia_setup();
-#elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
+        nokia_screen_last = NOKIA_SCREEN_IMPORTANT_INFO;
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
         display_4bit_setup();
 #endif
     }
