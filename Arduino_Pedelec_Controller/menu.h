@@ -25,7 +25,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 void init_menu();
 
-extern boolean menu_active;
+extern boolean menu_active;             //Flag to indicate menu is shown or not
+extern boolean menu_changed;            //Flag to indicate menu display needs update
+
 extern MenuSystem menu_system;
 
 #endif

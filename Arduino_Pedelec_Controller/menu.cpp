@@ -22,6 +22,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "MenuSystem.h"
 
 boolean menu_active=false;
+boolean menu_changed=false;
 
 extern const int bluetooth_pin;
 extern float wh;

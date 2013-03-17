@@ -124,6 +124,7 @@ void handle_switch_disp2(boolean current_state)
             {
                 // Activate on the go menu
                 menu_active = true;
+                menu_changed = true;
 
                 // Reset to top level menu
                 while (menu_system.back());
@@ -179,9 +180,11 @@ static void _handle_menu_switch(const enum switch_name sw, const enum switch_res
         {
             case PRESSED_SHORT:
                 menu_system.prev();
+                menu_changed = true;
                 break;
             case PRESSED_LONG:
                 menu_system.select();
+                menu_changed = true;
                 break;
             default:
                 break;
@@ -192,6 +195,7 @@ static void _handle_menu_switch(const enum switch_name sw, const enum switch_res
         {
             case PRESSED_SHORT:
                 menu_system.next();
+                menu_changed = true;
                 break;
             default:
                 break;

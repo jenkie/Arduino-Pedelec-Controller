@@ -147,12 +147,18 @@ static void display_4bit_update()
 
 static void display_nokia_menu()
 {
+    if (!menu_changed)
+        return;
+    menu_changed = false;
+
     // Display the menu
     Menu const* menu = menu_system.get_current_menu();
     MenuComponent const* selected = menu->get_selected();
 
     lcd.clear();
+
     // TODO: Implement scrolling to currently selected item
+    // for long menus
 
     for (byte i = 0; i < menu->get_num_menu_components(); ++i)
     {

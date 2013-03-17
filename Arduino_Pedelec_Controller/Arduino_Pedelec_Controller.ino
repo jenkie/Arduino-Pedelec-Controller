@@ -446,6 +446,10 @@ void loop()
     }
 #endif
 
+    // Super-fast menu system (no delay)
+    if (menu_active)
+        display_update();
+
 //slow loop start----------------------//use this subroutine to place any functions which should happen only once a second
     if (millis()-last_writetime > 1000)              //don't do this more than once a second
     {
