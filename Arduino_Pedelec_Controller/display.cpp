@@ -33,12 +33,12 @@ nokia_screen_type nokia_screen_last = NOKIA_SCREEN_TEXT; //last screen type on t
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
 #include "LiquidCrystalDogm.h"             //for 4bit (e.g. EA-DOGM) Display
-LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   //for 4bit (e.g. EA-DOGM) Display
+static LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   //for 4bit (e.g. EA-DOGM) Display
 #endif
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
 #include <SoftwareSerial.h>                //for Kingmeter J-LCD
-SoftwareSerial mySerial(10, 11);           // RX (YELLOW cable of J-LCD), TX (GREEN-Cable)
+static SoftwareSerial mySerial(10, 11);           // RX (YELLOW cable of J-LCD), TX (GREEN-Cable)
 byte jlcd_received[]= {0,0,0,0,0,0};
 byte jlcd_receivecounter=0;
 byte jlcd_maxspeed=0;                      //max speed set on display
@@ -233,7 +233,7 @@ static void display_nokia_update()
 #endif // (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 }
 
-void jlcd_update(byte battery, unsigned int wheeltime, byte error, int power)
+static void jlcd_update(byte battery, unsigned int wheeltime, byte error, int power)
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
     if (mySerial.available())
@@ -313,7 +313,7 @@ void display_init()
 //all bitmaps are created using this great bitmap generator http://www.introtoarduino.com/utils/pcd8544.html
 //big characters 0-9 for displaying speed in 9x16 pixel format.
 //big characters for the numbers 0..9  in 9x15 pixel size, used for displaying the speed
-const byte bitmapBigNumber[10][2 * 9] = {{  0xFC, 0xFE, 0x07, 0x03, 0x03, 0x03, 0x07, 0xFE, 0xFC,   0x1F, 0x3F, 0x70, 0x60, 0x60, 0x60, 0x70, 0x3F, 0x1F},
+static const byte bitmapBigNumber[10][2 * 9] = {{  0xFC, 0xFE, 0x07, 0x03, 0x03, 0x03, 0x07, 0xFE, 0xFC,   0x1F, 0x3F, 0x70, 0x60, 0x60, 0x60, 0x70, 0x3F, 0x1F},
     {   0x00, 0x18, 0x1C, 0x0E, 0xFF, 0xFF, 0x00, 0x00, 0x00,   0x00, 0x00, 0x60, 0x60, 0x7F, 0x7F, 0x60, 0x60, 0x00},
     {   0x0C, 0x0E, 0x07, 0x03, 0x03, 0x83, 0xC7, 0xFE, 0x7C,   0x70, 0x78, 0x7C, 0x6E, 0x67, 0x63, 0x61, 0x60, 0x60},
     {   0x0C, 0x0E, 0x07, 0x03, 0xC3, 0xC3, 0xE7, 0xFE, 0x3C,   0x18, 0x38, 0x70, 0x60, 0x60, 0x60, 0x71, 0x3F, 0x1F},
@@ -324,15 +324,15 @@ const byte bitmapBigNumber[10][2 * 9] = {{  0xFC, 0xFE, 0x07, 0x03, 0x03, 0x03, 
     {   0x3C, 0xFE, 0xE7, 0xC3, 0xC3, 0xC3, 0xE7, 0xFE, 0x3C,   0x1F, 0x3F, 0x71, 0x60, 0x60, 0x60, 0x71, 0x3F, 0x1F},
     {   0x7C, 0xFE, 0xC7, 0x83, 0x83, 0x83, 0xC7, 0xFE, 0xFC,   0x00, 0x60, 0x61, 0x71, 0x31, 0x19, 0x1C, 0x0F, 0x07}
 };
-const byte bitmapBigComma[2 * 3] = {    0x00, 0x00, 0x00, 0xC0, 0xF0, 0x30};  //comma character, 3 bits wide, for big numbers
-const byte bitmapBigkmh[2 * 9] = { 0xBC, 0x90, 0xA8, 0x80, 0xB8, 0x88, 0xB8, 0x88, 0xB8, 0x00, 0x00, 0x00, 0x3E, 0x08, 0x38, 0x00, 0x00, 0x00}; // km/h
-const byte bitmapBigSpace[2 * 9] = {    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // " "
+static const byte bitmapBigComma[2 * 3] = {    0x00, 0x00, 0x00, 0xC0, 0xF0, 0x30};  //comma character, 3 bits wide, for big numbers
+static const byte bitmapBigkmh[2 * 9] = { 0xBC, 0x90, 0xA8, 0x80, 0xB8, 0x88, 0xB8, 0x88, 0xB8, 0x00, 0x00, 0x00, 0x3E, 0x08, 0x38, 0x00, 0x00, 0x00}; // km/h
+static const byte bitmapBigSpace[2 * 9] = {    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // " "
 
-const byte bitmapBrakeSymbol[10] = {0x3C, 0x66, 0xC3, 0x18, 0x3C, 0x3C, 0x18, 0xC3, 0x66, 0x3C}; //Symbol for showing that the bikes brake is active
-const byte bitmapBrakeSymbolClear[10] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; //10x0 empty rectangle for clearing the brake symbol
-const byte character_average_symbol[5] = {0x38, 0x64, 0x54, 0x4C, 0x38};
+static const byte bitmapBrakeSymbol[10] = {0x3C, 0x66, 0xC3, 0x18, 0x3C, 0x3C, 0x18, 0xC3, 0x66, 0x3C}; //Symbol for showing that the bikes brake is active
+static const byte bitmapBrakeSymbolClear[10] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; //10x0 empty rectangle for clearing the brake symbol
+static const byte character_average_symbol[5] = {0x38, 0x64, 0x54, 0x4C, 0x38};
 
-void drawSpeed(float speed, byte xpos, byte ypos) //print the speed in big 9x16 pixel characters, e.g. "27,6"
+static void drawSpeed(float speed, byte xpos, byte ypos) //print the speed in big 9x16 pixel characters, e.g. "27,6"
 {
     int speed_digits = (int)(speed*10.0+0.5); //calculate the speed with 3 digits, with rounding, e.g. 20,29123 -> 203  -> display "20,3"
     lcd.setCursorInPixels(xpos,ypos);
@@ -354,7 +354,7 @@ void drawSpeed(float speed, byte xpos, byte ypos) //print the speed in big 9x16 
     lcd.drawBitmap(bitmapBigkmh, 9,2);
 }
 
-void printTime(unsigned long sec)  //print time in exactly 5 characters: in the format "mm:ss" or "hh:mm", if the time is >1 hour
+static void printTime(unsigned long sec)  //print time in exactly 5 characters: in the format "mm:ss" or "hh:mm", if the time is >1 hour
 {
     word hours = sec/3600UL;
     byte minutes = (sec/60UL) % 60UL; //numberOfMinutes(val);
@@ -372,7 +372,7 @@ void printTime(unsigned long sec)  //print time in exactly 5 characters: in the 
     lcd.print(second);
 }
 
-void printTripDistance(float km)  // print distance in exactly 6 characters, left aligned: "1234km" or "123km " or "12,1km" or "9,1km "
+static void printTripDistance(float km)  // print distance in exactly 6 characters, left aligned: "1234km" or "123km " or "12,1km" or "9,1km "
 {
     if (km<10.0) {lcd.print(km,1); lcd.print("km ");}
     else
