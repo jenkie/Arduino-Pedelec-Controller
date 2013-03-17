@@ -33,23 +33,23 @@ extern boolean display_force_text;
 /*
 Layout:
     ├── Anzeige
-    │   ├── Reset Wh
-    │   ├── Reset KM
-    │   ├── Grafisch an/aus
-    │   └── Zurück
+    │   ├── Reset Wh
+    │   ├── Reset KM
+    │   ├── Graf. an/aus
+    │   └── Zurück
     ├── BT an/aus
     └── Zurück
 */
 MenuSystem menu_system;
 static Menu menu_main("");
-static Menu menu_display("Anzeige");
+static Menu menu_display("Anzeige ->");
 static MenuItem m_display_reset_wh("Reset Wh");
 static MenuItem m_display_reset_km("Reset KM");
-static MenuItem m_display_graphical_onoff("Grafisch an/aus");
+static MenuItem m_display_graphical_onoff("Graf. an/aus");
 static MenuItem m_main_bt_onoff("BT an/aus");
 
 // Universally used "go back" menu entry
-static MenuItem m_go_back("Zurueck");
+static MenuItem m_go_back("Zurueck ->");
 
 static void handle_reset_wh(MenuItem* p_menu_item)
 {
