@@ -20,6 +20,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "display.h"
 #include "display_backlight.h"
 #include "config.h"
+#include "menu.h"
 
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
@@ -141,6 +142,10 @@ static void display_4bit_update()
     lcd.print(power_set);
     lcd.print("W      ");
 #endif
+}
+
+static void display_nokia_menu()
+{
 }
 
 static void display_nokia_update()
@@ -446,7 +451,9 @@ void display_update()
     if (handle_important_info_expire())
         return;
 
-    if (spd>0)
+    if (menu_active)
+        nokia_screen=NOKIA_SCREEN_MENU;
+    else if (spd>0)
         nokia_screen=NOKIA_SCREEN_GRAPHIC;
     else
         nokia_screen=NOKIA_SCREEN_TEXT;
@@ -460,8 +467,15 @@ void display_update()
     }
     switch(nokia_screen)
     {
-        case NOKIA_SCREEN_GRAPHIC: display_nokia_update_graphic();  break;
-        case NOKIA_SCREEN_TEXT: display_nokia_update();  break;
+        case NOKIA_SCREEN_MENU:
+            display_nokia_menu();
+            break;
+        case NOKIA_SCREEN_GRAPHIC:
+            display_nokia_update_graphic();
+            break;
+        case NOKIA_SCREEN_TEXT:
+            display_nokia_update();
+            break;
     }
 #elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
     display_4bit_update();

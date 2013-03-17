@@ -34,6 +34,8 @@ set(${FIRMWARE_NAME}_SRCS                          # Source code
     display_backlight.h
     hrmi_funcs.cpp
     hrmi_funcs.h
+    menu.cpp
+    menu.h
     switches.cpp
     switches.h
     )

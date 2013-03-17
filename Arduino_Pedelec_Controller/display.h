@@ -28,7 +28,7 @@ void display_update();
 void display_show_important_info(const char *str, int duration_secs);
 
 //definitions for Nokia graphic display
-typedef enum {NOKIA_SCREEN_TEXT, NOKIA_SCREEN_GRAPHIC} nokia_screen_type;
+typedef enum {NOKIA_SCREEN_TEXT, NOKIA_SCREEN_GRAPHIC, NOKIA_SCREEN_MENU} nokia_screen_type;
 
 
 // Global defines from main program.

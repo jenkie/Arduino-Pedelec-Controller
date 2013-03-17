@@ -34,6 +34,7 @@ Features:
 #include "EEPROMAnything.h"  //to enable data storage when powered off
 #include "PID_v1_nano.h"
 #include "switches.h"        //contains switch handling functions
+#include "menu.h"            //on the go menu
 
 #ifdef SUPPORT_BMP085
 #include <Wire.h>
@@ -173,6 +174,7 @@ void send_serial_data();
 void setup()
 {
     init_switches();
+    init_menu();
     display_init();
 
     Serial.begin(115200);     //bluetooth-module requires 115200

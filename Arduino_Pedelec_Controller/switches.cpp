@@ -20,6 +20,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "config.h"
 #include "display.h"
 #include "display_backlight.h"
+#include "menu.h"
 
 struct switch_state
 {
@@ -37,40 +38,12 @@ void init_switches()
 
 // Generic switch handler. Returns a 'switch_result'
 enum button_state { BUTTON_ON=0, BUTTON_OFF=1 };
+enum switch_name { SWITCH_NONE=0, SWITCH_THR=1, SWITCH_DISP1=2, SWITCH_DISP2=3 };
 enum switch_result { PRESSED_NONE=0, PRESSED_SHORT=1, PRESSED_LONG=2 };
-static enum switch_result _handle_switch(switch_state *state, boolean switch_current)
-{
-    enum switch_result res = PRESSED_NONE;
-    const unsigned long now = millis();
 
-    if (switch_current==BUTTON_ON)
-    {
-        if (state->previous_state==BUTTON_OFF)
-        {
-            // first press
-            state->first_press_time=now;
-        }
-        else if ((now - state->first_press_time)>1000 && state->action_enabled)
-        {
-            state->action_enabled = false;
-            res = PRESSED_LONG;
-        }
-    }
-    else if (state->previous_state==BUTTON_ON &&
-        (now - state->first_press_time)>10 &&
-        (now - state->first_press_time)<1000 &&
-        state->action_enabled)
-    {
-        state->action_enabled = false;
-        res = PRESSED_SHORT;
-    }
-    else
-        state->action_enabled = true;
-
-    state->previous_state = switch_current;
-
-    return res;
-}
+// Forward declarations
+static enum switch_result _handle_switch(switch_state *state, boolean switch_current);
+static void _handle_menu_switch(const enum switch_name sw, const enum switch_result res);
 
 void handle_switch_thr(boolean current_state)
 {
@@ -102,7 +75,16 @@ void handle_switch_thr(boolean current_state)
 
 void handle_switch_disp(boolean current_state)
 {
-    switch(_handle_switch(&swt_display1, current_state))
+    const enum switch_result res = _handle_switch(&swt_display1, current_state);
+
+    // Handle control to menu system?
+    if (menu_active && res != PRESSED_NONE)
+    {
+        _handle_menu_switch(SWITCH_DISP1, res);
+        return;
+    }
+
+    switch(res)
     {
         case PRESSED_LONG:
             // Shut down system
@@ -128,9 +110,23 @@ void handle_switch_disp(boolean current_state)
 
 void handle_switch_disp2(boolean current_state)
 {
-    switch(_handle_switch(&swt_display2, current_state))
+    const enum switch_result res = _handle_switch(&swt_display2, current_state);
+
+    // Handle control to menu system?
+    if (menu_active && res != PRESSED_NONE)
+    {
+        _handle_menu_switch(SWITCH_DISP2, res);
+        return;
+    }
+
+    switch(res)
     {
         case PRESSED_LONG:
+            if (menu_active == false)
+            {
+                // Activate on the go menu
+                menu_active = true;
+            }
             break;
         case PRESSED_SHORT:
             break;
@@ -138,4 +134,42 @@ void handle_switch_disp2(boolean current_state)
         default:
             break;
     }
+}
+
+static enum switch_result _handle_switch(switch_state *state, boolean switch_current)
+{
+    enum switch_result res = PRESSED_NONE;
+    const unsigned long now = millis();
+
+    if (switch_current==BUTTON_ON)
+    {
+        if (state->previous_state==BUTTON_OFF)
+        {
+            // first press
+            state->first_press_time=now;
+        }
+        else if ((now - state->first_press_time)>1000 && state->action_enabled)
+        {
+            state->action_enabled = false;
+            res = PRESSED_LONG;
+        }
+    }
+    else if (state->previous_state==BUTTON_ON
+        && (now - state->first_press_time)>10
+        && (now - state->first_press_time)<1000
+        && state->action_enabled)
+    {
+        state->action_enabled = false;
+        res = PRESSED_SHORT;
+    }
+    else
+        state->action_enabled = true;
+
+    state->previous_state = switch_current;
+
+    return res;
+}
+
+static void _handle_menu_switch(const enum switch_name sw, const enum switch_result res)
+{
 }
