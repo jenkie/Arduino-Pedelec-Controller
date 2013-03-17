@@ -18,9 +18,11 @@ set(${FIRMWARE_NAME}_PORT /dev/ttyUSB0)            # Serial upload port
 configure_file(Arduino_Pedelec_Controller.ino main.cpp COPYONLY)
 
 set(${FIRMWARE_NAME}_SRCS                          # Source code
+    ${CMAKE_CURRENT_BINARY_DIR}/main.cpp
     BMP085.cpp
     BMP085.h
-    ${CMAKE_CURRENT_BINARY_DIR}/main.cpp
+    MenuSystem.cpp
+    MenuSystem.h
     PCD8544_charset.cpp
     PCD8544_nano.cpp
     PCD8544_nano.h
