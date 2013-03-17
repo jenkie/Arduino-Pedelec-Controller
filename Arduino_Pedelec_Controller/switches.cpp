@@ -27,23 +27,32 @@ struct switch_state
     unsigned long first_press_time;    // time when switch was pressed down (to decide if long or short press)
     bool previous_state;               // state of the switch in the previous loop run
     bool action_enabled;               // disable switch if long-press action has been done until switch is released
-} swt_throttle, swt_display1, swt_display2;
-
-void init_switches()
-{
-    memset(&swt_throttle, 0, sizeof(struct switch_state));
-    memset(&swt_display1, 0, sizeof(struct switch_state));
-    memset(&swt_display2, 0, sizeof(struct switch_state));
-}
+    sw_action action_short_press; // action to execute on short press
+    sw_action action_long_press; // action to execute on long press
+} switch_states[_SWITCHES_COUNT];
 
 // Generic switch handler. Returns a 'switch_result'
 enum button_state { BUTTON_ON=0, BUTTON_OFF=1 };
-enum switch_name { SWITCH_NONE=0, SWITCH_THROTTLE=1, SWITCH_DISP1=2, SWITCH_DISP2=3 };
 enum switch_result { PRESSED_NONE=0, PRESSED_SHORT=1, PRESSED_LONG=2 };
 
 // Forward declarations
-static enum switch_result _handle_switch(switch_state *state, boolean switch_current);
+static enum switch_result _read_switch(switch_state *state, boolean switch_current);
 static void _handle_menu_switch(const enum switch_name sw, const enum switch_result res);
+
+void init_switches()
+{
+    memset(&switch_states, 0, sizeof(struct switch_state) * _SWITCHES_COUNT);
+
+    // Store switch actions in the right place
+    switch_states[SWITCH_THROTTLE].action_short_press = SW_THROTTLE_SHORT_PRESS;
+    switch_states[SWITCH_THROTTLE].action_long_press = SW_THROTTLE_LONG_PRESS;
+
+    switch_states[SWITCH_DISPLAY1].action_short_press = SW_DISPLAY1_SHORT_PRESS;
+    switch_states[SWITCH_DISPLAY1].action_long_press = SW_DISPLAY1_LONG_PRESS;
+
+    switch_states[SWITCH_DISPLAY2].action_short_press = SW_DISPLAY2_SHORT_PRESS;
+    switch_states[SWITCH_DISPLAY2].action_long_press = SW_DISPLAY2_LONG_PRESS;
+}
 
 //
 // Switch actions start here.
@@ -97,72 +106,52 @@ static void action_enter_menu()
     while (menu_system.back());
 }
 
-void handle_switch_thr(boolean current_state)
+static void execute_action(const sw_action action)
 {
-    const enum switch_result res = _handle_switch(&swt_throttle, current_state);
-
-    // Handle control to menu system?
-    if (menu_active && res != PRESSED_NONE)
+    switch(action)
     {
-        _handle_menu_switch(SWITCH_THROTTLE, res);
-        return;
-    }
-
-    switch(_handle_switch(&swt_throttle, current_state))
-    {
-        case PRESSED_LONG:
+        case ACTION_NONE:
             break;
-        case PRESSED_SHORT:
+        case ACTION_SET_SOFT_POTI:
             action_set_soft_poti();
             break;
-        case PRESSED_NONE:
-        default:
-            break;
-    }
-}
-
-void handle_switch_disp(boolean current_state)
-{
-    const enum switch_result res = _handle_switch(&swt_display1, current_state);
-
-    // Handle control to menu system?
-    if (menu_active && res != PRESSED_NONE)
-    {
-        _handle_menu_switch(SWITCH_DISP1, res);
-        return;
-    }
-
-    switch(res)
-    {
-        case PRESSED_LONG:
+        case ACTION_SHUTDOWN_SYSTEM:
             action_shutdown_system();
             break;
-        case PRESSED_SHORT:
+        case ACTION_ENABLE_BACKLIGHT_LONG:
             action_enable_backlight_long();
             break;
-        case PRESSED_NONE:
+        case ACTION_ENTER_MENU:
+            action_enter_menu();
+            break;
         default:
+            display_show_important_info("Unknown action!", 2);
             break;
     }
 }
 
-void handle_switch_disp2(boolean current_state)
+// Switch handling code starts here
+void handle_switch(const switch_name sw_name, boolean current_state)
 {
-    const enum switch_result res = _handle_switch(&swt_display2, current_state);
+    const enum switch_result res = _read_switch(&switch_states[sw_name], current_state);
+    if (res == PRESSED_NONE)
+        return;
 
     // Handle control to menu system?
-    if (menu_active && res != PRESSED_NONE)
+    if (menu_active)
     {
-        _handle_menu_switch(SWITCH_DISP2, res);
+        _handle_menu_switch(sw_name, res);
         return;
     }
 
+    // normal switch action
     switch(res)
     {
         case PRESSED_LONG:
-            action_enter_menu();
+            execute_action(switch_states[sw_name].action_long_press);
             break;
         case PRESSED_SHORT:
+            execute_action(switch_states[sw_name].action_short_press);
             break;
         case PRESSED_NONE:
         default:
@@ -172,7 +161,7 @@ void handle_switch_disp2(boolean current_state)
 
 // Workhose of switch handling: Detect short
 // or long presses, also debounces the switches.
-static enum switch_result _handle_switch(switch_state *state, boolean switch_current)
+static enum switch_result _read_switch(switch_state *state, boolean switch_current)
 {
     enum switch_result res = PRESSED_NONE;
     const unsigned long now = millis();
@@ -208,35 +197,21 @@ static enum switch_result _handle_switch(switch_state *state, boolean switch_cur
 
 static void _handle_menu_switch(const enum switch_name sw, const enum switch_result res)
 {
-    if (sw == SWITCH_DISP1)
+    switch(res)
     {
-        switch (res)
-        {
-            case PRESSED_SHORT:
+        case PRESSED_SHORT:
+            if (sw == MENU_BUTTON_UP)
                 menu_system.prev();
-                menu_changed = true;
-                break;
-            case PRESSED_LONG:
-                menu_system.select();
-                menu_changed = true;
-                break;
-            default:
-                break;
-        }
-    } else if (sw == SWITCH_DISP2)
-    {
-        switch (res)
-        {
-            case PRESSED_SHORT:
+            else if (sw == MENU_BUTTON_DOWN)
                 menu_system.next();
-                menu_changed = true;
-                break;
-            case PRESSED_LONG:
-                menu_system.select();
-                menu_changed = true;
-                break;
-            default:
-                break;
-        }
+
+            menu_changed = true;
+            break;
+        case PRESSED_LONG:
+            menu_system.select();
+            menu_changed = true;
+            break;
+        default:
+            break;
     }
 }

@@ -281,11 +281,12 @@ void loop()
 #endif
 
 //handle switches----------------------------------------------------------------------------------------------------------
-    handle_switch_thr(digitalRead(switch_thr));
-    handle_switch_disp(digitalRead(switch_disp));
+    handle_switch(SWITCH_THROTTLE, digitalRead(switch_thr));
+    handle_switch(SWITCH_DISPLAY1, digitalRead(switch_disp));
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
-    handle_switch_disp2(digitalRead(switch_disp_2));
+    handle_switch(SWITCH_DISPLAY2, digitalRead(switch_disp_2));
 #endif
+
 //Check if Battery was charged since last power down-----------------------------------------------------------------------
     if (firstrun==true)
     {

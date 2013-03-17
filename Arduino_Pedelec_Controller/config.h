@@ -28,6 +28,33 @@
 #define SERIAL_MODE SERIAL_MODE_DEBUG        //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------
 
 
+// Customizable buttons for use with the on-the-go-menu.
+// The menu is activated by the ACTION_ENTER_MENU action (see below).
+//
+enum switch_name { SWITCH_THROTTLE=0, SWITCH_DISPLAY1=1, SWITCH_DISPLAY2=2, _SWITCHES_COUNT=3 };
+
+const switch_name MENU_BUTTON_UP = SWITCH_DISPLAY1;
+const switch_name MENU_BUTTON_DOWN = SWITCH_DISPLAY2;
+
+// Switch actions: Customizable actions for short and long press
+//
+enum sw_action { ACTION_NONE=0,                // do nothing
+                 ACTION_SET_SOFT_POTI,         // set soft poti
+                 ACTION_SHUTDOWN_SYSTEM,       // power down system
+                 ACTION_ENABLE_BACKLIGHT_LONG, // enable backlight for 60s
+                 ACTION_ENTER_MENU,            // enter on-the-go settings menu
+};
+
+const sw_action SW_THROTTLE_SHORT_PRESS = ACTION_SET_SOFT_POTI;
+const sw_action SW_THROTTLE_LONG_PRESS  = ACTION_SHUTDOWN_SYSTEM;
+
+const sw_action SW_DISPLAY1_SHORT_PRESS = ACTION_ENABLE_BACKLIGHT_LONG;
+const sw_action SW_DISPLAY1_LONG_PRESS  = ACTION_ENTER_MENU;
+
+const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_NONE;
+const sw_action SW_DISPLAY2_LONG_PRESS  = ACTION_ENTER_MENU;
+
+
 // #define SUPPORT_DISPLAY_BACKLIGHT // uncomment for LCD display backlight support
                                      // The Nokia 5110 display needs a 120 Ohm resistor on the backlight pin
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
