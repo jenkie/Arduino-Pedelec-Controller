@@ -157,12 +157,24 @@ static void display_nokia_menu()
 
     lcd.clear();
 
-    // TODO: Implement scrolling to currently selected item
-    // for long menus
+    // Scroll to currently selected item for long menus
+    byte current_lcd_row = 0;
+    byte items_to_skip = 0;
+
+    const byte nokia_screen_rows = 6;
+    if (menu->get_cur_menu_component_num() >= nokia_screen_rows)
+        items_to_skip = menu->get_cur_menu_component_num() - nokia_screen_rows + 1;
 
     for (byte i = 0; i < menu->get_num_menu_components(); ++i)
     {
-        lcd.setCursor(0,i);
+        // Handle scrolling of long menus
+        if (items_to_skip)
+        {
+            --items_to_skip;
+            continue;
+        }
+
+        lcd.setCursor(0, current_lcd_row);
 
         MenuComponent const *item = menu->get_menu_component(i);
         if (item == selected)
@@ -171,6 +183,10 @@ static void display_nokia_menu()
             lcd.print("  ");
 
         lcd.print(item->get_name());
+
+        ++current_lcd_row;
+        if (current_lcd_row == nokia_screen_rows)
+            break;
     }
 }
 
