@@ -197,6 +197,10 @@ static void _handle_menu_switch(const enum switch_name sw, const enum switch_res
                 menu_system.next();
                 menu_changed = true;
                 break;
+            case PRESSED_LONG:
+                menu_system.select();
+                menu_changed = true;
+                break;
             default:
                 break;
         }
