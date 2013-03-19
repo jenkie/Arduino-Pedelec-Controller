@@ -44,6 +44,7 @@ static MenuItem m_display_reset_wh("Reset Wh");
 static MenuItem m_display_reset_km("Reset KM");
 static MenuItem m_display_graphical_onoff("Graf. an/aus");
 static MenuItem m_main_bt_onoff("BT an/aus");
+static MenuItem m_main_shutdown("Ausschalten");
 
 // Universally used "go back" menu entry
 static MenuItem m_go_back("Zurueck ->");
@@ -82,6 +83,17 @@ static void handle_bluetooth_onoff(MenuItem* p_menu_item)
     menu_active = false;
 }
 
+static void handle_shutdown(MenuItem* p_menu_item)
+{
+    // Shut down system
+#if HARDWARE_REV >=2
+    display_show_important_info(msg_shutdown, 60);
+    digitalWrite(fet_out,HIGH);
+#endif
+
+    menu_active = false;
+}
+
 static void handle_go_back(MenuItem* p_menu_item)
 {
     // Go back in the main menu?
@@ -91,6 +103,19 @@ static void handle_go_back(MenuItem* p_menu_item)
 
 void init_menu()
 {
+#if HARDWARE_REV >=2
+    // Add 'shutdown' entry if no switch is configured as the 'shutdown' action
+    if (SW_THROTTLE_SHORT_PRESS != ACTION_SHUTDOWN_SYSTEM &&
+        SW_THROTTLE_LONG_PRESS != ACTION_SHUTDOWN_SYSTEM &&
+        SW_DISPLAY1_SHORT_PRESS != ACTION_SHUTDOWN_SYSTEM &&
+        SW_DISPLAY1_LONG_PRESS != ACTION_SHUTDOWN_SYSTEM &&
+        SW_DISPLAY2_SHORT_PRESS != ACTION_SHUTDOWN_SYSTEM &&
+        SW_DISPLAY2_LONG_PRESS != ACTION_SHUTDOWN_SYSTEM)
+    {
+        menu_main.add_item(&m_main_shutdown, &handle_shutdown);
+    }
+#endif
+
     menu_main.add_menu(&menu_display);
 
     menu_display.add_item(&m_display_reset_wh, &handle_reset_wh);
