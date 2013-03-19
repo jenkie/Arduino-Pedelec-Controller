@@ -210,9 +210,9 @@ static void _handle_menu_switch(const enum switch_name sw, const enum switch_res
     {
         case PRESSED_SHORT:
             if (sw == MENU_BUTTON_UP)
-                menu_system.prev();
+                menu_system.prev(true);
             else if (sw == MENU_BUTTON_DOWN)
-                menu_system.next();
+                menu_system.next(true);
 
             menu_changed = true;
             break;
