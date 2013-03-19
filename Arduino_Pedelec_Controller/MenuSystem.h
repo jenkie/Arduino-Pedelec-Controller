@@ -57,16 +57,16 @@ public:
     boolean prev();
     MenuComponent* activate();
     virtual MenuComponent* select();
-    
+
     void add_item(MenuItem* pItem, void (*on_select)(MenuItem*));
     Menu const* add_menu(Menu* pMenu);
-    
+
     void set_parent(Menu* pParent);
     Menu const* get_parent() const;
-    
+
     MenuComponent const* get_selected() const;
     MenuComponent const* get_menu_component(byte index) const;
-    
+
     byte get_num_menu_components() const;
     byte get_cur_menu_component_num() const;
 
