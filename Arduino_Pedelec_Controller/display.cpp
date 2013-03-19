@@ -17,11 +17,11 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
+#include "config.h"
 #include "display.h"
 #include "display_backlight.h"
-#include "config.h"
 #include "menu.h"
-
+#include "globals.h"
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 #include "PCD8544_nano.h"                    //for Nokia Display

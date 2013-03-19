@@ -18,18 +18,14 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
 #include "config.h"
+#include "globals.h"
 #include "menu.h"
+#include "display.h"
 #include "MenuSystem.h"
 
 unsigned long menu_activity_expire=0;
 boolean menu_active=false;
 boolean menu_changed=false;
-
-extern const int bluetooth_pin;
-extern float wh;
-extern float mah;
-extern volatile float km;
-extern boolean display_force_text;
 
 /*
 Layout:

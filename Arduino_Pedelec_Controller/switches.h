@@ -20,12 +20,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #define SWITCHES_H
 
 #include "Arduino.h"
-#include "display.h"
 #include "config.h"
-
-extern float poti_stat;
-extern int throttle_stat;
-extern nokia_screen_type nokia_screen; //currently displayed screen on the Nokia display
 
 void init_switches();
 void handle_switch(const switch_name sw_name, boolean sw_state);

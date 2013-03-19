@@ -28,6 +28,7 @@ Features:
 */
 
 #include "config.h"          //place all your personal configurations there and keep that file when updating!   
+#include "globals.h"
 #include "display.h"         //display output functions
 #include "display_backlight.h"  // LCD display backlight support
 #include "EEPROM.h"

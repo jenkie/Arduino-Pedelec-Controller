@@ -21,8 +21,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #include "Arduino.h"
 
-
-
 void display_init();
 void display_update();
 void display_show_important_info(const char *str, int duration_secs);
@@ -33,34 +31,8 @@ typedef enum {NOKIA_SCREEN_TEXT,
               NOKIA_SCREEN_MENU,
               NOKIA_SCREEN_IMPORTANT_INFO
 } nokia_screen_type;
+
+extern nokia_screen_type nokia_screen; //currently displayed screen on the Nokia display
 extern boolean display_force_text;
 
-// Global defines from main program.
-// This list will be replaced by a proper defined interface between
-// the main code and the display code sooner or later.
-extern float voltage_display;
-extern float current_display;
-extern byte battery_percent_fromvoltage;
-extern byte battery_percent_fromcapacity;
-extern double power;
-extern double power_set;
-extern float wh;
-extern volatile float spd;
-extern volatile int cad;
-extern volatile float km;
-extern float range;
-extern float temperature;
-extern float altitude;
-extern float slope;
-extern const int bluetooth_pin;
-extern float poti_stat;
-extern int throttle_stat;
-extern boolean brake_stat;
-extern volatile unsigned long wheel_time;
-extern const int fet_out;
-extern byte pulse_human;
-#ifdef SUPPORT_XCELL_RT
-extern double power_human;
-extern nokia_screen_type nokia_screen; //currently displayed screen on the Nokia display
-#endif
 #endif
