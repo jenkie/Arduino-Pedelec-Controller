@@ -94,6 +94,14 @@ static void action_enable_backlight_long()
 #endif
 }
 
+static void action_toggle_bluetooth()
+{
+    // Toggle bluetooth
+#if HARDWARE_REV >=2
+    digitalWrite(bluetooth_pin, !digitalRead(bluetooth_pin));   //not available in 1.1
+#endif
+}
+
 static void action_enter_menu()
 {
     if (menu_active)
@@ -126,6 +134,9 @@ static void execute_action(const sw_action action)
             break;
         case ACTION_ENABLE_BACKLIGHT_LONG:
             action_enable_backlight_long();
+            break;
+        case ACTION_TOGGLE_BLUETOOTH:
+            action_toggle_bluetooth();
             break;
         case ACTION_ENTER_MENU:
             action_enter_menu();

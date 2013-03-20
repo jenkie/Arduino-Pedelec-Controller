@@ -42,6 +42,7 @@ enum sw_action { ACTION_NONE=0,                // do nothing
                  ACTION_SET_SOFT_POTI,         // set soft poti
                  ACTION_SHUTDOWN_SYSTEM,       // power down system
                  ACTION_ENABLE_BACKLIGHT_LONG, // enable backlight for 60s
+                 ACTION_TOGGLE_BLUETOOTH,      // switch bluetooth on/off
                  ACTION_ENTER_MENU,            // enter on-the-go settings menu
 };
 
