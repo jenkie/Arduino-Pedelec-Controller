@@ -81,7 +81,6 @@ const int throttle_offset=196;           //Offset voltage of throttle control wh
 const int throttle_max=832;              //Offset voltage of throttle control when in "MAX" position (0..1023 = 0..5V)
 const int motor_offset=50;               //Offset for throttle output where Motor starts to spin (0..255 = 0..5V)
 const int motor_max=200;                 //Maximum input value for motor driver (0..255 = 0..5V)
-const int torque_offset=533;             //Offset of X-Cell RT torque sensor
 const boolean startingaidenable = true;  //enable starting aid?
 const int startingaid_speed = 6;         //starting aid up to this speed. 6km/h is the limit for legal operation of a Pedelec by EU-wide laws
 const float vcutoff=33.0;                //cutoff voltage in V;

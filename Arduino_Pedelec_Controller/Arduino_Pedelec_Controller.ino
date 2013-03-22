@@ -151,6 +151,7 @@ byte pulse_human=0;          //cyclist's heart rate
 double torque=0.0;           //cyclist's torque
 double power_human=0.0;      //cyclist's power
 #ifdef SUPPORT_XCELL_RT
+int torque_zero=533;             //Offset of X-Cell RT torque sensor. Adjusted at startup
 const int torquevalues_count=8;
 volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0}; //stores the 8 torque values per pedal roundtrip
 volatile byte torqueindex=0;        //index to write next torque value
@@ -222,6 +223,9 @@ void setup()
 #ifndef SUPPORT_PAS
     pedaling=true;
 #endif
+#ifdef SUPPORT_XCELL_RT
+torque_zero=analogRead(option_pin);   
+#endif
 }
 
 void loop()
@@ -265,7 +269,7 @@ void loop()
 #ifdef SUPPORT_XCELL_RT
     if (readtorque==true)
     {
-        torquevalues[torqueindex]=analogRead(option_pin)-torque_offset;
+        torquevalues[torqueindex]=analogRead(option_pin)-torque_zero;
         torqueindex++;
         torque=0.0;
         for (int i = 0; i < torquevalues_count; i++)
