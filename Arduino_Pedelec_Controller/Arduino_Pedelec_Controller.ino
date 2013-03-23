@@ -188,7 +188,9 @@ void setup()
     pinMode(switch_disp_2, INPUT);
     digitalWrite(switch_disp_2, HIGH);    // turn on pullup resistors on display-switch 2
 #endif
+#ifdef SUPPORT_BRAKE 
     pinMode(brake_in, INPUT);
+#endif
     pinMode(option_pin,INPUT);
 #if HARDWARE_REV >= 2
     pinMode(fet_out,OUTPUT);
@@ -196,7 +198,9 @@ void setup()
     digitalWrite(bluetooth_pin, LOW);     // turn bluetooth off
     digitalWrite(fet_out, LOW);           // turn on whole system on (write high to fet_out if you want to power off)
 #endif
+#ifdef SUPPORT_BRAKE 
     digitalWrite(brake_in, HIGH);         // turn on pullup resistors on brake
+#endif
     digitalWrite(switch_thr, HIGH);       // turn on pullup resistors on throttle-switch
     digitalWrite(switch_disp, HIGH);      // turn on pullup resistors on display-switch
     digitalWrite(wheel_in, HIGH);         // turn on pullup resistors on wheel-sensor
@@ -243,7 +247,13 @@ void loop()
 #ifdef SUPPORT_THROTTLE
     throttle_stat = constrain(map(analogRead(throttle_in),throttle_offset,throttle_max,0,1023),0,1023);   // 0...1023
 #endif
+#ifdef SUPPORT_BRAKE
+#ifdef INVERT_BRAKE
+    brake_stat = !digitalRead(brake_in);
+#else
     brake_stat = digitalRead(brake_in);
+#endif
+#endif
 //voltage, current, power
     voltage = analogRead(voltage_in)*voltage_amplitude+voltage_offset; //check with multimeter, change in config.h if needed!
 #if HARDWARE_REV <= 2

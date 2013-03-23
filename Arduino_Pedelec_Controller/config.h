@@ -69,6 +69,8 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 #define SUPPORT_PAS         //uncomment if PAS-sensor connected
 // #define SUPPORT_XCELL_RT    //uncomment if X-CELL RT connected. use pas_factor_min=0.2 and pas_factor_max=0.5 for X-CELL RT
 // #define SUPPORT_HRMI         //uncomment if polar heart-rate monitor interface connected to i2c port
+// #define SUPPORT_BRAKE        //uncomment if brake switch connected
+// #define INVERT_BRAKE         //uncomment if brake signal is low when not braking
 
 #define CONTROL_MODE_NORMAL 0            //Normal mode: poti and throttle control motor power
 #define CONTROL_MODE_LIMIT_WH_PER_KM 1   //Limit wh/km consumption: poti controls wh/km, throttle controls power to override poti
