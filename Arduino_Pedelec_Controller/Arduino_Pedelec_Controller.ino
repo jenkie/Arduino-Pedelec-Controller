@@ -527,6 +527,7 @@ void loop()
                 && voltage > 6.0)
         {
             display_show_important_info("Battery undervoltage detected. Emergency shutdown.", 60);
+            delay(1000);
             digitalWrite(fet_out,HIGH);
         }
 #endif
