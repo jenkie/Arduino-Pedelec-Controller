@@ -62,7 +62,7 @@ const sw_action SW_DISPLAY2_LONG_PRESS  = ACTION_ENTER_MENU;
 const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f.e. instead of display switch #2 (12, default).
 #endif
 
-// #define SUPPORT_BMP085   //uncomment if BMP085 available
+// #define SUPPORT_BMP085   //uncomment if BMP085 available (barometric pressure + temperature sensor)
 #define SUPPORT_POTI        //uncomment if Poti connected
 // #define SUPPORT_SOFT_POTI // uncomment if Poti is emulated: The switch_disp button will store the current throttle value as poti value
 #define SUPPORT_THROTTLE    //uncomment if Throttle connected
