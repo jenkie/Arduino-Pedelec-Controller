@@ -351,11 +351,11 @@ void loop()
 #ifdef SUPPORT_HRMI                                          //limit heart rate to specified range if possible
     if (pulse_human>0)
     {
-        power_poti=min(power_poti+power_max*constrain((pulse_human-pulse_min)/pulse_range,0.0,1.0),power_poti_max);
+        power_poti=min(power_poti+power_max*constrain((pulse_human-pulse_min)/pulse_range,0.0,1.0),power_max);
     }
 #endif
 
-    power_poti = min(power_poti,thermal_limit+(power_poti_max-thermal_limit)*constrain(spd/thermal_safe_speed,0,1)); //thermal limiting
+    power_poti = min(power_poti,thermal_limit+(power_max-thermal_limit)*constrain(spd/thermal_safe_speed,0,1)); //thermal limiting
 
     if ((power_throttle) > (power_poti))                     //IF power set by throttle IS GREATER THAN power set by poti (throttle override)
     {
