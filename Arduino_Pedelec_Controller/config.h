@@ -7,6 +7,7 @@
 #else
 #include <Arduino.h>
 #endif
+#include "switches_action.h"
 
 #define HARDWARE_REV 4      //place your hardware revision (1-4) here: x means hardware-revision 1.x
 
@@ -31,21 +32,19 @@
 // Customizable buttons for use with the on-the-go-menu.
 // The menu is activated by the ACTION_ENTER_MENU action (see below).
 //
-enum switch_name { SWITCH_THROTTLE=0, SWITCH_DISPLAY1=1, SWITCH_DISPLAY2=2, _SWITCHES_COUNT=3 };
-
-const switch_name MENU_BUTTON_UP = SWITCH_DISPLAY1;
-const switch_name MENU_BUTTON_DOWN = SWITCH_DISPLAY2;
+// Choose from: SWITCH_THROTTLE, SWITCH_DISPLAY1 and SWITCH_DISPLAY2
+//
+const switch_name MENU_BUTTON_UP = SWITCH_THROTTLE;
+const switch_name MENU_BUTTON_DOWN = SWITCH_DISPLAY1;
 
 // Switch actions: Customizable actions for short and long press
 //
-enum sw_action { ACTION_NONE=0,                // do nothing
-                 ACTION_SET_SOFT_POTI,         // set soft poti
-                 ACTION_SHUTDOWN_SYSTEM,       // power down system
-                 ACTION_ENABLE_BACKLIGHT_LONG, // enable backlight for 60s
-                 ACTION_TOGGLE_BLUETOOTH,      // switch bluetooth on/off
-                 ACTION_ENTER_MENU,            // enter on-the-go settings menu
-};
-
+// Choose from: ACTION_NONE, ACTION_SET_SOFT_POTI, ACTION_SHUTDOWN_SYSTEM
+//              ACTION_ENABLE_BACKLIGHT_LONG, ACTION_TOGGLE_BLUETOOTH,
+//              ACTION_ENTER_MENU
+//
+// The file "switches_action.h" contains a list with descriptions.
+//
 const sw_action SW_THROTTLE_SHORT_PRESS = ACTION_SET_SOFT_POTI;
 const sw_action SW_THROTTLE_LONG_PRESS  = ACTION_SHUTDOWN_SYSTEM;
 
