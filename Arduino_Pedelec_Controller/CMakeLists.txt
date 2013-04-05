@@ -38,6 +38,7 @@ set(${FIRMWARE_NAME}_SRCS                          # Source code
     menu.h
     switches.cpp
     switches.h
+    switches_action.h
     )
 generate_arduino_firmware(${FIRMWARE_NAME})
 
