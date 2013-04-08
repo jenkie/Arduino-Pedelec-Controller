@@ -140,6 +140,7 @@ unsigned long last_writetime = millis();  //last time display has been refreshed
 volatile unsigned long last_wheel_time = millis(); //last time of wheel sensor change 0->1
 volatile unsigned long wheel_time = 0;  //time for one revolution of the wheel
 volatile unsigned long last_pas_event = millis();  //last change-time of PAS sensor status
+#define pas_time 60000/pas_magnets //conversion factor for pas_time to rpm (cadence)
 volatile boolean pedaling = false;  //pedaling? (in forward direction!)
 boolean firstrun = true;  //first run of loop?
 boolean variables_saved = false; //has everything been saved after Switch-Off detected?
@@ -555,11 +556,7 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
     {pas_on_time=millis()-last_pas_event;}
     last_pas_event = millis();
     pas_failtime=pas_failtime+1;
-#ifdef SUPPORT_XCELL_RT
-    cad=7500/(pas_on_time+pas_off_time);
-#else
-    cad=12000/(pas_on_time+pas_off_time);
-#endif
+    cad=pas_time/(pas_on_time+pas_off_time);
     double pas_factor=(double)pas_on_time/(double)pas_off_time;
     if ((pas_factor>pas_factor_min)&&(pas_factor<pas_factor_max))
     {
