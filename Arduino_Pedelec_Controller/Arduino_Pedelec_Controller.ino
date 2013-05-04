@@ -399,7 +399,11 @@ void loop()
     myPID.Compute();                                      //this computes the needed drive voltage for the motor controller to maintain the "power_set" based on the current "power" measurment
 
     throttle_write=map(pid_out*brake_stat*factor_volt,0,1023,motor_offset,motor_max);
+#ifdef SUPPORT_PAS
     if ((pedaling==false)&&(throttle_stat<5))
+#else
+    if (throttle_stat<5)
+#endif
     {throttle_write=0;}
     analogWrite(throttle_out,throttle_write);
 
