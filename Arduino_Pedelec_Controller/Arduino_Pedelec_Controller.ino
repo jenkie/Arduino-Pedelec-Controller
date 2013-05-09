@@ -62,7 +62,7 @@ struct savings   //add variables if you want to store additional values to the e
     float wh; //watthours
     float kilometers; //trip kilometers
     float mah; //milliamphours
-    long odo; //overall kilometers in units of wheel roundtrips
+    unsigned long odo; //overall kilometers in units of wheel roundtrips
 };
 savings variable = {0.0,0.0,0.0}; //variable stores last voltage and capacity read from EEPROM
 
@@ -137,7 +137,7 @@ float slope = 0.0;             //current slope
 volatile float km=0.0;         //trip-km
 volatile float spd=0.0;        //speed
 float range = 0.0;             //expected range
-long odo=0;                    //overall kilometers in units of wheel roundtrips
+unsigned long odo=0;           //overall kilometers in units of wheel roundtrips
 unsigned long last_writetime = millis();  //last time display has been refreshed
 volatile unsigned long last_wheel_time = millis(); //last time of wheel sensor change 0->1
 volatile unsigned long wheel_time = 0;  //time for one revolution of the wheel
@@ -308,7 +308,7 @@ void loop()
 //Check if Battery was charged since last power down-----------------------------------------------------------------------
     if (firstrun==true)
     {
-      odo=variable.odo;                                    //load overall kilometers from eeprom
+        odo=variable.odo;                                  //load overall kilometers from eeprom
         if (variable.voltage>(voltage - 2))                //charging detected if voltage is 2V higher than last stored voltage
         {
             wh=variable.wh;
@@ -580,7 +580,7 @@ void speed_change()    //Wheel Sensor Change------------------------------------
 {
 //Speed and Km
     if (last_wheel_time>(millis()-50)) return;                         //debouncing reed-sensor
-    odo++;
+    ++odo;
     wheel_time=millis()-last_wheel_time;
     spd = (spd+3600*wheel_circumference/wheel_time)/2;  //a bit of averaging for smoother speed-cutoff
     if (spd<100)
