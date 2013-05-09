@@ -25,6 +25,9 @@ void display_init();
 void display_update();
 void display_show_important_info(const char *str, int duration_secs);
 
+void display_show_welcome_msg();
+void display_show_welcome_msg_temp();
+
 //definitions for Nokia graphic display
 typedef enum {NOKIA_SCREEN_TEXT,
               NOKIA_SCREEN_GRAPHIC,

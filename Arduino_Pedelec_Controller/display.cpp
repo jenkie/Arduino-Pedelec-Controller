@@ -75,6 +75,66 @@ void display_show_important_info(const char *str, int duration_secs)
 #endif
 }
 
+// Calculate length of number.
+// Don't use sprintf() here is it sucks up 1.5kb of code space.
+static byte calc_number_length(const unsigned long x)
+{
+    unsigned long i=1, j=10;
+
+    while ( x > ( j-1 ) )
+    {
+        i=i+1;
+        j=j*10;
+
+        // endless loop protection
+        if (i > 20)
+            break;
+    }
+
+    return i;
+}
+
+void display_show_welcome_msg()
+{
+    display_show_important_info(msg_welcome, 5);
+
+    lcd.setCursor(0, 5);
+
+    // Show total mileage (right aligned)
+    unsigned long total_km = (odo * wheel_circumference/1000);
+    byte number_len = calc_number_length(total_km);
+    // Safety check
+    if (number_len >= 12)
+        return;
+
+    number_len = 12 - number_len;
+    while(number_len > 1)
+    {
+        lcd.print(" ");
+        --number_len;
+    }
+
+    lcd.print(total_km);
+    lcd.print(" km");
+}
+
+#ifdef SUPPORT_BMP085
+/*
+    Own function to display temperature / altitude
+    on the welcome screen. If you just see "welcome"
+    and nothing else, the I2C communication is hanging.
+*/
+void display_show_welcome_msg_temp()
+{
+    lcd.setCursor(0,0);
+    lcd.print((int)(temperature));
+    lcd.print(" C / ");
+
+    lcd.print((int)(altitude_start));
+    lcd.print("m");
+}
+#endif
+
 static void display_nokia_setup()    //first time setup of nokia display
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)

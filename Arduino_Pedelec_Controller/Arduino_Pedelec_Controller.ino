@@ -211,7 +211,7 @@ void setup()
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
     pinMode(display_backlight_pin, OUTPUT);
 #endif
-    display_show_important_info(msg_welcome, 1);
+    display_show_welcome_msg();
 #ifdef SUPPORT_PAS
     attachInterrupt(0, pas_change, CHANGE); //attach interrupt for PAS-Sensor
 #endif
@@ -222,7 +222,9 @@ void setup()
 #ifdef SUPPORT_BMP085
     Wire.begin();                         //initialize i2c-bus
     bmp.begin();                          //initialize barometric altitude sensor
-    altitude_start=bmp.readAltitude();    //initialize barometric altitude sensor
+    temperature = bmp.readTemperature();
+    altitude_start=bmp.readAltitude();
+    display_show_welcome_msg_temp();
 #endif
 #ifdef SUPPORT_HRMI
     hrmi_open();
@@ -673,6 +675,14 @@ void send_serial_data()  //send serial data-------------------------------------
     Serial.print(poti_stat);
     Serial.print(" Throttle");
     Serial.print(throttle_stat);
+/*
+    Serial.print(" TEMP");
+    Serial.print(temperature);
+    Serial.print(" ALTI");
+    Serial.print(altitude);
+    Serial.print("/");
+    Serial.print(altitude_start);
+*/
     //now: data for Arduino Pedelec Configurator
     //0:voltage 1:current 2:pasfactor*100 3:option-pin 4:poti 5:throttle 6: brake
     Serial.print("---raw---");
