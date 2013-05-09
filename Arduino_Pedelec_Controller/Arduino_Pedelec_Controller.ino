@@ -211,12 +211,15 @@ void setup()
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
     pinMode(display_backlight_pin, OUTPUT);
 #endif
+
+    EEPROM_readAnything(0,variable);      //read stored variables
+    odo=variable.odo;                     //load overall kilometers from eeprom
     display_show_welcome_msg();
+
 #ifdef SUPPORT_PAS
     attachInterrupt(0, pas_change, CHANGE); //attach interrupt for PAS-Sensor
 #endif
     attachInterrupt(1, speed_change, RISING); //attach interrupt for Wheel-Sensor
-    EEPROM_readAnything(0,variable);      //read stored variables
     myPID.SetMode(AUTOMATIC);             //initialize pid
     myPID.SetOutputLimits(0,1023);        //initialize pid
 #ifdef SUPPORT_BMP085
@@ -310,7 +313,6 @@ void loop()
 //Check if Battery was charged since last power down-----------------------------------------------------------------------
     if (firstrun==true)
     {
-        odo=variable.odo;                                  //load overall kilometers from eeprom
         if (variable.voltage>(voltage - 2))                //charging detected if voltage is 2V higher than last stored voltage
         {
             wh=variable.wh;
