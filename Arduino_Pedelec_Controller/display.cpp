@@ -98,6 +98,7 @@ void display_show_welcome_msg()
 {
     display_show_important_info(msg_welcome, 5);
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     lcd.setCursor(0, 5);
 
     // Show total mileage (right aligned)
@@ -116,6 +117,7 @@ void display_show_welcome_msg()
 
     lcd.print(total_km);
     lcd.print(" km");
+#endif
 }
 
 #ifdef SUPPORT_BMP085
