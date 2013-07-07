@@ -23,7 +23,7 @@
 
 #define SERIAL_MODE_NONE (1<<0)              //don't send serial data at all
 #define SERIAL_MODE_DEBUG (1<<1)             //send debug data over Serial Monitor
-#define SERIAL_MODE_ANDROID (1<<2)           //send Amarino-compatible data over serial/bluetooth
+#define SERIAL_MODE_ANDROID (1<<2)           //send Arduino Pedelec HMI compatible data over serial/bluetooth
 #define SERIAL_MODE_MMC (1<<3)               //send MMC-App compatible data over serial/bluetooth (for future use, not implemented yet)
 #define SERIAL_MODE_LOGVIEW (1<<4)           //send logview-compatible data over serial (for future use, not implemented yet)
 #define SERIAL_MODE SERIAL_MODE_DEBUG        //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------

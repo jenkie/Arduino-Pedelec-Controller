@@ -39,12 +39,13 @@ extern float temperature;
 extern float altitude;
 extern float altitude_start;
 extern float slope;
-extern float poti_stat;
+extern int poti_stat;
 extern int throttle_stat;
 extern boolean brake_stat;
 extern volatile unsigned long wheel_time;
 extern byte pulse_human;
 extern double power_human;
+extern char inchar;
 
 extern const int bluetooth_pin;
 extern const int fet_out;

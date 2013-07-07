@@ -36,6 +36,7 @@ Features:
 #include "PID_v1_nano.h"
 #include "switches.h"        //contains switch handling functions
 #include "menu.h"            //on the go menu
+#include "bluetooth.h"       //bluetooth communication stuff
 
 #ifdef SUPPORT_BMP085
 #include <Wire.h>
@@ -108,7 +109,7 @@ double pid_i_throttle=cfg_pid_i_throttle;
 double pid_out,pid_set;        //pid output, pid set value
 int throttle_stat = 0;         //Throttle reading
 int throttle_write=0;          //Throttle write value
-float poti_stat = 0.0;         //Poti reading
+int poti_stat = 0;         //Poti reading
 volatile int pas_on_time = 0;  //High-Time of PAS-Sensor-Signal (needed to determine pedaling direction)
 volatile int pas_off_time = 0; //Low-Time of PAS-Sensor-Signal  (needed to determine pedaling direction)
 volatile int pas_failtime = 0; //how many subsequent "wrong" PAS values?
@@ -153,6 +154,7 @@ unsigned long idle_shutdown_last_wheel_time = millis();
 byte pulse_human=0;          //cyclist's heart rate
 double torque=0.0;           //cyclist's torque
 double power_human=0.0;      //cyclist's power
+double wh_human=0;
 #ifdef SUPPORT_XCELL_RT
 int torque_zero=533;             //Offset of X-Cell RT torque sensor. Adjusted at startup
 const int torquevalues_count=8;
@@ -167,8 +169,9 @@ byte mmc_value=0;
 boolean mmc_nextisvalue=false;
 #endif
 
-
-
+#if (SERIAL_MODE & SERIAL_MODE_ANDROID)        
+char inchar = 0;      //curent read char
+#endif
 
 // Forward declarations for compatibility with new gcc versions
 void pas_change();
@@ -250,6 +253,13 @@ void loop()
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
     display_update();
+#endif
+
+#if (SERIAL_MODE & SERIAL_MODE_ANDROID)
+   if (Serial.available() > 0){
+      inchar = Serial.read();
+      next(inchar);
+    }
 #endif
 
 #ifdef SUPPORT_THROTTLE
@@ -506,6 +516,7 @@ void loop()
         battery_percent_fromcapacity = constrain((1-wh/capacity)*100,0,100);     //battery percent calculation from battery capacity. For voltage-based calculation see above
         range=constrain(capacity/wh*km-km,0.0,200.0);               //range calculation from battery capacity
         wh+=current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
+        wh_human+=(millis()-last_writetime)/3600000.0*power_human;  //human watthours calculation
         mah+=current*(millis()-last_writetime)/3600.0;  //mah calculation
 
 #if !(DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
@@ -604,27 +615,27 @@ void speed_change()    //Wheel Sensor Change------------------------------------
 void send_serial_data()  //send serial data----------------------------------------------------------
 {
 #if (SERIAL_MODE & SERIAL_MODE_ANDROID)
-    char ack=19;
-    char startFlag=18; // used to communicate with Android (leads each message to Amarino)
-    Serial.print(startFlag);
-    Serial.print(voltage,2);
+    Serial.print(voltage,1);
     Serial.print(";");
     Serial.print(current,1);
     Serial.print(";");
-    Serial.print(power,1);
+    Serial.print((int)power);
     Serial.print(";");
-    Serial.print(spd,2);
+    Serial.print(spd,1);
     Serial.print(";");
     Serial.print(km,3);
     Serial.print(";");
-    Serial.print(cad);
+    Serial.print((int)cad);
     Serial.print(";");
-    Serial.print(wh);
+    Serial.print((int)wh);
     Serial.print(";");
-    Serial.print(torque,1);
+    Serial.print((int)power_human);
     Serial.print(";");
-    Serial.print(power_human,1);
-    Serial.print(ack);
+    Serial.print((int)wh_human);
+    Serial.print(";");
+    Serial.print((int)(poti_stat/1023.0*power_poti_max));
+    Serial.print(";");
+    Serial.println(CONTROL_MODE);
 #endif
 
 #if (SERIAL_MODE & SERIAL_MODE_LOGVIEW)
