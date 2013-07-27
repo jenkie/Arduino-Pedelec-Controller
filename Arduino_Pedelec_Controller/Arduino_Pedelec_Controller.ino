@@ -115,7 +115,6 @@ volatile int pas_off_time = 0; //Low-Time of PAS-Sensor-Signal  (needed to deter
 volatile int pas_failtime = 0; //how many subsequent "wrong" PAS values?
 volatile int cad=0;            //Cadence
 int looptime=0;                //Loop Time in milliseconds (for testing)
-byte battery_percent_fromvoltage=0;     //battery capacity calculated from voltage
 byte battery_percent_fromcapacity=0;     //battery capacity calculated from capacity
 int lowest_raw_current = 1023; //automatic current offset calibration
 float current = 0.0;           //measured battery current
@@ -499,19 +498,6 @@ void loop()
         temperature = bmp.readTemperature();
         altitude = bmp.readAltitude()-altitude_start;
 #endif
-
-//-----battery percent calculation start, valid for 10S turnigy 5000mAh-LiPo (polynomial fit to discharge curve at 150W)
-        if (voltage_display>38.6)
-        {battery_percent_fromvoltage=(-15.92628+0.71422*voltage_display-0.007398*pow(voltage_display,2))*100;}
-        else
-        {
-            if (voltage_display>36.76)
-            {battery_percent_fromvoltage=(5414.20057-431.39368*voltage_display+11.449212*pow(voltage_display,2)-0.1012069*pow(voltage_display,3))*100;}
-            else
-            {battery_percent_fromvoltage=(0.0025*pow(voltage_display-33,3))*100;}
-        }
-        battery_percent_fromvoltage=constrain(battery_percent_fromvoltage,0,100);
-//-----battery percent calculation end
 
         battery_percent_fromcapacity = constrain((1-wh/capacity)*100,0,100);     //battery percent calculation from battery capacity. For voltage-based calculation see above
         range=constrain(capacity/wh*km-km,0.0,200.0);               //range calculation from battery capacity

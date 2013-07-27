@@ -84,6 +84,7 @@ const int motor_offset=50;               //Offset for throttle output where Moto
 const int motor_max=200;                 //Maximum input value for motor driver (0..255 = 0..5V)
 const boolean startingaidenable = true;  //enable starting aid?
 const int startingaid_speed = 6;         //starting aid up to this speed. 6km/h is the limit for legal operation of a Pedelec by EU-wide laws
+const float vmax=42.0;                   //Battery voltage when fully charged
 const float vcutoff=33.0;                //cutoff voltage in V;
 const float vemergency_shutdown = 28.0;  //emergency power off situation to save the battery from undervoltage
 const float wheel_circumference = 2.202; //wheel circumference in m

@@ -471,7 +471,7 @@ void PCD8544::drawVerticalBar(word maxValue, word limit, word value, byte widthI
                 {  b&= ~(0xff<<(7-outerFrameInPixels-innerFrameInPixels) & 0xff>>(1+outerFrameInPixels));} //clear the inner frame
                 b&= 0x7F; //Clear last pixel line. It is not used because of 1 pixel necessary distance to the next line of text below the bar
             }
-            b|=limitLinePattern[y]; //last action is to draw the limit line on top over everything
+            b^=limitLinePattern[y]; //last action is to draw the limit line on top over everything
             send(PCD8544_DATA, b);
         }
     }
