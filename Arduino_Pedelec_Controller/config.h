@@ -76,12 +76,15 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 #define CONTROL_MODE_TORQUE 2            //power = x*power of the biker, see also description of power_poti_max!
 #define CONTROL_MODE CONTROL_MODE_NORMAL //Set your control mode here
 
+//#define SUPPORT_MOTOR_GUESS   //enable guess of motor drive depending on current speed. Usefull for motor controllers with speed-throttle to optimize response behaviour
+
 //Config Options-----------------------------------------------------------------------------------------------------
 const int pas_tolerance=1;               //0... increase to make pas sensor slower but more tolerant against speed changes
 const int throttle_offset=196;           //Offset voltage of throttle control when in "0" position (0..1023 = 0..5V)
 const int throttle_max=832;              //Offset voltage of throttle control when in "MAX" position (0..1023 = 0..5V)
 const int motor_offset=50;               //Offset for throttle output where Motor starts to spin (0..255 = 0..5V)
 const int motor_max=200;                 //Maximum input value for motor driver (0..255 = 0..5V)
+const int spd_idle=55;                   //idle speed of motor in km/h - may be much higher than real idle speed (depending on controller)
 const boolean startingaidenable = true;  //enable starting aid?
 const int startingaid_speed = 6;         //starting aid up to this speed. 6km/h is the limit for legal operation of a Pedelec by EU-wide laws
 const float vmax=42.0;                   //Battery voltage when fully charged
