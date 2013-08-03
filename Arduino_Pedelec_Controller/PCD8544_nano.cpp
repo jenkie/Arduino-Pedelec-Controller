@@ -391,23 +391,17 @@ void PCD8544::shiftOutFast(unsigned char myDataPin, unsigned char myClockPin, un
 //innerFrameInPixels: valid range: outerFrameInPixels+innerFrameInPixels <=7 !!
 void PCD8544::drawVerticalBar(word maxValue, word limit, word value, byte widthInPixels, byte heightInBytes, byte outerFrameInPixels, byte innerFrameInPixels)
 {
+    limit=constrain(limit,0,maxValue); //contrain limit to maximum value
     const byte xpos=this->column;
     const byte yposInBytes=this->line;
     const byte heightInPixels=8*heightInBytes;
     enum {OUTERFRAME, INNERFRAME, BAR} category;
     byte distanceFromTop;
     byte limitLinePattern[6]= {0,0,0,0,0,0}; //  Array size of 6 is sufficient, because display height is max 6 bytes = 48 Pixels
-    byte pixelLimit=constrain((byte)map(limit,0, maxValue,0, heightInPixels-outerFrameInPixels-1), 0, heightInPixels-outerFrameInPixels-1); //calc distance of the limit line from the bottom of the bar graph
+    byte pixelLimit=(byte)map(limit,0, maxValue,2, heightInPixels-outerFrameInPixels-3); //calc distance of the limit line from the bottom of the bar graph
     byte pixelValue;
     //calculate the number of pixels of the data bar depending on "value"
-    if(value<=limit) //normal case: the "value" is less or equal the "limit"
-    {
-        pixelValue=constrain((byte)map(value, 0,limit,0, max(pixelLimit-outerFrameInPixels-2*innerFrameInPixels,0)), 0, max(pixelLimit-outerFrameInPixels-2*innerFrameInPixels,0));
-    }
-    else //special case: if the "value" is higher than the "limit", then the bar should be drawn through the limit line.
-    {
-        pixelValue=constrain((byte)map(value, 0,maxValue,0, heightInPixels-2*outerFrameInPixels-2*innerFrameInPixels-1), 0, heightInPixels-2*outerFrameInPixels-2*innerFrameInPixels-1);
-    }
+     pixelValue=constrain((byte)map(value, 0,maxValue,0, heightInPixels-2*outerFrameInPixels-2*innerFrameInPixels-1), 0, heightInPixels-2*outerFrameInPixels-2*innerFrameInPixels-1);
     //the limit line has the same number of pixels as the outer Frame (e.g. 1 or 2 pixels usually), but at least 1 pixel
     for(byte i=0; i<max(outerFrameInPixels,1); i++) //for all pixels of the limit line: create the bit pattern
     {
@@ -460,7 +454,7 @@ void PCD8544::drawVerticalBar(word maxValue, word limit, word value, byte widthI
                 case BAR: b=barPattern;
                     break;
             }
-
+            b^=limitLinePattern[y]; //draw the limit line
             //draw the top outer frame
             if(y==0) b|= (1<<outerFrameInPixels)-1; //calculate the bit pattern. e.g. for 2 pixels outer frame:  1<<2-1=4-1=3= 00000011
             //draw the bottom frame
@@ -471,7 +465,7 @@ void PCD8544::drawVerticalBar(word maxValue, word limit, word value, byte widthI
                 {  b&= ~(0xff<<(7-outerFrameInPixels-innerFrameInPixels) & 0xff>>(1+outerFrameInPixels));} //clear the inner frame
                 b&= 0x7F; //Clear last pixel line. It is not used because of 1 pixel necessary distance to the next line of text below the bar
             }
-            b^=limitLinePattern[y]; //last action is to draw the limit line on top over everything
+            
             send(PCD8544_DATA, b);
         }
     }

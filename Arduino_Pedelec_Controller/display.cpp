@@ -551,7 +551,7 @@ static void display_nokia_update_graphic()
 
     //print battery percent left
     lcd.setCursorInPixels(0,1);
-    lcd.drawVerticalBar((word)(100), (word)((voltage_display-vcutoff)/(vmax-vcutoff)*100), (word)(battery_percent_fromcapacity), 11, 4);
+    lcd.drawVerticalBar((word)(100), (word)(constrain((voltage_display-vcutoff)/(vmax-vcutoff)*100,0,100)), (word)(battery_percent_fromcapacity), 11, 4);
 
     //print the trip-time in the lower right corner (displayed in the last 5 characters in this line)
     lcd.setCursorInPixels(84-5*6,5);
