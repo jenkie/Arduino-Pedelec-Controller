@@ -518,9 +518,12 @@ static void display_nokia_update_graphic()
 
     lcd.setCursorInPixels(42-10,0);
     if(brake_stat==0) //if brake is active
+    
     {lcd.drawBitmap(bitmapBrakeSymbol, 10,1);}
     else  //clear the brake symbol
     {lcd.drawBitmap(bitmapBrakeSymbolClear, 10,1);}
+    lcd.setCursor(9,0);
+    lcd.print(current_profile+1);
 #if HARDWARE_REV >=2
     lcd.setCursor(8,0);
     if (digitalRead(bluetooth_pin)==1)
@@ -547,7 +550,7 @@ static void display_nokia_update_graphic()
     //- the limit line shows the target power that is selected by the user (power_set_for_display)
     //- the bar shows the currenlty measured electrical power that the moter consumes
     lcd.setCursorInPixels(72,1);
-    lcd.drawVerticalBar((word)(max(power_max,power_poti_max)), (word)(max(power_set,0)), (word)(power), 11, 4);
+    lcd.drawVerticalBar((word)(max(*ptr_power_max,*ptr_power_poti_max)), (word)(max(power_set,0)), (word)(power), 11, 4);
 
     //print battery percent left
     lcd.setCursorInPixels(0,1);

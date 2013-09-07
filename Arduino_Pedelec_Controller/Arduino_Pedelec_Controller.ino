@@ -172,10 +172,22 @@ boolean mmc_nextisvalue=false;
 char inchar = 0;      //curent read char
 #endif
 
+//declarations for profile switching
+const int *ptr_startingaid_speed = &startingaid_speed;
+const int *ptr_spd_max1= &spd_max1;                 
+const int *ptr_spd_max2=&spd_max2;               
+const int *ptr_power_max=&power_max;                 
+const int *ptr_power_poti_max=&power_poti_max;            
+const double *ptr_capacity = &capacity;    
+boolean current_profile=0; //0: blue profile, 1: red profile
+
+
+
 // Forward declarations for compatibility with new gcc versions
 void pas_change();
 void speed_change();
 void send_serial_data();
+void set_profile();
 
 //Setup---------------------------------------------------------------------------------------------------------------------
 void setup()
@@ -349,16 +361,16 @@ void loop()
 
 
 //Power control-------------------------------------------------------------------------------------------------------------
-    power_throttle = throttle_stat / 1023.0 * power_max;         //power currently set by throttle
+    power_throttle = throttle_stat / 1023.0 * *ptr_power_max;         //power currently set by throttle
 
 #if CONTROL_MODE == CONTROL_MODE_TORQUE                      //human power control mode
 #ifdef SUPPORT_XCELL_RT
-    power_poti = poti_stat/102300.0*power_poti_max*power_human*(1+spd/20.0); //power_poti_max is in this control mode interpreted as percentage. Example: power_poti_max=200 means; motor power = 200% of human power
+    power_poti = poti_stat/102300.0* *ptr_power_poti_max*power_human*(1+spd/20.0); //power_poti_max is in this control mode interpreted as percentage. Example: power_poti_max=200 means; motor power = 200% of human power
 #endif
 #endif
 
 #if CONTROL_MODE == CONTROL_MODE_NORMAL                      //constant power mode
-    power_poti = poti_stat / 1023.0 * power_poti_max;
+    power_poti = poti_stat / 1023.0 * *ptr_power_poti_max;
 #endif
 
 #if CONTROL_MODE == CONTROL_MODE_LIMIT_WH_PER_KM            //wh/km control mode
@@ -368,11 +380,11 @@ void loop()
 #ifdef SUPPORT_HRMI                                          //limit heart rate to specified range if possible
     if (pulse_human>0)
     {
-        power_poti=min(power_poti+power_max*constrain((pulse_human-pulse_min)/pulse_range,0.0,1.0),power_max);
+        power_poti=min(power_poti+*ptr_power_max*constrain((pulse_human-pulse_min)/pulse_range,0.0,1.0),*ptr_power_max);
     }
 #endif
 
-    power_poti = min(power_poti,thermal_limit+(power_max-thermal_limit)*constrain(spd/thermal_safe_speed,0,1)); //thermal limiting
+    power_poti = min(power_poti,thermal_limit+(*ptr_power_max-thermal_limit)*constrain(spd/thermal_safe_speed,0,1)); //thermal limiting
 
     if ((power_throttle) > (power_poti))                     //IF power set by throttle IS GREATER THAN power set by poti (throttle override)
     {
@@ -388,17 +400,17 @@ void loop()
 //Speed cutoff-------------------------------------------------------------------------------------------------------------
 
     if (pedaling==true)
-    {factor_speed=constrain(1-(spd-spd_max1)/(spd_max2-spd_max1),0,1);} //linear decrease of maximum power for speeds higher than spd_max1
+    {factor_speed=constrain(1-(spd-*ptr_spd_max1)/(*ptr_spd_max2-*ptr_spd_max1),0,1);} //linear decrease of maximum power for speeds higher than spd_max1
     else
     {
         if (startingaidenable==true)                         //starting aid activated
-        {factor_speed=constrain((startingaid_speed-spd)/2,0,1);}
+        {factor_speed=constrain((*ptr_startingaid_speed-spd)/2,0,1);}
         else
         {factor_speed=0;}                                    //no starting aid
     }
 
-    if (power_set>power_max*factor_speed)
-    {power_set=power_max*factor_speed;}                  //Maximum allowed power including Speed-Cutoff
+    if (power_set>*ptr_power_max*factor_speed)
+    {power_set=*ptr_power_max*factor_speed;}                  //Maximum allowed power including Speed-Cutoff
     if ((((poti_stat<=throttle_stat)||(pedaling==false))&&(throttle_stat<5))||(brake_stat==0))  //power_set is set to -60W when you stop pedaling or brake (this is the pid-input)
     {power_set=-60;}
 
@@ -420,9 +432,9 @@ void loop()
     throttle_write=map(pid_out*brake_stat*factor_volt,0,1023,motor_offset,motor_max);
 #endif
 #ifdef SUPPORT_PAS
-    if ((pedaling==false)&&(throttle_stat<5)||power_set<=0||spd>spd_max2)
+    if ((pedaling==false)&&(throttle_stat<5)||power_set<=0||spd>*ptr_spd_max2)
 #else
-    if (throttle_stat<5||spd>spd_max2)
+    if (throttle_stat<5||spd>*ptr_spd_max2)
 #endif
     {throttle_write=0;}
     analogWrite(throttle_out,throttle_write);
@@ -495,6 +507,7 @@ void loop()
 //slow loop start----------------------//use this subroutine to place any functions which should happen only once a second
     if (millis()-last_writetime > 1000)              //don't do this more than once a second
     {
+        set_profile();                                   //update current profile
         voltage_2s=voltage_1s;                           //update voltage history
         voltage_1s=voltage;                              //update voltage history
 
@@ -503,8 +516,8 @@ void loop()
         altitude = bmp.readAltitude()-altitude_start;
 #endif
 
-        battery_percent_fromcapacity = constrain((1-wh/capacity)*100,0,100);     //battery percent calculation from battery capacity. For voltage-based calculation see above
-        range=constrain(capacity/wh*km-km,0.0,200.0);               //range calculation from battery capacity
+        battery_percent_fromcapacity = constrain((1-wh/ *ptr_capacity)*100,0,100);     //battery percent calculation from battery capacity. For voltage-based calculation see above
+        range=constrain(*ptr_capacity/wh*km-km,0.0,200.0);               //range calculation from battery capacity
         wh+=current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
         wh_human+=(millis()-last_writetime)/3600000.0*power_human;  //human watthours calculation
         mah+=current*(millis()-last_writetime)/3600.0;  //mah calculation
@@ -623,7 +636,7 @@ void send_serial_data()  //send serial data-------------------------------------
     Serial.print(";");
     Serial.print((int)wh_human);
     Serial.print(";");
-    Serial.print((int)(poti_stat/1023.0*power_poti_max));
+    Serial.print((int)(poti_stat/1023.0**ptr_power_poti_max));
     Serial.print(";");
     Serial.println(CONTROL_MODE);
 #endif
@@ -716,6 +729,24 @@ void send_serial_data()  //send serial data-------------------------------------
 #endif
 }
 
-
-
-
+void set_profile()
+{
+  if (current_profile==0)
+  {
+  ptr_startingaid_speed = &startingaid_speed;
+  ptr_spd_max1= &spd_max1;                 
+  ptr_spd_max2=&spd_max2;               
+  ptr_power_max=&power_max;                 
+  ptr_power_poti_max=&power_poti_max;            
+  ptr_capacity = &capacity; 
+  } 
+  else
+  {
+  ptr_startingaid_speed = &startingaid_speed_2;
+  ptr_spd_max1= &spd_max1_2;                 
+  ptr_spd_max2=&spd_max2_2;               
+  ptr_power_max=&power_max_2;                 
+  ptr_power_poti_max=&power_poti_max_2;            
+  ptr_capacity = &capacity_2;  
+  }
+}

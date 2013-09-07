@@ -29,6 +29,9 @@ enum sw_action { ACTION_NONE=0,                // do nothing
                  ACTION_ENABLE_BACKLIGHT_LONG, // enable backlight for 60s
                  ACTION_TOGGLE_BLUETOOTH,      // switch bluetooth on/off
                  ACTION_ENTER_MENU,            // enter on-the-go settings menu
+                 ACTION_PROFILE_1,             // switch to profile 1
+                 ACTION_PROFILE_2,             // switch to profile 2
+                 ACTION_PROFILE,               // switch profiles
                };
 
 #endif

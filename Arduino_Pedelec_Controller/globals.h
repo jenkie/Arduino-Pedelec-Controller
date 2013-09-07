@@ -50,4 +50,15 @@ extern char inchar;
 extern const int bluetooth_pin;
 extern const int fet_out;
 
+
+extern const int *ptr_startingaid_speed;
+extern const int *ptr_spd_max1;                 
+extern const int *ptr_spd_max2;               
+extern const int *ptr_power_max;                 
+extern const int *ptr_power_poti_max;            
+extern const double *ptr_capacity;   
+extern boolean current_profile;
+
+
+
 #endif

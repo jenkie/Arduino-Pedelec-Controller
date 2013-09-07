@@ -22,6 +22,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "menu.h"
 #include "display.h"
 #include "MenuSystem.h"
+#include "Switches.h"
 
 unsigned long menu_activity_expire=0;
 boolean menu_active=false;
@@ -45,6 +46,7 @@ static MenuItem m_display_reset_km("Reset KM");
 static MenuItem m_display_graphical_onoff("Graf. an/aus");
 static MenuItem m_main_bt_onoff("BT an/aus");
 static MenuItem m_main_shutdown("Ausschalten");
+static MenuItem m_main_profile("Profil 1<>2");
 
 // Universally used "go back" menu entry
 static MenuItem m_go_back("Zurueck ->");
@@ -101,6 +103,12 @@ static void handle_go_back(MenuItem* p_menu_item)
         menu_active = false;
 }
 
+static void handle_profile(MenuItem* p_menu_item)
+{
+  current_profile=!(current_profile);
+  menu_active = false;
+}
+
 void init_menu()
 {
 #if HARDWARE_REV >=2
@@ -129,6 +137,7 @@ void init_menu()
     // Not available in 1.1
     menu_main.add_item(&m_main_bt_onoff, &handle_bluetooth_onoff);
 #endif
+    menu_main.add_item(&m_main_profile, &handle_profile);
     menu_main.add_item(&m_go_back, &handle_go_back);
 
     menu_system.set_root_menu(&menu_main);

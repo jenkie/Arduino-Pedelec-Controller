@@ -41,7 +41,7 @@ const switch_name MENU_BUTTON_DOWN = SWITCH_DISPLAY1;
 //
 // Choose from: ACTION_NONE, ACTION_SET_SOFT_POTI, ACTION_SHUTDOWN_SYSTEM
 //              ACTION_ENABLE_BACKLIGHT_LONG, ACTION_TOGGLE_BLUETOOTH,
-//              ACTION_ENTER_MENU
+//              ACTION_ENTER_MENU,ACTION_PROFILE_1,ACTION_PROFILE_2,ACTION_PROFILE
 //
 // The file "switches_action.h" contains a list with descriptions.
 //
@@ -110,6 +110,14 @@ const double cfg_pid_p_throttle=0.05;    //pid p-value for throttle mode
 const double cfg_pid_i_throttle=2.5;     //pid i-value for throttle mode
 const byte pulse_min=150;                //lowest value of desired pulse range in bpm
 const byte pulse_range=20;               //width of desired pulse range in bpm
+
+//Config Options for profile 2-----------------------------------------------------------------------------------------------------
+const int startingaid_speed_2 = 6;
+const int spd_max1_2=22;                   //speed cutoff start in Km/h
+const int spd_max2_2=25;                   //speed cutoff stop (0W) in Km/h
+const int power_max_2=500;                 //Maximum power in W (throttle mode)
+const int power_poti_max_2=500;            //Maximum power in W (poti mode) or maximum percentage of human power drawn by motor (torque mode)
+const double capacity_2 = 166.0;           //battery capacity in watthours for range calculation
 
 // voltage and current calibration
 const float voltage_amplitude = 0.0587;       // set this value according to your own voltage-calibration. Default: 0.0587
