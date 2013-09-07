@@ -60,5 +60,4 @@ extern const double *ptr_capacity;
 extern boolean current_profile;
 
 
-
 #endif

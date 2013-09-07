@@ -44,6 +44,13 @@ Features:
 BMP085 bmp;
 #endif
 
+#ifdef SUPPORT_DSPC01
+#include "DSPC01_nano.h"    
+DSPC01 dspc;
+long int dspc_timer;
+boolean dspc_mode=0;  //is false if temperature, true if altitude
+#endif
+
 #ifdef SUPPORT_HRMI
 #include <Wire.h>
 #include "hrmi_funcs.h"
@@ -188,10 +195,20 @@ void pas_change();
 void speed_change();
 void send_serial_data();
 void set_profile();
+void handle_dspc();
 
 //Setup---------------------------------------------------------------------------------------------------------------------
 void setup()
 {
+#ifdef SUPPORT_DSPC01
+    dspc.begin(A5,A4);
+    dspc.request_temperature();
+    delay(200);
+    temperature=dspc.temperature()/10.0;
+    dspc.request_altitude();
+    delay(200);
+    altitude_start=dspc.altitude()/10.0;  
+#endif
     init_switches();
     init_menu();
     display_init();
@@ -241,6 +258,8 @@ void setup()
     bmp.begin();                          //initialize barometric altitude sensor
     temperature = bmp.readTemperature();
     altitude_start=bmp.readAltitude();
+#endif
+#if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
     display_show_welcome_msg_temp();
 #endif
 #ifdef SUPPORT_HRMI
@@ -249,15 +268,20 @@ void setup()
 #ifndef SUPPORT_PAS
     pedaling=true;
 #endif
+
 #ifdef SUPPORT_XCELL_RT
-torque_zero=analogRead(option_pin);   
+    torque_zero=analogRead(option_pin);   
 #endif
+
 }
 
 void loop()
 {
     looptime=millis();
 //Readings-----------------------------------------------------------------------------------------------------------------
+#ifdef SUPPORT_DSPC01
+        handle_dspc();
+#endif 
 #ifdef SUPPORT_POTI
     poti_stat=analogRead(poti_in);                       // 0...1023
 #endif
@@ -605,7 +629,7 @@ void speed_change()    //Wheel Sensor Change------------------------------------
     {km=km+wheel_circumference/1000.0;}
     else
     {spd=0;}
-#ifdef SUPPORT_BMP085
+#if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
 //slope-stuff start-------------------------------
     slope=0.98*slope+2*(altitude-last_altitude)/wheel_circumference;
     last_altitude=altitude;
@@ -749,4 +773,30 @@ void set_profile()
   ptr_power_poti_max=&power_poti_max_2;            
   ptr_capacity = &capacity_2;  
   }
+}
+
+void handle_dspc()
+{
+#ifdef SUPPORT_DSPC01
+  if (!dspc_mode) //altitude mode
+  {
+    if ((millis()-dspc_timer)>200)
+    {
+      altitude=dspc.altitude()/10.0-altitude_start;
+      dspc_mode=1;
+      dspc_timer=millis();
+      dspc.request_temperature();
+    }
+  }
+  else
+    {
+    if ((millis()-dspc_timer)>200)
+    {
+      temperature=dspc.temperature()/10.0;
+      dspc_mode=0;
+      dspc_timer=millis();
+      dspc.request_altitude();
+    }
+  }
+#endif
 }

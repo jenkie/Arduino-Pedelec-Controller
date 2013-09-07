@@ -120,7 +120,7 @@ void display_show_welcome_msg()
 #endif
 }
 
-#ifdef SUPPORT_BMP085
+#if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
 /*
     Own function to display temperature / altitude
     on the welcome screen. If you just see "welcome"
@@ -329,7 +329,7 @@ static void display_nokia_update()
     lcd.setCursor(0,5);
 //lcd.print(millis()/60000.0,1);   //uncomment this to display minutes since startup
 //lcd.print(" Minuten");
-#ifdef SUPPORT_BMP085
+#if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
     //lcd.print(temperature,1);
     //lcd.print(" ");
     lcd.print(slope,0);
