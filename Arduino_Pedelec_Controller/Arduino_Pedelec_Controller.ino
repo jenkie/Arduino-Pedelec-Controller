@@ -253,6 +253,7 @@ void setup()
     attachInterrupt(1, speed_change, RISING); //attach interrupt for Wheel-Sensor
     myPID.SetMode(AUTOMATIC);             //initialize pid
     myPID.SetOutputLimits(0,1023);        //initialize pid
+    myPID.SetSampleTime(10);              //compute pid every 10 ms
 #ifdef SUPPORT_BMP085
     Wire.begin();                         //initialize i2c-bus
     bmp.begin();                          //initialize barometric altitude sensor

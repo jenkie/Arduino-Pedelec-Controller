@@ -522,7 +522,7 @@ static void display_nokia_update_graphic()
     {lcd.drawBitmap(bitmapBrakeSymbol, 10,1);}
     else  //clear the brake symbol
     {lcd.drawBitmap(bitmapBrakeSymbolClear, 10,1);}
-    lcd.setCursor(9,0);
+    lcd.setCursor(7,5);
     lcd.print(current_profile+1);
 #if HARDWARE_REV >=2
     lcd.setCursor(8,0);
