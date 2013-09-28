@@ -62,6 +62,10 @@ void init_switches()
 static void action_set_soft_poti()
 {
 #ifdef SUPPORT_SOFT_POTI
+  int power_poti;
+  byte i=0;
+  char buffer[12]="Poti       ";
+
     // Set soft poti if throttle value changed
     if (poti_stat != throttle_stat)
     {
@@ -72,7 +76,31 @@ static void action_set_soft_poti()
         if (poti_stat == 0)
             display_show_important_info("Tempomat reset", 0);
         else
-            display_show_important_info("Tempomat set", 0);
+
+        {
+#if CONTROL_MODE == CONTROL_MODE_TORQUE                      //human power control mode
+#ifdef SUPPORT_XCELL_RT
+        buffer[9]='%';
+        power_poti = poti_stat/1023.0* *ptr_power_poti_max; //power_poti_max is in this control mode interpreted as percentage. Example: power_poti_max=200 means; motor power = 200% of human power
+#endif
+#endif
+
+#if CONTROL_MODE == CONTROL_MODE_NORMAL                      //constant power mode
+        buffer[9]='W';
+        power_poti = poti_stat/1023.0* *ptr_power_poti_max;
+#endif
+
+#if CONTROL_MODE == CONTROL_MODE_LIMIT_WH_PER_KM            //wh/km control mode
+        buffer[9]=0;
+        buffer[10]=1;
+        power_poti = poti_stat / 1023.0 * whkm_max;        //power currently set by poti in relation to speed and maximum wattage per km
+#endif 
+        do {       
+            buffer[7-i++] = (char)(((int)'0')+(power_poti % 10)); 
+         } while ((power_poti /= 10) > 0);
+
+        display_show_important_info(buffer, 1); 
+        }       
     }
 #endif
 }
@@ -82,6 +110,7 @@ static void action_shutdown_system()
     // Shut down system
 #if HARDWARE_REV >=2
     display_show_important_info(msg_shutdown, 60);
+    save_eeprom();
     digitalWrite(fet_out,HIGH);
 #endif
 }

@@ -58,6 +58,6 @@ extern const int *ptr_power_max;
 extern const int *ptr_power_poti_max;            
 extern const double *ptr_capacity;   
 extern boolean current_profile;
-
+extern void save_eeprom();
 
 #endif

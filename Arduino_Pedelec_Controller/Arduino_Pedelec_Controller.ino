@@ -196,6 +196,7 @@ void speed_change();
 void send_serial_data();
 void set_profile();
 void handle_dspc();
+void save_eeprom();
 
 //Setup---------------------------------------------------------------------------------------------------------------------
 void setup()
@@ -300,6 +301,10 @@ void loop()
 
 #ifdef SUPPORT_THROTTLE
     throttle_stat = constrain(map(analogRead(throttle_in),throttle_offset,throttle_max,0,1023),0,1023);   // 0...1023
+    if (throttle_stat<5) //avoid noisy throttle readout
+    {
+      throttle_stat=0;
+    }
 #endif
 #ifdef SUPPORT_BRAKE
 #ifdef INVERT_BRAKE
@@ -370,6 +375,11 @@ void loop()
     }
     firstrun=false;                                     //first loop run done (ok, up to this line :))
 
+//Check power-off condition ---------------------------------------------------------------------------------------------
+  if ((voltage<20.0)&&(variables_saved==false)) //save to EEPROM when Switch-Off detected
+  {
+    save_eeprom();
+  }  
 
 //Are we pedaling?---------------------------------------------------------------------------------------------------------
 #ifdef SUPPORT_PAS
@@ -436,7 +446,7 @@ void loop()
 
     if (power_set>*ptr_power_max*factor_speed)
     {power_set=*ptr_power_max*factor_speed;}                  //Maximum allowed power including Speed-Cutoff
-    if ((((poti_stat<=throttle_stat)||(pedaling==false))&&(throttle_stat<5))||(brake_stat==0))  //power_set is set to -60W when you stop pedaling or brake (this is the pid-input)
+    if ((((poti_stat<=throttle_stat)||(pedaling==false))&&(throttle_stat==0))||(brake_stat==0))  //power_set is set to -60W when you stop pedaling or brake (this is the pid-input)
     {power_set=-60;}
 
 
@@ -463,18 +473,6 @@ void loop()
 #endif
     {throttle_write=0;}
     analogWrite(throttle_out,throttle_write);
-
-//Save capacity to EEPROM
-    if ((voltage<20.0)&&(variables_saved==false))    //save to EEPROM when Switch-Off detected
-    {
-        variable.voltage=voltage_2s;   //save the voltage value 2 seconds before switch-off-detection
-        variable.wh=wh;          //save watthours drawn from battery
-        variable.kilometers=km;        //save trip kilometers
-        variable.mah=mah;        //save milliamperehours drawn from battery
-        variable.odo=odo;
-        EEPROM_writeAnything(0,variable);
-        variables_saved=true;
-    }
 
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
     handle_backlight();
@@ -556,6 +554,8 @@ void loop()
         send_serial_data();                                        //sends data over serial port depending on SERIAL_MODE
 
 #if HARDWARE_REV >= 2
+if (!variables_saved) //this is only necessary if not already switched off!
+{
 // Idle shutdown
         if (last_wheel_time != idle_shutdown_last_wheel_time)
         {
@@ -568,6 +568,7 @@ void loop()
             if (idle_shutdown_count > idle_shutdown_secs)
             {
                 display_show_important_info("Idle shutdown. Good night.", 60);
+                save_eeprom();
                 digitalWrite(fet_out,HIGH);
             }
         }
@@ -580,8 +581,10 @@ void loop()
         {
             display_show_important_info("Battery undervoltage detected. Emergency shutdown.", 60);
             delay(1000);
+            save_eeprom();
             digitalWrite(fet_out,HIGH);
         }
+}
 #endif
 #ifdef SUPPORT_HRMI
         pulse_human=getHeartRate();
@@ -800,4 +803,18 @@ void handle_dspc()
     }
   }
 #endif
+}
+
+void save_eeprom() //saves variables to eeprom
+{
+  if (!variables_saved)
+  {
+    variable.voltage=voltage_2s;   //save the voltage value 2 seconds before switch-off-detection
+    variable.wh=wh;          //save watthours drawn from battery
+    variable.kilometers=km;        //save trip kilometers
+    variable.mah=mah;        //save milliamperehours drawn from battery
+    variable.odo=odo;
+    EEPROM_writeAnything(0,variable);
+    variables_saved=true;
+  }
 }

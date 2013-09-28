@@ -22,7 +22,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "menu.h"
 #include "display.h"
 #include "MenuSystem.h"
-#include "Switches.h"
+#include "switches.h"
 
 unsigned long menu_activity_expire=0;
 boolean menu_active=false;
