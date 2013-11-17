@@ -1,5 +1,5 @@
 /*
-Arduino Pedelec "Forumscontroller" for Hardware 1.1-1.4
+Arduino Pedelec "Forumscontroller" for Hardware 1.1-1.5
 written by jenkie and others / pedelecforum.de
 Copyright (C) 2012-2013
 

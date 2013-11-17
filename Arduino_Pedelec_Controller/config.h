@@ -9,7 +9,7 @@
 #endif
 #include "switches_action.h"
 
-#define HARDWARE_REV 4      //place your hardware revision (1-4) here: x means hardware-revision 1.x
+#define HARDWARE_REV 4      //place your hardware revision (1-5) here: x means hardware-revision 1.x
 
 #define DISPLAY_TYPE_NONE (1<<0)             //no display at all
 #define DISPLAY_TYPE_NOKIA_5PIN (1<<1)       //Nokia 5110 5 pin mode
@@ -67,7 +67,7 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 // #define SUPPORT_SOFT_POTI // uncomment if Poti is emulated: The switch_disp button will store the current throttle value as poti value
 #define SUPPORT_THROTTLE    //uncomment if Throttle connected
 #define SUPPORT_PAS         //uncomment if PAS-sensor connected
-// #define SUPPORT_XCELL_RT    //uncomment if X-CELL RT connected. use pas_factor_min=0.2, pas_factor_max=0.5, and pas_magnets=8 for X-CELL RT
+// #define SUPPORT_XCELL_RT    //uncomment if X-CELL RT connected. FC1.4: pas_factor_min=0.2, pas_factor_max=0.5. FC1.5: pas_factor_min=0.5, pas_factor_max=1.5. pas_magnets=8
 // #define SUPPORT_HRMI         //uncomment if polar heart-rate monitor interface connected to i2c port
 #define SUPPORT_BRAKE        //uncomment if brake switch connected
 // #define INVERT_BRAKE         //uncomment if brake signal is low when not braking
