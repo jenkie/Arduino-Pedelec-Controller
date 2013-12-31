@@ -50,6 +50,16 @@ byte jlcd_zerocounter=0;
 unsigned long jlcd_last_transmission=millis(); //last time jlcd sent data--> still on?
 #endif
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)
+#include <SoftwareSerial.h>                //for BMS Battery S-LCD
+static SoftwareSerial mySerial(10, 11);           // RX (YELLOW cable of S-LCD), TX (GREEN-Cable)
+byte slcd_received[]= {0,0,0,0,0,0};
+byte slcd_receivecounter=0;
+boolean slcd_lighton=false;                //backlight switched on?
+byte slcd_zerocounter=0;
+unsigned long slcd_last_transmission=millis(); //last time Slcd sent data--> still on?
+#endif
+
 static byte glyph1[] = {0x0b, 0xfc, 0x4e, 0xac, 0x0b}; //symbol for wh/km part 1
 static byte glyph2[] = {0xc8, 0x2f, 0x6a, 0x2e, 0xc8}; //symbol for wh/km part 2
 static byte glyph3[] = {0x44, 0x28, 0xfe, 0x6c, 0x28}; //bluetooth-symbol       check this out: http://www.carlos-rodrigues.com/projects/pcd8544/
@@ -407,6 +417,54 @@ static void jlcd_update(byte battery, unsigned int wheeltime, byte error, int po
 
 }
 
+static void slcd_update(byte battery, unsigned int wheeltime, byte error)
+{
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)
+    if (mySerial.available())
+    {
+        slcd_last_transmission=millis();
+        slcd_receivecounter++;
+        byte receivedbyte=mySerial.read();
+        if (receivedbyte==0xE) //end of transmission frame detected
+          {slcd_receivecounter=6;}
+        if(slcd_receivecounter>6) //transmission buffer overflow
+          {slcd_receivecounter=0;}
+        if (slcd_receivecounter == 6)            //start of new transmission frame detected
+        {
+                slcd_zerocounter=0;
+                slcd_lighton=(slcd_received[1]&(byte)128)>>7;
+                slcd_received[1]=slcd_received[1]&(byte)127;
+                if (slcd_received[1]<6)                      //set the assist-level (via poti-stat)
+                    poti_stat=map(slcd_received[1],0,5,0,1023);
+                if (slcd_received[1]==6)                    //16 means walk-mode
+                    throttle_stat=200;
+                else
+                    throttle_stat=0;
+                //-------------------------------------------Output to S-LCD start
+                mySerial.write((byte)0x41);
+                mySerial.write((byte)battery);
+                mySerial.write((byte)0xFF);
+                mySerial.write(highByte(wheeltime));
+                mySerial.write(lowByte(wheeltime));
+                mySerial.write(error); 
+                mySerial.write((byte)battery^(byte)0xFF^highByte(wheeltime)^lowByte(wheeltime)^error); //this is XOR-checksum
+            //-------------------------------------------Output to S-LCD end
+        }
+        else
+            slcd_received[slcd_receivecounter]=receivedbyte;
+    }
+    if ((millis()-slcd_last_transmission)>3000)
+    {
+        throttle_stat=0;
+        poti_stat=0;
+#if HARDWARE_REV >=2
+        digitalWrite(fet_out,HIGH);              //S-LCD turned off
+#endif
+    }
+#endif //(DISPLAY_TYPE & DISPLAY_TYPE_BMS)
+
+}
+
 
 void display_init()
 {
@@ -422,7 +480,7 @@ void display_init()
     display_4bit_setup();
 #endif
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
+#if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS))
     mySerial.begin(9600);
 #endif
 }
@@ -603,4 +661,8 @@ void display_update()
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
     jlcd_update(2,wheel_time,0,power);
 #endif
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)
+    slcd_update(map(battery_percent_fromcapacity,0,100,0,16),wheel_time,0);
+#endif
+
 }

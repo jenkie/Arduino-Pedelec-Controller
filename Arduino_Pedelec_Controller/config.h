@@ -17,6 +17,7 @@
 #define DISPLAY_TYPE_NOKIA (DISPLAY_TYPE_NOKIA_5PIN|DISPLAY_TYPE_NOKIA_4PIN)
 #define DISPLAY_TYPE_16X2_LCD_4BIT (1<<3)    //16x2 LCD 4bit-mode
 #define DISPLAY_TYPE_KINGMETER (1<<4)            //King-Meter J-LCD or SW-LCD
+#define DISPLAY_TYPE_BMS (1<<5)              //BMS Battery S-LCD
 #define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_4PIN //Set your display type here. CHANGES ONLY HERE!<-----------------------------
 
 #define NOKIA_LCD_CONTRAST 190                   //set display contrast here. values around 190 should do the job

@@ -60,8 +60,8 @@ boolean dspc_mode=0;  //is false if temperature, true if altitude
 #error You either have poti or soft-poti support. Disable one of them.
 #endif
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
-#include <SoftwareSerial.h>      //for Kingmeter J-LCD
+#if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS))
+#include <SoftwareSerial.h>      //for Kingmeter J-LCD and BMS S-LCD
 #endif
 
 struct savings   //add variables if you want to store additional values to the eeprom
@@ -147,7 +147,7 @@ float range = 0.0;             //expected range
 unsigned long odo=0;           //overall kilometers in units of wheel roundtrips
 unsigned long last_writetime = millis();  //last time display has been refreshed
 volatile unsigned long last_wheel_time = millis(); //last time of wheel sensor change 0->1
-volatile unsigned long wheel_time = 0;  //time for one revolution of the wheel
+volatile unsigned long wheel_time = 65535;  //time for one revolution of the wheel
 volatile unsigned long last_pas_event = millis();  //last change-time of PAS sensor status
 #define pas_time 60000/pas_magnets //conversion factor for pas_time to rpm (cadence)
 volatile boolean pedaling = false;  //pedaling? (in forward direction!)
@@ -288,7 +288,7 @@ void loop()
     poti_stat=analogRead(poti_in);                       // 0...1023
 #endif
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
+#if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS))
     display_update();
 #endif
 
@@ -391,7 +391,7 @@ void loop()
     if ((millis()-last_wheel_time)>3000)               //wheel did not spin for 3 seconds --> speed is zero
     {
         spd=0;
-        wheel_time=0;
+        wheel_time=65535;
     }
 
 
@@ -545,7 +545,7 @@ void loop()
         wh_human+=(millis()-last_writetime)/3600000.0*power_human;  //human watthours calculation
         mah+=current*(millis()-last_writetime)/3600.0;  //mah calculation
 
-#if !(DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
+#if !((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS))
 #if !(DISPLAY_TYPE & DISPLAY_TYPE_NONE)
         display_update();
 #endif
