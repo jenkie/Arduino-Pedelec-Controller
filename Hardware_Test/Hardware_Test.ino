@@ -22,7 +22,7 @@ EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMW
 */
 
 #define DISPLAY_TYPE 0      //display type 0:Nokia5110 5-pin-mode 1: Nokia5110 4-pin-mode (SCE pin tied to GND) 2: 16x2 LCD 4bit-mode
-#define HARDWARE_REV 3      //place your hardware revision (1-3) here: x means hardware-revision 1.x
+#define HARDWARE_REV 5      //place your hardware revision (1-5) here: x means hardware-revision 1.x
 
 
 #include "EEPROM.h"          //
@@ -57,7 +57,7 @@ const int voltage_in = A1;           //Voltage read-Pin
 const int option_pin = A2;           //Analog option
 const int current_in = A3;           //Current read-Pin
 #endif
-#if HARDWARE_REV == 3
+#if HARDWARE_REV >= 3
 const int voltage_in = A0;           //Voltage read-Pin
 const int fet_out = A1;              //FET: Pull high to switch off
 const int current_in = A2;           //Current read-Pin
@@ -77,17 +77,7 @@ const int switch_disp_2 = 13;        //second Display switch with Nokia-Display 
 #endif
 
 //Config Options-----------------------------------------------------------------------------------------------------
-const int pas_tolerance=1;           //0... increase to make pas sensor slower but more tolerant against speed changes
-const int throttle_offset=180;           //Offset voltage of throttle control when in "0" position (0..1023 = 0..5V)
-const int throttle_max=865;              //Offset voltage of throttle control when in "MAX" position (0..1023 = 0..5V)
-const int motor_offset=50;               //Offset for throttle output where Motor starts to spin (0..255 = 0..5V)
-const int motor_max=200;                 //Maximum input value for motor driver (0..255 = 0..5V)
-const boolean startingaidenable = true; //enable starting aid?
-const float vcutoff=33.0;            //cutoff voltage in V;
 const float wheel_circumference = 2.202; //wheel circumference in m
-const int spd_max1=27.0;             //speed cutoff start in Km/h
-const int spd_max2=30.0;             //speed cutoff stop (0W) in Km/h
-const int power_max=500;             //Maximum power in W
 const double capacity = 166.0;       //battery capacity in watthours for range calculation
 double pid_p=0.0;              //pid p-value, default: 0.0
 double pid_i=2.0;              //pid i-value, default: 2.0
@@ -113,9 +103,10 @@ unsigned long last_writetime = millis();  //last time display has been refreshed
 volatile unsigned long last_wheel_time = millis(); //last time of wheel sensor change 0->1
 volatile unsigned long last_pas_event = millis();  //last change-time of PAS sensor status
 volatile boolean pedaling = false;  //pedaling? (in forward direction!)
-boolean firstrun = true;  //first run of loop?
-boolean variables_saved = false; //has everything been saved after Switch-Off detected?
+
 boolean brake_stat = true; //brake activated?
+boolean firstrun = true;   //first run of loop?
+boolean variables_saved=false; //already saved variables to eeprom?
 
 // Forward declarations for compatibility with new gcc versions
 void display_nokia_setup();
@@ -167,7 +158,7 @@ void loop()
     looptime=millis();
 //Readings-----------------------------------------------------------------------------------------------------------------
     poti_stat=analogRead(poti_in);                       // 0...1023
-    throttle_stat = constrain(map(analogRead(throttle_in),throttle_offset,throttle_max,0,1023),0,1023);   // 0...1023    
+    throttle_stat = analogRead(throttle_in);              // 0...1023    
     brake_stat = digitalRead(brake_in);
 //voltage, current, power
     voltage = analogRead(voltage_in)*0.05859375;          //check with multimeter and change if needed!
@@ -195,7 +186,7 @@ void loop()
                    
 //Throttle output-------------------------------------------------------------------------------------------------------
 
-    throttle_write=map(throttle_stat,0,1023,motor_offset,motor_max); //be careful if motor connected!    
+    throttle_write=map(throttle_stat,0,1023,0,255); //be careful if motor connected!    
     analogWrite(throttle_out,throttle_write);
 
     if (digitalRead(switch_disp)==0)  //switch on/off bluetooth if switch is pressed
