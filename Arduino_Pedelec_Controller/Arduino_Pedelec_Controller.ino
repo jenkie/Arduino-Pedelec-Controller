@@ -285,7 +285,7 @@ void loop()
         handle_dspc();
 #endif 
 #ifdef SUPPORT_POTI
-    poti_stat=analogRead(poti_in);                       // 0...1023
+    poti_stat = constrain(map(analogRead(poti_in),poti_offset,poti_max,0,1023),0,1023);   // 0...1023
 #endif
 
 #if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS))
