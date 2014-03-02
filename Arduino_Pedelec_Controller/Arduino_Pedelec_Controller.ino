@@ -45,7 +45,7 @@ BMP085 bmp;
 #endif
 
 #ifdef SUPPORT_DSPC01
-#include "DSPC01_nano.h"    
+#include "DSPC01_nano.h"
 DSPC01 dspc;
 long int dspc_timer;
 boolean dspc_mode=0;  //is false if temperature, true if altitude
@@ -175,7 +175,7 @@ byte mmc_value=0;
 boolean mmc_nextisvalue=false;
 #endif
 
-#if (SERIAL_MODE & SERIAL_MODE_ANDROID)        
+#if (SERIAL_MODE & SERIAL_MODE_ANDROID)
 char inchar = 0;      //curent read char
 #endif
 
@@ -207,7 +207,7 @@ void setup()
     temperature=dspc.temperature()/10.0;
     dspc.request_altitude();
     delay(200);
-    altitude_start=dspc.altitude()/10.0;  
+    altitude_start=dspc.altitude()/10.0;
 #endif
     init_switches();
     init_menu();
@@ -222,7 +222,7 @@ void setup()
     pinMode(switch_disp_2, INPUT);
     digitalWrite(switch_disp_2, HIGH);    // turn on pullup resistors on display-switch 2
 #endif
-#ifdef SUPPORT_BRAKE 
+#ifdef SUPPORT_BRAKE
     pinMode(brake_in, INPUT);
 #endif
     pinMode(option_pin,INPUT);
@@ -232,7 +232,7 @@ void setup()
     digitalWrite(bluetooth_pin, LOW);     // turn bluetooth off
     digitalWrite(fet_out, LOW);           // turn on whole system on (write high to fet_out if you want to power off)
 #endif
-#ifdef SUPPORT_BRAKE 
+#ifdef SUPPORT_BRAKE
     digitalWrite(brake_in, HIGH);         // turn on pullup resistors on brake
 #endif
     digitalWrite(switch_thr, HIGH);       // turn on pullup resistors on throttle-switch
@@ -271,7 +271,7 @@ void setup()
 #endif
 
 #ifdef SUPPORT_XCELL_RT
-    torque_zero=analogRead(option_pin);   
+    torque_zero=analogRead(option_pin);
 #endif
 
 }
@@ -281,8 +281,8 @@ void loop()
     looptime=millis();
 //Readings-----------------------------------------------------------------------------------------------------------------
 #ifdef SUPPORT_DSPC01
-        handle_dspc();
-#endif 
+    handle_dspc();
+#endif
 #ifdef SUPPORT_POTI
     poti_stat = constrain(map(analogRead(poti_in),poti_offset,poti_max,0,1023),0,1023);   // 0...1023
 #endif
@@ -292,9 +292,10 @@ void loop()
 #endif
 
 #if (SERIAL_MODE & SERIAL_MODE_ANDROID)
-   if (Serial.available() > 0){
-      inchar = Serial.read();
-      next(inchar);
+    if (Serial.available() > 0)
+    {
+        inchar = Serial.read();
+        next(inchar);
     }
 #endif
 
@@ -302,7 +303,7 @@ void loop()
     throttle_stat = constrain(map(analogRead(throttle_in),throttle_offset,throttle_max,0,1023),0,1023);   // 0...1023
     if (throttle_stat<5) //avoid noisy throttle readout
     {
-      throttle_stat=0;
+        throttle_stat=0;
     }
 #endif
 #ifdef SUPPORT_BRAKE
@@ -375,10 +376,10 @@ void loop()
     firstrun=false;                                     //first loop run done (ok, up to this line :))
 
 //Check power-off condition ---------------------------------------------------------------------------------------------
-  if ((voltage<20.0)&&(variables_saved==false)) //save to EEPROM when Switch-Off detected
-  {
-    save_eeprom();
-  }  
+    if ((voltage<20.0)&&(variables_saved==false)) //save to EEPROM when Switch-Off detected
+    {
+        save_eeprom();
+    }
 
 //Are we pedaling?---------------------------------------------------------------------------------------------------------
 #ifdef SUPPORT_PAS
@@ -552,37 +553,37 @@ void loop()
         send_serial_data();                                        //sends data over serial port depending on SERIAL_MODE
 
 #if HARDWARE_REV >= 2
-if (!variables_saved) //this is only necessary if not already switched off!
-{
+        if (!variables_saved) //this is only necessary if not already switched off!
+        {
 // Idle shutdown
-        if (last_wheel_time != idle_shutdown_last_wheel_time)
-        {
-            idle_shutdown_last_wheel_time = last_wheel_time;
-            idle_shutdown_count = 0;
-        }
-        else
-        {
-            ++idle_shutdown_count;
-            if (idle_shutdown_count > idle_shutdown_secs)
+            if (last_wheel_time != idle_shutdown_last_wheel_time)
             {
-                display_show_important_info("Idle shutdown. Good night.", 60);
-                save_eeprom();
-                digitalWrite(fet_out,HIGH);
+                idle_shutdown_last_wheel_time = last_wheel_time;
+                idle_shutdown_count = 0;
             }
-        }
+            else
+            {
+                ++idle_shutdown_count;
+                if (idle_shutdown_count > idle_shutdown_secs)
+                {
+                    display_show_important_info("Idle shutdown. Good night.", 60);
+                    save_eeprom();
+                    digitalWrite(fet_out,HIGH);
+                }
+            }
 
 // Emergency power down to protect battery from undervoltage.
 // Also checks averaged voltage to prevent ADC read errors killing the system.
 // Don't shut down on USB power, too.
-        if (voltage < vemergency_shutdown && voltage_display < vemergency_shutdown
-                && voltage > 6.0)
-        {
-            display_show_important_info("Battery undervoltage detected. Emergency shutdown.", 60);
-            delay(1000);
-            save_eeprom();
-            digitalWrite(fet_out,HIGH);
+            if (voltage < vemergency_shutdown && voltage_display < vemergency_shutdown
+                    && voltage > 6.0)
+            {
+                display_show_important_info("Battery undervoltage detected. Emergency shutdown.", 60);
+                delay(1000);
+                save_eeprom();
+                digitalWrite(fet_out,HIGH);
+            }
         }
-}
 #endif
 #ifdef SUPPORT_HRMI
         pulse_human=getHeartRate();
@@ -717,25 +718,25 @@ void send_serial_data()  //send serial data-------------------------------------
     Serial.print(poti_stat);
     Serial.print(" Throttle");
     Serial.print(throttle_stat);
-/*
-    Serial.print(" TEMP");
-    Serial.print(temperature);
-    Serial.print(" ALTI");
-    Serial.print(altitude);
-    Serial.print("/");
-    Serial.print(altitude_start);
-*/
+    /*
+        Serial.print(" TEMP");
+        Serial.print(temperature);
+        Serial.print(" ALTI");
+        Serial.print(altitude);
+        Serial.print("/");
+        Serial.print(altitude_start);
+    */
     //now: data for Arduino Pedelec Configurator
     //0:voltage 1:current 2:pasfactor*100 3:option-pin 4:poti 5:throttle 6: brake
     Serial.print("---raw---");
-    Serial.print(analogRead(voltage_in));Serial.print(";");
-    Serial.print(analogRead(current_in));Serial.print(";");
-    Serial.print(((int)(100*(double)pas_on_time/(double)pas_off_time)));Serial.print(";");
-    Serial.print(analogRead(option_pin));Serial.print(";");
-    Serial.print(analogRead(poti_in));Serial.print(";");
-    Serial.print(analogRead(throttle_in));Serial.print(";");
+    Serial.print(analogRead(voltage_in)); Serial.print(";");
+    Serial.print(analogRead(current_in)); Serial.print(";");
+    Serial.print(((int)(100*(double)pas_on_time/(double)pas_off_time))); Serial.print(";");
+    Serial.print(analogRead(option_pin)); Serial.print(";");
+    Serial.print(analogRead(poti_in)); Serial.print(";");
+    Serial.print(analogRead(throttle_in)); Serial.print(";");
     Serial.println(digitalRead(brake_in));
-   
+
 #endif
 
 #if (SERIAL_MODE & SERIAL_MODE_MMC)
@@ -757,62 +758,62 @@ void send_serial_data()  //send serial data-------------------------------------
 
 void activate_new_profile()
 {
-  if (current_profile==0)
-  {
-  curr_startingaid_speed =startingaid_speed;
-  curr_spd_max1= spd_max1;                 
-  curr_spd_max2=spd_max2;               
-  curr_power_max=power_max;                 
-  curr_power_poti_max=power_poti_max;
-  curr_capacity = capacity;
-  } 
-  else
-  {
-  curr_startingaid_speed = startingaid_speed_2;
-  curr_spd_max1= spd_max1_2;                 
-  curr_spd_max2=spd_max2_2;               
-  curr_power_max=power_max_2;                 
-  curr_power_poti_max=power_poti_max_2;            
-  curr_capacity = capacity_2;  
-  }
+    if (current_profile==0)
+    {
+        curr_startingaid_speed =startingaid_speed;
+        curr_spd_max1= spd_max1;
+        curr_spd_max2=spd_max2;
+        curr_power_max=power_max;
+        curr_power_poti_max=power_poti_max;
+        curr_capacity = capacity;
+    }
+    else
+    {
+        curr_startingaid_speed = startingaid_speed_2;
+        curr_spd_max1= spd_max1_2;
+        curr_spd_max2=spd_max2_2;
+        curr_power_max=power_max_2;
+        curr_power_poti_max=power_poti_max_2;
+        curr_capacity = capacity_2;
+    }
 }
 
 void handle_dspc()
 {
 #ifdef SUPPORT_DSPC01
-  if (!dspc_mode) //altitude mode
-  {
-    if ((millis()-dspc_timer)>200)
+    if (!dspc_mode) //altitude mode
     {
-      altitude=dspc.altitude()/10.0-altitude_start;
-      dspc_mode=1;
-      dspc_timer=millis();
-      dspc.request_temperature();
+        if ((millis()-dspc_timer)>200)
+        {
+            altitude=dspc.altitude()/10.0-altitude_start;
+            dspc_mode=1;
+            dspc_timer=millis();
+            dspc.request_temperature();
+        }
     }
-  }
-  else
+    else
     {
-    if ((millis()-dspc_timer)>200)
-    {
-      temperature=dspc.temperature()/10.0;
-      dspc_mode=0;
-      dspc_timer=millis();
-      dspc.request_altitude();
+        if ((millis()-dspc_timer)>200)
+        {
+            temperature=dspc.temperature()/10.0;
+            dspc_mode=0;
+            dspc_timer=millis();
+            dspc.request_altitude();
+        }
     }
-  }
 #endif
 }
 
 void save_eeprom() //saves variables to eeprom
 {
-  if (!variables_saved)
-  {
-    variable.voltage=voltage_2s;   //save the voltage value 2 seconds before switch-off-detection
-    variable.wh=wh;          //save watthours drawn from battery
-    variable.kilometers=km;        //save trip kilometers
-    variable.mah=mah;        //save milliamperehours drawn from battery
-    variable.odo=odo;
-    EEPROM_writeAnything(0,variable);
-    variables_saved=true;
-  }
+    if (!variables_saved)
+    {
+        variable.voltage=voltage_2s;   //save the voltage value 2 seconds before switch-off-detection
+        variable.wh=wh;          //save watthours drawn from battery
+        variable.kilometers=km;        //save trip kilometers
+        variable.mah=mah;        //save milliamperehours drawn from battery
+        variable.odo=odo;
+        EEPROM_writeAnything(0,variable);
+        variables_saved=true;
+    }
 }
