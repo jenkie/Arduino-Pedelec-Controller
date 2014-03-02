@@ -158,7 +158,7 @@ void loop()
     looptime=millis();
 //Readings-----------------------------------------------------------------------------------------------------------------
     poti_stat=analogRead(poti_in);                       // 0...1023
-    throttle_stat = analogRead(throttle_in);              // 0...1023    
+    throttle_stat = analogRead(throttle_in);              // 0...1023
     brake_stat = digitalRead(brake_in);
 //voltage, current, power
     voltage = analogRead(voltage_in)*0.05859375;          //check with multimeter and change if needed!
@@ -175,18 +175,18 @@ void loop()
 //This initializes the EEPROM-Values to 0.0-----------------------------------------------------------------------
     if (firstrun==true)
     {
-        variable.voltage=0.0;   
-        variable.wh=0.0;          
-        variable.kilometers=0.0;   
+        variable.voltage=0.0;
+        variable.wh=0.0;
+        variable.kilometers=0.0;
         variable.mah=0.0;
         EEPROM_writeAnything(0,variable);
         variables_saved=true;                             //do not write new data to eeprom when on USB Power
     }
     firstrun=false;                                     //first loop run done (ok, up to this line :))
-                   
+
 //Throttle output-------------------------------------------------------------------------------------------------------
 
-    throttle_write=map(throttle_stat,0,1023,0,255); //be careful if motor connected!    
+    throttle_write=map(throttle_stat,0,1023,0,255); //be careful if motor connected!
     analogWrite(throttle_out,throttle_write);
 
     if (digitalRead(switch_disp)==0)  //switch on/off bluetooth if switch is pressed
@@ -215,33 +215,34 @@ void loop()
     }
 
 //Show something on the LCD and Serial Port
-    if (millis()-last_writetime > 500)             
+    if (millis()-last_writetime > 500)
     {
-       digitalWrite(option_pin,!digitalRead(option_pin));  //switch lamp on and off
-       Serial.print("Voltage");
-       Serial.print(voltage,2);
-       Serial.print(" Current");
-       Serial.print(current,1);
-       Serial.print(" Power");
-       Serial.print(power,0);
-       Serial.print(" PAS_On");
-       Serial.print(pas_on_time);
-       Serial.print(" PAS_Off");
-       Serial.print(pas_off_time);
-       Serial.print(" PAS_factor");
-       Serial.print((float)pas_on_time/pas_off_time);
-       Serial.print(" Speed");
-       Serial.print(spd);
-       Serial.print(" Brake");
-       Serial.print(brake_stat);
-       Serial.print(" Poti");
-       Serial.print(poti_stat);
-       Serial.print(" Throttle");
-       Serial.println(throttle_stat); 
-       lcd.setCursor(0,0);
-       lcd.print("Hello World");
-       last_writetime=millis();}  
+        digitalWrite(option_pin,!digitalRead(option_pin));  //switch lamp on and off
+        Serial.print("Voltage");
+        Serial.print(voltage,2);
+        Serial.print(" Current");
+        Serial.print(current,1);
+        Serial.print(" Power");
+        Serial.print(power,0);
+        Serial.print(" PAS_On");
+        Serial.print(pas_on_time);
+        Serial.print(" PAS_Off");
+        Serial.print(pas_off_time);
+        Serial.print(" PAS_factor");
+        Serial.print((float)pas_on_time/pas_off_time);
+        Serial.print(" Speed");
+        Serial.print(spd);
+        Serial.print(" Brake");
+        Serial.print(brake_stat);
+        Serial.print(" Poti");
+        Serial.print(poti_stat);
+        Serial.print(" Throttle");
+        Serial.println(throttle_stat);
+        lcd.setCursor(0,0);
+        lcd.print("Hello World");
+        last_writetime=millis();
     }
+}
 
 
 void pas_change()       //Are we pedaling? PAS Sensor Change------------------------------------------------------------------------------------------------------------------
