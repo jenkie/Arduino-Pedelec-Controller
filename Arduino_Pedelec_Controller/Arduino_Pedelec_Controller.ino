@@ -72,7 +72,7 @@ struct savings   //add variables if you want to store additional values to the e
     float mah; //milliamphours
     unsigned long odo; //overall kilometers in units of wheel roundtrips
 };
-savings variable = {0.0,0.0,0.0,0}; //variable stores last voltage and capacity read from EEPROM
+savings variable = {0.0, 0.0, 0.0, 0.0, 0}; //variable stores last voltage and capacity read from EEPROM
 
 //Pin Assignments-----------------------------------------------------------------------------------------------------
 #if HARDWARE_REV == 1
