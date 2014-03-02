@@ -22,6 +22,6 @@ set(${TESTPROGRAM_NAME}_SRCS                          # Source code
 generate_arduino_firmware(${TESTPROGRAM_NAME})
 
 # Dirty hack to solve compile error on Fedora 15
-target_link_libraries(${TESTPROGRAM_NAME} m)
-target_link_libraries(${TESTPROGRAM_NAME} c)
-target_link_libraries(${TESTPROGRAM_NAME} m)
+#target_link_libraries(${TESTPROGRAM_NAME} m)
+#target_link_libraries(${TESTPROGRAM_NAME} c)
+#target_link_libraries(${TESTPROGRAM_NAME} m)
