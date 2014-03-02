@@ -3,7 +3,7 @@ This program configures the bluetooth module with custom name and pin for
 use with the Arduino Pedelec Controller
 
 1st step: Connect Bluetooth module to Arduino Pedelec Controller
-2nd step: Wait 1 minute after uploading the program (bluetooth module should 
+2nd step: Wait 1 minute after uploading the program (bluetooth module should
 shut down and repower during this time), then you are ready.
 
 Written by Jens Kießling (jenkie)
@@ -27,28 +27,28 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 void setup()
 {
-Serial.begin(9600); //set the current speed of your bluetooth module here, usually 9600
+    Serial.begin(9600); //set the current speed of your bluetooth module here, usually 9600
 
-delay(1000);
-pinMode(7, OUTPUT);
-digitalWrite(7,HIGH);
-delay(5000);
-Serial.print("AT");
-delay(5000);
-Serial.print("AT+VERSION");
-delay(5000);
-Serial.print("AT+PIN1234"); // Set pin to 1234 or anything of your choice
-delay(5000);
-Serial.print("AT+NAMEArduinoPedelec"); //use your own name if you want
-delay(5000);
-Serial.print("AT+BAUD8"); // Set baudrate to 115200, do not change
-delay(5000);
-digitalWrite(7,LOW);
-delay(10000);
-digitalWrite(7,HIGH);
+    delay(1000);
+    pinMode(7, OUTPUT);
+    digitalWrite(7,HIGH);
+    delay(5000);
+    Serial.print("AT");
+    delay(5000);
+    Serial.print("AT+VERSION");
+    delay(5000);
+    Serial.print("AT+PIN1234"); // Set pin to 1234 or anything of your choice
+    delay(5000);
+    Serial.print("AT+NAMEArduinoPedelec"); //use your own name if you want
+    delay(5000);
+    Serial.print("AT+BAUD8"); // Set baudrate to 115200, do not change
+    delay(5000);
+    digitalWrite(7,LOW);
+    delay(10000);
+    digitalWrite(7,HIGH);
 }
 
-void loop() 
+void loop()
 {
 
-} 
+}
