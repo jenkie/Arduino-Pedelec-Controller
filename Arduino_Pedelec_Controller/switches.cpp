@@ -149,19 +149,9 @@ static void action_enter_menu()
     while (menu_system.back());
 }
 
-static void action_profile_1()
+static void action_set_profile(const boolean new_profile)
 {
-  current_profile=0;
-}
-
-static void action_profile_2()
-{
-  current_profile=1;
-}
-
-static void action_profile()
-{
-  current_profile=!current_profile;
+    current_profile = new_profile;
 }
 
 static void execute_action(const sw_action action)
@@ -186,13 +176,13 @@ static void execute_action(const sw_action action)
             action_enter_menu();
             break;
         case ACTION_PROFILE_1:
-            action_profile_1();
+            action_set_profile(0);
             break;
         case ACTION_PROFILE_2:
-            action_profile_2();
+            action_set_profile(1);
             break;
         case ACTION_PROFILE:
-            action_profile();
+            action_set_profile(!current_profile);
             break;
         default:
             display_show_important_info("Unknown action!", 2);
