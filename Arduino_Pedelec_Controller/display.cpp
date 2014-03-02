@@ -608,7 +608,7 @@ static void display_nokia_update_graphic()
     //- the limit line shows the target power that is selected by the user (power_set_for_display)
     //- the bar shows the currenlty measured electrical power that the moter consumes
     lcd.setCursorInPixels(72,1);
-    lcd.drawVerticalBar((word)(max(*ptr_power_max,*ptr_power_poti_max)), (word)(max(power_set,0)), (word)(power), 11, 4);
+    lcd.drawVerticalBar((word)(max(curr_power_max,curr_power_poti_max)), (word)(max(power_set,0)), (word)(power), 11, 4);
 
     //print battery percent left
     lcd.setCursorInPixels(0,1);

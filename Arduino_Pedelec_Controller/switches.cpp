@@ -81,13 +81,13 @@ static void action_set_soft_poti()
 #if CONTROL_MODE == CONTROL_MODE_TORQUE                      //human power control mode
 #ifdef SUPPORT_XCELL_RT
         buffer[9]='%';
-        power_poti = poti_stat/1023.0* *ptr_power_poti_max; //power_poti_max is in this control mode interpreted as percentage. Example: power_poti_max=200 means; motor power = 200% of human power
+        power_poti = poti_stat/1023.0* curr_power_poti_max; //power_poti_max is in this control mode interpreted as percentage. Example: power_poti_max=200 means; motor power = 200% of human power
 #endif
 #endif
 
 #if CONTROL_MODE == CONTROL_MODE_NORMAL                      //constant power mode
         buffer[9]='W';
-        power_poti = poti_stat/1023.0* *ptr_power_poti_max;
+        power_poti = poti_stat/1023.0* curr_power_poti_max;
 #endif
 
 #if CONTROL_MODE == CONTROL_MODE_LIMIT_WH_PER_KM            //wh/km control mode
