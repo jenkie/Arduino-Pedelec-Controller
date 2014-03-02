@@ -194,7 +194,6 @@ boolean current_profile=0; //0: blue profile, 1: red profile
 void pas_change();
 void speed_change();
 void send_serial_data();
-void set_profile();
 void handle_dspc();
 void save_eeprom();
 
@@ -530,7 +529,6 @@ void loop()
 //slow loop start----------------------//use this subroutine to place any functions which should happen only once a second
     if (millis()-last_writetime > 1000)              //don't do this more than once a second
     {
-        set_profile();                                   //update current profile
         voltage_2s=voltage_1s;                           //update voltage history
         voltage_1s=voltage;                              //update voltage history
 
@@ -757,7 +755,7 @@ void send_serial_data()  //send serial data-------------------------------------
 #endif
 }
 
-void set_profile()
+void activate_new_profile()
 {
   if (current_profile==0)
   {

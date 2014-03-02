@@ -152,6 +152,8 @@ static void action_enter_menu()
 static void action_set_profile(const boolean new_profile)
 {
     current_profile = new_profile;
+
+    activate_new_profile();
 }
 
 static void execute_action(const sw_action action)

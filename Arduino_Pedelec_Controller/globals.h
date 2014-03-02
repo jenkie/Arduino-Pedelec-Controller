@@ -58,5 +58,6 @@ extern int curr_power_poti_max;
 extern double curr_capacity;
 extern boolean current_profile;
 extern void save_eeprom();
+extern void activate_new_profile();
 
 #endif

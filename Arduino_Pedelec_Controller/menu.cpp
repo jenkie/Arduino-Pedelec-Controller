@@ -106,6 +106,8 @@ static void handle_go_back(MenuItem* p_menu_item)
 static void handle_profile(MenuItem* p_menu_item)
 {
   current_profile=!(current_profile);
+  activate_new_profile();
+
   menu_active = false;
 }
 
