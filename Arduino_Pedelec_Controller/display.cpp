@@ -431,23 +431,23 @@ static void slcd_update(byte battery, unsigned int wheeltime, byte error)
           {slcd_receivecounter=0;}
         if (slcd_receivecounter == 6)            //start of new transmission frame detected
         {
-                slcd_zerocounter=0;
-                slcd_lighton=(slcd_received[1]&(byte)128)>>7;
-                slcd_received[1]=slcd_received[1]&(byte)127;
-                if (slcd_received[1]<6)                      //set the assist-level (via poti-stat)
-                    poti_stat=map(slcd_received[1],0,5,0,1023);
-                if (slcd_received[1]==6)                    //16 means walk-mode
-                    throttle_stat=200;
-                else
-                    throttle_stat=0;
-                //-------------------------------------------Output to S-LCD start
-                mySerial.write((byte)0x41);
-                mySerial.write((byte)battery);
-                mySerial.write((byte)0xFF);
-                mySerial.write(highByte(wheeltime));
-                mySerial.write(lowByte(wheeltime));
-                mySerial.write(error); 
-                mySerial.write((byte)battery^(byte)0xFF^highByte(wheeltime)^lowByte(wheeltime)^error); //this is XOR-checksum
+            slcd_zerocounter=0;
+            slcd_lighton=(slcd_received[1]&(byte)128)>>7;
+            slcd_received[1]=slcd_received[1]&(byte)127;
+            if (slcd_received[1]<6)                      //set the assist-level (via poti-stat)
+                poti_stat=map(slcd_received[1],0,5,0,1023);
+            if (slcd_received[1]==6)                    //16 means walk-mode
+                throttle_stat=200;
+            else
+                throttle_stat=0;
+            //-------------------------------------------Output to S-LCD start
+            mySerial.write((byte)0x41);
+            mySerial.write((byte)battery);
+            mySerial.write((byte)0xFF);
+            mySerial.write(highByte(wheeltime));
+            mySerial.write(lowByte(wheeltime));
+            mySerial.write(error);
+            mySerial.write((byte)battery^(byte)0xFF^highByte(wheeltime)^lowByte(wheeltime)^error); //this is XOR-checksum
             //-------------------------------------------Output to S-LCD end
         }
         else
@@ -576,7 +576,7 @@ static void display_nokia_update_graphic()
 
     lcd.setCursorInPixels(42-10,0);
     if(brake_stat==0) //if brake is active
-    
+
     {lcd.drawBitmap(bitmapBrakeSymbol, 10,1);}
     else  //clear the brake symbol
     {lcd.drawBitmap(bitmapBrakeSymbolClear, 10,1);}

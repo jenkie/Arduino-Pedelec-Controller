@@ -20,17 +20,17 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
-#define COMMUNI_SUCCEED             1  
-#define COMMUNI_FAILED              0  
-  
-#define noACK 0  
-#define ACK 1  
-  
-#define           COMPASS_CALIBRATION_COMMAND       0xe0  
-#define           PRESS_WRITE_COMMAND               0xB0  
-#define           TEMPERATURE_WRITE_COMMAND         0x80  
-#define           ALTITUDE_WRITE_COMMAND            0xA0  
-#define           COMPASS_WRITE_COMMAND             0xC0  
+#define COMMUNI_SUCCEED             1
+#define COMMUNI_FAILED              0
+
+#define noACK 0
+#define ACK 1
+
+#define           COMPASS_CALIBRATION_COMMAND       0xe0
+#define           PRESS_WRITE_COMMAND               0xB0
+#define           TEMPERATURE_WRITE_COMMAND         0x80
+#define           ALTITUDE_WRITE_COMMAND            0xA0
+#define           COMPASS_WRITE_COMMAND             0xC0
 
 class DSPC01
 {
@@ -48,16 +48,16 @@ public:
     void begin(int SCK_pin,int DATA_pin);
 
 private:
-   int SCK_PIN;
-   int DATA_PIN;
-   unsigned char communicate_status; 
-   void send_SPC01_write_command(unsigned char command);
-   void IIC_SCL_HIGH(void);
-   void IIC_SCL_LOW(void);
-   void IIC_Start(void);
-   void IIC_Stop(void);
-   void IIC_ACK(void);
-   void IIC_NoAck(void);
-   unsigned char IIC_ReadByte(void);
-   unsigned char IIC_WriteByte( unsigned char ucData );
+    int SCK_PIN;
+    int DATA_PIN;
+    unsigned char communicate_status;
+    void send_SPC01_write_command(unsigned char command);
+    void IIC_SCL_HIGH(void);
+    void IIC_SCL_LOW(void);
+    void IIC_Start(void);
+    void IIC_Stop(void);
+    void IIC_ACK(void);
+    void IIC_NoAck(void);
+    unsigned char IIC_ReadByte(void);
+    unsigned char IIC_WriteByte( unsigned char ucData );
 };

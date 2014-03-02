@@ -401,7 +401,7 @@ void PCD8544::drawVerticalBar(word maxValue, word limit, word value, byte widthI
     byte pixelLimit=(byte)map(limit,0, maxValue,2, heightInPixels-outerFrameInPixels-3); //calc distance of the limit line from the bottom of the bar graph
     byte pixelValue;
     //calculate the number of pixels of the data bar depending on "value"
-     pixelValue=constrain((byte)map(value, 0,maxValue,0, heightInPixels-2*outerFrameInPixels-2*innerFrameInPixels-1), 0, heightInPixels-2*outerFrameInPixels-2*innerFrameInPixels-1);
+    pixelValue=constrain((byte)map(value, 0,maxValue,0, heightInPixels-2*outerFrameInPixels-2*innerFrameInPixels-1), 0, heightInPixels-2*outerFrameInPixels-2*innerFrameInPixels-1);
     //the limit line has the same number of pixels as the outer Frame (e.g. 1 or 2 pixels usually), but at least 1 pixel
     for(byte i=0; i<max(outerFrameInPixels,1); i++) //for all pixels of the limit line: create the bit pattern
     {
@@ -465,7 +465,7 @@ void PCD8544::drawVerticalBar(word maxValue, word limit, word value, byte widthI
                 {  b&= ~(0xff<<(7-outerFrameInPixels-innerFrameInPixels) & 0xff>>(1+outerFrameInPixels));} //clear the inner frame
                 b&= 0x7F; //Clear last pixel line. It is not used because of 1 pixel necessary distance to the next line of text below the bar
             }
-            
+
             send(PCD8544_DATA, b);
         }
     }

@@ -105,10 +105,10 @@ static void handle_go_back(MenuItem* p_menu_item)
 
 static void handle_profile(MenuItem* p_menu_item)
 {
-  current_profile=!(current_profile);
-  activate_new_profile();
+    current_profile=!(current_profile);
+    activate_new_profile();
 
-  menu_active = false;
+    menu_active = false;
 }
 
 void init_menu()
@@ -116,11 +116,11 @@ void init_menu()
 #if HARDWARE_REV >=2
     // Add 'shutdown' entry if no switch is configured as the 'shutdown' action
     if (SW_THROTTLE_SHORT_PRESS != ACTION_SHUTDOWN_SYSTEM &&
-        SW_THROTTLE_LONG_PRESS != ACTION_SHUTDOWN_SYSTEM &&
-        SW_DISPLAY1_SHORT_PRESS != ACTION_SHUTDOWN_SYSTEM &&
-        SW_DISPLAY1_LONG_PRESS != ACTION_SHUTDOWN_SYSTEM &&
-        SW_DISPLAY2_SHORT_PRESS != ACTION_SHUTDOWN_SYSTEM &&
-        SW_DISPLAY2_LONG_PRESS != ACTION_SHUTDOWN_SYSTEM)
+            SW_THROTTLE_LONG_PRESS != ACTION_SHUTDOWN_SYSTEM &&
+            SW_DISPLAY1_SHORT_PRESS != ACTION_SHUTDOWN_SYSTEM &&
+            SW_DISPLAY1_LONG_PRESS != ACTION_SHUTDOWN_SYSTEM &&
+            SW_DISPLAY2_SHORT_PRESS != ACTION_SHUTDOWN_SYSTEM &&
+            SW_DISPLAY2_LONG_PRESS != ACTION_SHUTDOWN_SYSTEM)
     {
         menu_main.add_item(&m_main_shutdown, &handle_shutdown);
     }
