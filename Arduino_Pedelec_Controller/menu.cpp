@@ -30,12 +30,14 @@ boolean menu_changed=false;
 
 /*
 Layout:
+    ├── [Ausschalten]              (only shown when no button is set to ACTION_SHUTDOWN_SYSTEM)
     ├── Anzeige
     │   ├── Reset Wh
     │   ├── Reset KM
     │   ├── Graf. an/aus
     │   └── Zurück
     ├── BT an/aus
+    ├── Profil 1<>2
     └── Zurück
 */
 MenuSystem menu_system;
