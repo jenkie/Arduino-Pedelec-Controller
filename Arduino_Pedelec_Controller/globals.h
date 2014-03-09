@@ -57,6 +57,11 @@ extern int curr_power_max;
 extern int curr_power_poti_max;
 extern double curr_capacity;
 extern boolean current_profile;
+
+extern boolean first_aid_ignore_break;
+extern boolean first_aid_ignore_pas;
+extern boolean first_aid_ignore_speed;
+
 extern void save_eeprom();
 extern void activate_new_profile();
 

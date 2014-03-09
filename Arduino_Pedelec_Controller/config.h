@@ -73,6 +73,8 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 #define SUPPORT_BRAKE        //uncomment if brake switch connected
 // #define INVERT_BRAKE         //uncomment if brake signal is low when not braking
 
+#define SUPPORT_FIRST_AID_MENU                //uncomment if you want a on-the-go workaround menu ("Pannenhilfe")
+
 #define CONTROL_MODE_NORMAL 0            //Normal mode: poti and throttle control motor power
 #define CONTROL_MODE_LIMIT_WH_PER_KM 1   //Limit wh/km consumption: poti controls wh/km, throttle controls power to override poti
 #define CONTROL_MODE_TORQUE 2            //power = x*power of the biker, see also description of power_poti_max!

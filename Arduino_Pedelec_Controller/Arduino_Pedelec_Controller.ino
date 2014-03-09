@@ -188,7 +188,10 @@ int curr_power_poti_max=power_poti_max;
 double curr_capacity=capacity;
 boolean current_profile=0; //0: blue profile, 1: red profile
 
-
+// On-the-go duct tape to get you home with broken wiring.
+boolean first_aid_ignore_break = false;
+boolean first_aid_ignore_pas = false;
+boolean first_aid_ignore_speed = false;
 
 // Forward declarations for compatibility with new gcc versions
 void pas_change();
@@ -313,6 +316,10 @@ void loop()
     brake_stat = digitalRead(brake_in);
 #endif
 #endif
+#ifdef SUPPORT_FIRST_AID_MENU
+    if (first_aid_ignore_break)
+        brake_stat = true;
+#endif
 //voltage, current, power
     voltage = analogRead(voltage_in)*voltage_amplitude+voltage_offset; //check with multimeter, change in config.h if needed!
 #if HARDWARE_REV <= 2
@@ -385,15 +392,28 @@ void loop()
 #ifdef SUPPORT_PAS
     if (((millis()-last_pas_event)>500)||(pas_failtime>pas_tolerance))
     {pedaling = false;}                               //we are not pedaling anymore, if pas did not change for > 0,5 s
+
+    // First aid support: Ignore missing PAS events
+    // Note: No need to fix it up in pas_change(), "pedaling" is only set to false above.
+    // If we still get some cadence, show it to the rider.
+    if (first_aid_ignore_pas)
+        pedaling = true;
+
     cad=cad*pedaling;
 #endif
 
-    if ((millis()-last_wheel_time)>3000)               //wheel did not spin for 3 seconds --> speed is zero
+    if ((millis()-last_wheel_time)>3000) //wheel did not spin for 3 seconds --> speed is zero
     {
         spd=0;
         wheel_time=65535;
     }
 
+    // First aid support: Set speed to 1 km/h.
+    // This will still show the graphical display.
+    if (first_aid_ignore_speed)
+    {
+        spd=1;
+    }
 
 //Power control-------------------------------------------------------------------------------------------------------------
     power_throttle = throttle_stat / 1023.0 * curr_power_max;         //power currently set by throttle
@@ -433,7 +453,6 @@ void loop()
     }
 
 //Speed cutoff-------------------------------------------------------------------------------------------------------------
-
     if (pedaling==true)
     {factor_speed=constrain(1-(spd-curr_spd_max1)/(curr_spd_max2-curr_spd_max1),0,1);} //linear decrease of maximum power for speeds higher than spd_max1
     else
@@ -623,7 +642,12 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
 
 void speed_change()    //Wheel Sensor Change------------------------------------------------------------------------------------------------------------------
 {
-//Speed and Km
+#ifdef SUPPORT_FIRST_AID_MENU
+    if (first_aid_ignore_speed)
+        return;
+#endif
+
+    //Speed and Km
     if (last_wheel_time>(millis()-50)) return;                         //debouncing reed-sensor
     ++odo;
     wheel_time=millis()-last_wheel_time;

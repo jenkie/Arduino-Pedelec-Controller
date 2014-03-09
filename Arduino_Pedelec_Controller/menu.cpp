@@ -38,6 +38,13 @@ Layout:
     │   └── Zurück
     ├── BT an/aus
     ├── Profil 1<>2
+    ├── Sonstiges
+    │   ├── Nothilfe
+    │   │    ├── Ign. Bremse
+    │   │    ├── Ign. Treten
+    │   │    ├── Ign. Tacho
+    │   │    └── Zurück
+    │   └── Zurück
     └── Zurück
 */
 MenuSystem menu_system;
@@ -49,6 +56,13 @@ static MenuItem m_display_graphical_onoff("Graf. an/aus");
 static MenuItem m_main_bt_onoff("BT an/aus");
 static MenuItem m_main_shutdown("Ausschalten");
 static MenuItem m_main_profile("Profil 1<>2");
+#ifdef SUPPORT_FIRST_AID_MENU
+static Menu menu_misc("Sonstiges ->");
+static Menu menu_first_aid("Nothilfe ->");
+static MenuItem m_first_aid_ignore_break("Ign. Bremse");
+static MenuItem m_first_aid_ignore_pas("Ign. Treten");
+static MenuItem m_first_aid_ignore_speed("Ign. Tacho");
+#endif
 
 // Universally used "go back" menu entry
 static MenuItem m_go_back("Zurueck ->");
@@ -113,6 +127,59 @@ static void handle_profile(MenuItem* p_menu_item)
     menu_active = false;
 }
 
+#ifdef SUPPORT_FIRST_AID_MENU
+static void show_new_state(const boolean is_on)
+{
+    if (is_on)
+        display_show_important_info("Aktiviert", 1);
+    else
+        display_show_important_info("Deaktiviert", 1);
+
+    menu_active = false;
+}
+
+static void handle_ignore_break(MenuItem* p_menu_item)
+{
+    first_aid_ignore_break = !first_aid_ignore_break;
+    show_new_state(first_aid_ignore_break);
+}
+
+static void handle_ignore_pas(MenuItem* p_menu_item)
+{
+    first_aid_ignore_pas = !first_aid_ignore_pas;
+    show_new_state(first_aid_ignore_pas);
+}
+
+static void handle_ignore_speed(MenuItem* p_menu_item)
+{
+    first_aid_ignore_speed = !first_aid_ignore_speed;
+    show_new_state(first_aid_ignore_speed);
+}
+
+// TODO: Remove this for final version
+static void show_not_implemented(MenuItem* p_menu_item)
+{
+    display_show_important_info("Not implemented :(", 2);
+    menu_active = false;
+}
+
+static void add_first_aid_menu()
+{
+    menu_main.add_menu(&menu_misc);
+    menu_misc.add_menu(&menu_first_aid);
+    menu_misc.add_item(&m_go_back, &handle_go_back);
+
+#ifdef SUPPORT_BRAKE
+    menu_first_aid.add_item(&m_first_aid_ignore_break, &handle_ignore_break);
+#endif
+#ifdef SUPPORT_PAS
+    menu_first_aid.add_item(&m_first_aid_ignore_pas, &handle_ignore_pas);
+#endif
+    menu_first_aid.add_item(&m_first_aid_ignore_speed, &handle_ignore_speed);
+    menu_first_aid.add_item(&m_go_back, &handle_go_back);
+}
+#endif
+
 void init_menu()
 {
 #if HARDWARE_REV >=2
@@ -142,6 +209,9 @@ void init_menu()
     menu_main.add_item(&m_main_bt_onoff, &handle_bluetooth_onoff);
 #endif
     menu_main.add_item(&m_main_profile, &handle_profile);
+#ifdef SUPPORT_FIRST_AID_MENU
+    add_first_aid_menu();
+#endif
     menu_main.add_item(&m_go_back, &handle_go_back);
 
     menu_system.set_root_menu(&menu_main);
