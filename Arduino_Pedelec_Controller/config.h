@@ -73,6 +73,7 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 #define SUPPORT_BRAKE        //uncomment if brake switch connected
 // #define INVERT_BRAKE         //uncomment if brake signal is low when not braking
 
+#define SUPPORT_PROFILE_SWITCH_MENU           //uncomment to disable support for profile switching in the menu
 #define SUPPORT_FIRST_AID_MENU                //uncomment if you want a on-the-go workaround menu ("Pannenhilfe")
 
 #define CONTROL_MODE_NORMAL 0            //Normal mode: poti and throttle control motor power

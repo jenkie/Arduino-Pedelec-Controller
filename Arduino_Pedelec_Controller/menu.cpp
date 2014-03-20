@@ -208,7 +208,10 @@ void init_menu()
     // Not available in 1.1
     menu_main.add_item(&m_main_bt_onoff, &handle_bluetooth_onoff);
 #endif
+
+#ifdef SUPPORT_PROFILE_SWITCH_MENU
     menu_main.add_item(&m_main_profile, &handle_profile);
+#endif
 #ifdef SUPPORT_FIRST_AID_MENU
     add_first_aid_menu();
 #endif
