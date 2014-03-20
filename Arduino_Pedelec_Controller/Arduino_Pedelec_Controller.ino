@@ -376,6 +376,8 @@ void loop()
             wh=variable.wh;
             km=variable.kilometers;
             mah=variable.mah;
+
+            display_show_important_info(msg_battery_charged, 5);
         }
         if (voltage<6.0)                                   //do not write new data to eeprom when on USB Power
         {variables_saved=true;}

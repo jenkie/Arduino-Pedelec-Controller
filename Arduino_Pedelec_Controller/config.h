@@ -136,5 +136,6 @@ const float current_amplitude_R13 = 0.0741;   // for Rev 1.3 set this value acco
 
 const char* const msg_welcome = "Welcome";
 const char* const msg_shutdown = "Live long and prosper.";
+const char* const msg_battery_charged = "Batt. charged! Resetting counters";
 
 #endif
