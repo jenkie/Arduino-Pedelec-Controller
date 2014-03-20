@@ -206,7 +206,9 @@ void init_menu()
 
 #if HARDWARE_REV >=2
     // Not available in 1.1
+#if (SERIAL_MODE & SERIAL_MODE_MMC) || (SERIAL_MODE & SERIAL_MODE_ANDROID)
     menu_main.add_item(&m_main_bt_onoff, &handle_bluetooth_onoff);
+#endif
 #endif
 
 #ifdef SUPPORT_PROFILE_SWITCH_MENU
