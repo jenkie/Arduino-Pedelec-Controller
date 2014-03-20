@@ -371,6 +371,7 @@ void loop()
 //Check if Battery was charged since last power down-----------------------------------------------------------------------
     if (firstrun==true)
     {
+#ifdef SUPPORT_BATTERY_CHARGE_DETECTION
         if (variable.voltage>(voltage - 2))                //charging detected if voltage is 2V higher than last stored voltage
         {
             wh=variable.wh;
@@ -379,6 +380,7 @@ void loop()
 
             display_show_important_info(msg_battery_charged, 5);
         }
+#endif
         if (voltage<6.0)                                   //do not write new data to eeprom when on USB Power
         {variables_saved=true;}
     }

@@ -82,6 +82,7 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 #define CONTROL_MODE CONTROL_MODE_NORMAL //Set your control mode here
 
 //#define SUPPORT_MOTOR_GUESS   //enable guess of motor drive depending on current speed. Usefull for motor controllers with speed-throttle to optimize response behaviour
+#define SUPPORT_BATTERY_CHARGE_DETECTION //support detection if the battery was charged -> reset wh / trip km / mah counters if detected.
 
 //Config Options-----------------------------------------------------------------------------------------------------
 const int pas_tolerance=1;               //0... increase to make pas sensor slower but more tolerant against speed changes
