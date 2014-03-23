@@ -158,6 +158,13 @@ static void action_set_profile(const boolean new_profile)
     activate_new_profile();
 }
 
+#ifdef SUPPORT_LIGHTS_SWITCH
+static void action_toggle_lights()
+{
+    digitalWrite(lights_pin, !digitalRead(lights_pin));
+}
+#endif
+
 static void execute_action(const sw_action action)
 {
     switch(action)
@@ -188,6 +195,11 @@ static void execute_action(const sw_action action)
         case ACTION_PROFILE:
             action_set_profile(!current_profile);
             break;
+#ifdef SUPPORT_LIGHTS_SWITCH
+        case ACTION_TOGGLE_LIGHTS:
+            action_toggle_lights();
+            break;
+#endif
         default:
             display_show_important_info("Unknown action!", 2);
             break;

@@ -60,6 +60,14 @@ boolean dspc_mode=0;  //is false if temperature, true if altitude
 #error You either have poti or soft-poti support. Disable one of them.
 #endif
 
+#if defined(SUPPORT_LIGHTS_SWITCH) && defined(SUPPORT_XCELL_RT)
+#error Software controlled lights switch is not compatible with X-CELL RT support
+#endif
+
+#if defined(SUPPORT_LIGHTS_SWITCH) && HARDWARE_REV < 3
+#error Lights switch is only possible on FC hardware rev 3 or newer
+#endif
+
 #if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS))
 #include <SoftwareSerial.h>      //for Kingmeter J-LCD and BMS S-LCD
 #endif
@@ -90,7 +98,8 @@ const int current_in = A3;           //Current read-Pin
 const int voltage_in = A0;           //Voltage read-Pin
 const int fet_out = A1;              //FET: Pull high to switch off
 const int current_in = A2;           //Current read-Pin
-const int option_pin = A3;            //Analog option
+const int option_pin = A3;           //Analog option
+const int lights_pin = A3;           //Software controlled lights switch
 #endif
 const int poti_in = A6;              //PAS Speed-Poti-Pin
 const int throttle_in = A7;          //Throttle read-Pin
@@ -229,6 +238,17 @@ void setup()
     pinMode(brake_in, INPUT);
 #endif
     pinMode(option_pin,INPUT);
+
+#ifdef SUPPORT_LIGHTS_SWITCH
+    // Note: lights_pin is normally also the options_pin
+    pinMode(lights_pin,OUTPUT);
+#ifdef SUPPORT_LIGHTS_ENABLE_ON_STARTUP
+    digitalWrite(lights_pin, HIGH);     // turn lights on during startup
+#else
+    digitalWrite(lights_pin, LOW);
+#endif
+#endif
+
 #if HARDWARE_REV >= 2
     pinMode(fet_out,OUTPUT);
     pinMode(bluetooth_pin,OUTPUT);

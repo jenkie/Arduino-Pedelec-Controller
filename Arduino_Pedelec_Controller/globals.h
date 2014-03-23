@@ -49,6 +49,7 @@ extern char inchar;
 
 extern const int bluetooth_pin;
 extern const int fet_out;
+extern const int lights_pin;
 
 extern int curr_startingaid_speed;
 extern int curr_spd_max1;

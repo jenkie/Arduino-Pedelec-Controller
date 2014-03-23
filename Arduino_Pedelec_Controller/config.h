@@ -76,6 +76,11 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 #define SUPPORT_PROFILE_SWITCH_MENU           //uncomment to disable support for profile switching in the menu
 #define SUPPORT_FIRST_AID_MENU                //uncomment if you want a on-the-go workaround menu ("Pannenhilfe")
 
+// Software controlled lights switch. Needs FC 1.3 or newer. Only possible if X-CELL RT is not in use as they share the A3 pin
+// #define SUPPORT_LIGHTS_SWITCH                   //uncomment if you want software switchable lights on pin A3 (lights_pin)
+// #define SUPPORT_LIGHTS_ENABLE_ON_STARTUP   //uncomment if you want the lights turned on when the system turns on
+// #define SUPPORT_LIGHTS_SWITCH_MENU       //uncomment if you want a "Toggle lights" menu entry
+
 #define CONTROL_MODE_NORMAL 0            //Normal mode: poti and throttle control motor power
 #define CONTROL_MODE_LIMIT_WH_PER_KM 1   //Limit wh/km consumption: poti controls wh/km, throttle controls power to override poti
 #define CONTROL_MODE_TORQUE 2            //power = x*power of the biker, see also description of power_poti_max!

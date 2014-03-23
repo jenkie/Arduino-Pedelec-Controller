@@ -36,6 +36,7 @@ Layout:
     │   ├── Reset KM
     │   ├── Graf. an/aus
     │   └── Zurück
+    ├── Licht an/aus
     ├── BT an/aus
     ├── Profil 1<>2
     ├── Sonstiges
@@ -53,6 +54,7 @@ static Menu menu_display("Anzeige ->");
 static MenuItem m_display_reset_wh("Reset Wh");
 static MenuItem m_display_reset_km("Reset KM");
 static MenuItem m_display_graphical_onoff("Graf. an/aus");
+static MenuItem m_main_lights_onoff("Licht an/aus");
 static MenuItem m_main_bt_onoff("BT an/aus");
 static MenuItem m_main_shutdown("Ausschalten");
 static MenuItem m_main_profile("Profil 1<>2");
@@ -90,6 +92,16 @@ static void handle_graphical_onoff(MenuItem* p_menu_item)
 
     menu_active = false;
 }
+
+#if defined(SUPPORT_LIGHTS_SWITCH) && defined(SUPPORT_LIGHTS_SWITCH_MENU)
+static void handle_lights_onoff(MenuItem* p_menu_item)
+{
+    // Toggle lights
+    digitalWrite(lights_pin, !digitalRead(lights_pin));
+
+    menu_active = false;
+}
+#endif
 
 static void handle_bluetooth_onoff(MenuItem* p_menu_item)
 {
@@ -203,6 +215,10 @@ void init_menu()
     menu_display.add_item(&m_display_graphical_onoff, &handle_graphical_onoff);
 #endif
     menu_display.add_item(&m_go_back, &handle_go_back);
+
+#if defined(SUPPORT_LIGHTS_SWITCH) && defined(SUPPORT_LIGHTS_SWITCH_MENU)
+    menu_main.add_item(&m_main_lights_onoff, &handle_lights_onoff);
+#endif
 
 #if HARDWARE_REV >=2
     // Not available in 1.1

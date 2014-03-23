@@ -32,6 +32,7 @@ enum sw_action { ACTION_NONE=0,                // do nothing
                  ACTION_PROFILE_1,             // switch to profile 1
                  ACTION_PROFILE_2,             // switch to profile 2
                  ACTION_PROFILE,               // switch profiles
+                 ACTION_TOGGLE_LIGHTS,         // toggle lights on/off. Needs hardware revision 1.4 or newer
                };
 
 #endif
