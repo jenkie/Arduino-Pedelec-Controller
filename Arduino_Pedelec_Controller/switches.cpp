@@ -64,7 +64,7 @@ void init_switches()
 // Switch actions start here.
 // Those can be executed when a button is pressed (short or long)
 //
-static void action_set_soft_poti()
+static void action_set_soft_poti(int new_throttle_stat)
 {
 #if defined(SUPPORT_SOFT_POTI) || defined(SUPPORT_POTI_SWITCHES) || defined(SUPPORT_FIRST_AID_MENU)
     int power_poti;
@@ -72,12 +72,12 @@ static void action_set_soft_poti()
     char buffer[12]="Poti       ";
 
     // Set soft poti if throttle value changed
-    if (poti_stat != throttle_stat)
+    if (poti_stat != new_throttle_stat)
     {
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
         enable_custom_backlight(5000);  //switch backlight on for five seconds
 #endif
-        poti_stat = throttle_stat;
+        poti_stat = new_throttle_stat;
         if (poti_stat == 0)
             display_show_important_info("Tempomat reset", 0);
         else
@@ -115,20 +115,20 @@ static void action_set_soft_poti()
 #if defined(SUPPORT_POTI_SWITCHES) || defined(SUPPORT_FIRST_AID_MENU)
 void action_increase_poti()
 {
-    throttle_stat = poti_stat + map(poti_level_step_size_in_watts, 0, curr_power_poti_max, 0, 1023);
-    if (throttle_stat > 1023)
-        throttle_stat = 1023;
+    int new_stat = poti_stat + map(poti_level_step_size_in_watts, 0, curr_power_poti_max, 0, 1023);
+    if (new_stat > 1023)
+        new_stat = 1023;
 
-    action_set_soft_poti();
+    action_set_soft_poti(new_stat);
 }
 
 void action_decrease_poti()
 {
-    throttle_stat = poti_stat - map(poti_level_step_size_in_watts, 0, curr_power_poti_max, 0, 1023);
-    if (throttle_stat < 0)
-        throttle_stat = 0;
+    int new_stat = poti_stat - map(poti_level_step_size_in_watts, 0, curr_power_poti_max, 0, 1023);
+    if (new_stat < 0)
+        new_stat = 0;
 
-    action_set_soft_poti();
+    action_set_soft_poti(new_stat);
 }
 #endif
 
@@ -197,7 +197,7 @@ static void execute_action(const sw_action action)
         case ACTION_NONE:
             break;
         case ACTION_SET_SOFT_POTI:
-            action_set_soft_poti();
+            action_set_soft_poti(throttle_stat);
             break;
         case ACTION_SHUTDOWN_SYSTEM:
             action_shutdown_system();
