@@ -61,7 +61,11 @@ boolean dspc_mode=0;  //is false if temperature, true if altitude
 #endif
 
 #if defined(SUPPORT_POTI) && defined(SUPPORT_SWITCH_ON_POTI_PIN)
-#error You either have poti or a switch on the poti pin. Disable one of them.
+#error You either have a poti or a switch on the poti pin. Disable one of them.
+#endif
+
+#if defined(SUPPORT_POTI) && defined(SUPPORT_POTI_SWITCHES)
+#error You either have a poti or switches to control the poti value
 #endif
 
 #if defined(SUPPORT_LIGHTS_SWITCH) && defined(SUPPORT_XCELL_RT)

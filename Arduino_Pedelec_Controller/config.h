@@ -42,7 +42,8 @@ const switch_name MENU_BUTTON_DOWN = SWITCH_DISPLAY1;
 //
 // Choose from: ACTION_NONE, ACTION_SET_SOFT_POTI, ACTION_SHUTDOWN_SYSTEM
 //              ACTION_ENABLE_BACKLIGHT_LONG, ACTION_TOGGLE_BLUETOOTH,
-//              ACTION_ENTER_MENU,ACTION_PROFILE_1,ACTION_PROFILE_2,ACTION_PROFILE
+//              ACTION_ENTER_MENU, ACTION_PROFILE_1, ACTION_PROFILE_2, ACTION_PROFILE
+//              ACTION_TOGGLE_LIGHTS, ACTION_INCREASE_POTI, ACTION_DECREASE_POTI
 //
 // The file "switches_action.h" contains a list with descriptions.
 //
@@ -68,7 +69,11 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 // #define SUPPORT_BMP085   //uncomment if BMP085 available (barometric pressure + temperature sensor)
 // #define SUPPORT_DSPC01   //uncomment if DSPC01 available (barometric altitude + temperature sensor), connect to I2C-BUS
 #define SUPPORT_POTI        //uncomment if Poti connected
-// #define SUPPORT_SOFT_POTI // uncomment if Poti is emulated: The switch_disp button will store the current throttle value as poti value
+// #define SUPPORT_SOFT_POTI //uncomment if Poti is emulated: The switch_disp button will store the current throttle value as poti value
+
+// #define SUPPORT_POTI_SWITCHES     //uncomment to increase/decrease the poti via switch action ACTION_INCREASE_POTI / ACTION_DECREASE_POTI
+const int poti_level_step_size_in_watts = 50;        //number of watts to increase / decrease poti value by switch press
+
 #define SUPPORT_THROTTLE    //uncomment if Throttle connected
 #define SUPPORT_PAS         //uncomment if PAS-sensor connected
 // #define SUPPORT_XCELL_RT    //uncomment if X-CELL RT connected. FC1.4: pas_factor_min=0.2, pas_factor_max=0.5. FC1.5: pas_factor_min=0.5, pas_factor_max=1.5. pas_magnets=8

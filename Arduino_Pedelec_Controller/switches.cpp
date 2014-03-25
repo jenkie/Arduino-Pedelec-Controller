@@ -66,7 +66,7 @@ void init_switches()
 //
 static void action_set_soft_poti()
 {
-#ifdef SUPPORT_SOFT_POTI
+#if defined(SUPPORT_SOFT_POTI) || defined(SUPPORT_POTI_SWITCHES)
     int power_poti;
     byte i=0;
     char buffer[12]="Poti       ";
@@ -111,6 +111,26 @@ static void action_set_soft_poti()
     }
 #endif
 }
+
+#ifdef SUPPORT_POTI_SWITCHES
+static void action_increase_poti()
+{
+    throttle_stat = poti_stat + map(poti_level_step_size_in_watts, 0, curr_power_poti_max, 0, 1023);
+    if (throttle_stat > 1023)
+        throttle_stat = 1023;
+
+    action_set_soft_poti();
+}
+
+static void action_decrease_poti()
+{
+    throttle_stat = poti_stat - map(poti_level_step_size_in_watts, 0, curr_power_poti_max, 0, 1023);
+    if (throttle_stat < 0)
+        throttle_stat = 0;
+
+    action_set_soft_poti();
+}
+#endif
 
 static void action_shutdown_system()
 {
@@ -203,6 +223,14 @@ static void execute_action(const sw_action action)
 #ifdef SUPPORT_LIGHTS_SWITCH
         case ACTION_TOGGLE_LIGHTS:
             action_toggle_lights();
+            break;
+#endif
+#ifdef SUPPORT_POTI_SWITCHES
+        case ACTION_INCREASE_POTI:
+            action_increase_poti();
+            break;
+        case ACTION_DECREASE_POTI:
+            action_decrease_poti();
             break;
 #endif
         default:
