@@ -45,9 +45,9 @@ Layout:
     │   │    ├── Ign. Treten
     │   │    ├── Ign. Tacho
     │   │    ├── Ign. Gasgr.
+    │   │    ├── Ign. Poti             (only with SUPPORT_POTI)
     │   │    ├── Poti +
     │   │    ├── Poti -
-    │   │    ├── Poti reset             (only with SUPPORT_POTI)
     │   │    └── Zurück
     │   └── Zurück
     └── Zurück
@@ -69,9 +69,9 @@ static MenuItem m_first_aid_ignore_break("Ign. Bremse");
 static MenuItem m_first_aid_ignore_pas("Ign. Treten");
 static MenuItem m_first_aid_ignore_speed("Ign. Tacho");
 static MenuItem m_first_aid_ignore_throttle("Ign. Gasgr.");
+static MenuItem m_first_aid_ignore_poti("Ignore Poti");
 static MenuItem m_first_aid_inc_poti("Poti +");
 static MenuItem m_first_aid_dec_poti("Poti -");
-static MenuItem m_first_aid_reset_poti("Poti reset");
 #endif
 
 // Universally used "go back" menu entry
@@ -182,6 +182,16 @@ static void handle_ignore_throttle(MenuItem* p_menu_item)
     show_new_state(first_aid_ignore_throttle);
 }
 
+static void handle_ignore_poti(MenuItem* p_menu_item)
+{
+    first_aid_ignore_poti = !first_aid_ignore_poti;
+
+    // Just switched it on? Reset poti value
+    if (first_aid_ignore_poti)
+        poti_stat = 0;
+
+    show_new_state(first_aid_ignore_poti);
+}
 
 static void handle_inc_poti(MenuItem* p_menu_item)
 {
@@ -201,18 +211,6 @@ static void handle_dec_poti(MenuItem* p_menu_item)
     menu_active = false;
 }
 
-#ifdef SUPPORT_POTI
-static void handle_reset_poti(MenuItem* p_menu_item)
-{
-    if (first_aid_ignore_poti)
-        display_show_important_info("Poti wieder an", 1);
-
-    first_aid_ignore_poti = false;
-
-    menu_active = false;
-}
-#endif
-
 static void add_first_aid_menu()
 {
     menu_main.add_menu(&menu_misc);
@@ -230,15 +228,15 @@ static void add_first_aid_menu()
     menu_first_aid.add_item(&m_first_aid_ignore_throttle, &handle_ignore_throttle);
 #endif
 
+#ifdef SUPPORT_POTI
+    menu_first_aid.add_item(&m_first_aid_ignore_poti, &handle_ignore_poti);
+#endif
 #if defined(SUPPORT_POTI) \
         || defined(SUPPORT_THROTTLE) \
         || defined(SUPPORT_SOFT_POTI) \
         || defined (SUPPORT_POTI_SWITCHES)
     menu_first_aid.add_item(&m_first_aid_inc_poti, &handle_inc_poti);
     menu_first_aid.add_item(&m_first_aid_dec_poti, &handle_dec_poti);
-#ifdef SUPPORT_POTI
-    menu_first_aid.add_item(&m_first_aid_reset_poti, &handle_reset_poti);
-#endif
 #endif
 
     menu_first_aid.add_item(&m_go_back, &handle_go_back);
