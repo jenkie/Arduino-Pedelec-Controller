@@ -60,6 +60,10 @@ boolean dspc_mode=0;  //is false if temperature, true if altitude
 #error You either have poti or soft-poti support. Disable one of them.
 #endif
 
+#if defined(SUPPORT_POTI) && defined(SUPPORT_SWITCH_ON_POTI_PIN)
+#error You either have poti or a switch on the poti pin. Disable one of them.
+#endif
+
 #if defined(SUPPORT_LIGHTS_SWITCH) && defined(SUPPORT_XCELL_RT)
 #error Software controlled lights switch is not compatible with X-CELL RT support
 #endif
@@ -386,6 +390,9 @@ void loop()
     handle_switch(SWITCH_DISPLAY1, digitalRead(switch_disp));
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
     handle_switch(SWITCH_DISPLAY2, digitalRead(switch_disp_2));
+#endif
+#ifdef SUPPORT_SWITCH_ON_POTI_PIN
+    handle_switch(SWITCH_POTI, digitalRead(poti_in));
 #endif
 
 //Check if Battery was charged since last power down-----------------------------------------------------------------------

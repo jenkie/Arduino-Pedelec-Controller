@@ -53,6 +53,11 @@ void init_switches()
 
     switch_states[SWITCH_DISPLAY2].action_short_press = SW_DISPLAY2_SHORT_PRESS;
     switch_states[SWITCH_DISPLAY2].action_long_press = SW_DISPLAY2_LONG_PRESS;
+
+#ifdef SUPPORT_SWITCH_ON_POTI_PIN
+    switch_states[SWITCH_POTI].action_short_press = SW_POTI_SHORT_PRESS;
+    switch_states[SWITCH_POTI].action_long_press = SW_POTI_LONG_PRESS;
+#endif
 }
 
 //

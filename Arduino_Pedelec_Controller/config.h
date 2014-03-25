@@ -49,12 +49,15 @@ const switch_name MENU_BUTTON_DOWN = SWITCH_DISPLAY1;
 const sw_action SW_THROTTLE_SHORT_PRESS = ACTION_SET_SOFT_POTI;
 const sw_action SW_THROTTLE_LONG_PRESS  = ACTION_SHUTDOWN_SYSTEM;
 
+// #define SUPPORT_SWITCH_ON_POTI_PIN              //uncomment if you have an additional switch on the poti pin
+const sw_action SW_POTI_SHORT_PRESS = ACTION_NONE;
+const sw_action SW_POTI_LONG_PRESS = ACTION_NONE;
+
 const sw_action SW_DISPLAY1_SHORT_PRESS = ACTION_ENABLE_BACKLIGHT_LONG;
 const sw_action SW_DISPLAY1_LONG_PRESS  = ACTION_ENTER_MENU;
 
 const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_NONE;
 const sw_action SW_DISPLAY2_LONG_PRESS  = ACTION_ENTER_MENU;
-
 
 // #define SUPPORT_DISPLAY_BACKLIGHT // uncomment for LCD display backlight support
                                      // The Nokia 5110 display needs a 120 Ohm resistor on the backlight pin

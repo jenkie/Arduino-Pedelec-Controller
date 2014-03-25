@@ -20,7 +20,12 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #define SWITCHES_ACTION_H
 
 // Switch names
-enum switch_name { SWITCH_THROTTLE=0, SWITCH_DISPLAY1=1, SWITCH_DISPLAY2=2, _SWITCHES_COUNT=3 };
+enum switch_name { SWITCH_THROTTLE=0,
+                   SWITCH_DISPLAY1=1,
+                   SWITCH_DISPLAY2=2,
+                   SWITCH_POTI=3,
+                   _SWITCHES_COUNT=4
+                 };
 
 // Switch actions: Customizable actions for short and long press. See config.h
 enum sw_action { ACTION_NONE=0,                // do nothing
