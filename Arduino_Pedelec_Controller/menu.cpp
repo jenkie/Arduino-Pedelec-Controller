@@ -44,6 +44,9 @@ Layout:
     │   │    ├── Ign. Bremse
     │   │    ├── Ign. Treten
     │   │    ├── Ign. Tacho
+    │   │    ├── Poti +
+    │   │    ├── Poti -
+    │   │    ├── Poti reset             (only with SUPPORT_POTI)
     │   │    └── Zurück
     │   └── Zurück
     └── Zurück
@@ -64,6 +67,9 @@ static Menu menu_first_aid("Nothilfe ->");
 static MenuItem m_first_aid_ignore_break("Ign. Bremse");
 static MenuItem m_first_aid_ignore_pas("Ign. Treten");
 static MenuItem m_first_aid_ignore_speed("Ign. Tacho");
+static MenuItem m_first_aid_inc_poti("Poti +");
+static MenuItem m_first_aid_dec_poti("Poti -");
+static MenuItem m_first_aid_reset_poti("Poti reset");
 #endif
 
 // Universally used "go back" menu entry
@@ -168,12 +174,29 @@ static void handle_ignore_speed(MenuItem* p_menu_item)
     show_new_state(first_aid_ignore_speed);
 }
 
-// TODO: Remove this for final version
-static void show_not_implemented(MenuItem* p_menu_item)
+static void handle_inc_poti(MenuItem* p_menu_item)
 {
-    display_show_important_info("Not implemented :(", 2);
-    menu_active = false;
+    first_aid_ignore_poti = true;
+
+    action_increase_poti();
 }
+
+static void handle_dec_poti(MenuItem* p_menu_item)
+{
+    first_aid_ignore_poti = true;
+
+    action_decrease_poti();
+}
+
+#ifdef SUPPORT_POTI
+static void handle_reset_poti(MenuItem* p_menu_item)
+{
+    if (first_aid_ignore_poti)
+        display_show_important_info("Poti wieder an", 1);
+
+    first_aid_ignore_poti = false;
+}
+#endif
 
 static void add_first_aid_menu()
 {
@@ -188,6 +211,18 @@ static void add_first_aid_menu()
     menu_first_aid.add_item(&m_first_aid_ignore_pas, &handle_ignore_pas);
 #endif
     menu_first_aid.add_item(&m_first_aid_ignore_speed, &handle_ignore_speed);
+
+#if defined(SUPPORT_POTI) \
+        || defined(SUPPORT_THROTTLE) \
+        || defined(SUPPORT_SOFT_POTI) \
+        || defined (SUPPORT_POTI_SWITCHES)
+    menu_first_aid.add_item(&m_first_aid_inc_poti, &handle_inc_poti);
+    menu_first_aid.add_item(&m_first_aid_dec_poti, &handle_dec_poti);
+#ifdef SUPPORT_POTI
+    menu_first_aid.add_item(&m_first_aid_reset_poti, &handle_reset_poti);
+#endif
+#endif
+
     menu_first_aid.add_item(&m_go_back, &handle_go_back);
 }
 #endif

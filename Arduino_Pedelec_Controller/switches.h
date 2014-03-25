@@ -25,4 +25,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 void init_switches();
 void handle_switch(const switch_name sw_name, boolean sw_state);
 
+void action_increase_poti();
+void action_decrease_poti();
+
 #endif

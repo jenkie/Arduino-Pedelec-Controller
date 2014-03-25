@@ -62,6 +62,7 @@ extern boolean current_profile;
 extern boolean first_aid_ignore_break;
 extern boolean first_aid_ignore_pas;
 extern boolean first_aid_ignore_speed;
+extern boolean first_aid_ignore_poti;
 
 extern void save_eeprom();
 extern void activate_new_profile();

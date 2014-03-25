@@ -66,7 +66,7 @@ void init_switches()
 //
 static void action_set_soft_poti()
 {
-#if defined(SUPPORT_SOFT_POTI) || defined(SUPPORT_POTI_SWITCHES)
+#if defined(SUPPORT_SOFT_POTI) || defined(SUPPORT_POTI_SWITCHES) || defined(SUPPORT_FIRST_AID_MENU)
     int power_poti;
     byte i=0;
     char buffer[12]="Poti       ";
@@ -112,8 +112,8 @@ static void action_set_soft_poti()
 #endif
 }
 
-#ifdef SUPPORT_POTI_SWITCHES
-static void action_increase_poti()
+#if defined(SUPPORT_POTI_SWITCHES) || defined(SUPPORT_FIRST_AID_MENU)
+void action_increase_poti()
 {
     throttle_stat = poti_stat + map(poti_level_step_size_in_watts, 0, curr_power_poti_max, 0, 1023);
     if (throttle_stat > 1023)
@@ -122,7 +122,7 @@ static void action_increase_poti()
     action_set_soft_poti();
 }
 
-static void action_decrease_poti()
+void action_decrease_poti()
 {
     throttle_stat = poti_stat - map(poti_level_step_size_in_watts, 0, curr_power_poti_max, 0, 1023);
     if (throttle_stat < 0)

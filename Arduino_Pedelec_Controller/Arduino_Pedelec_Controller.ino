@@ -209,6 +209,7 @@ boolean current_profile=0; //0: blue profile, 1: red profile
 boolean first_aid_ignore_break = false;
 boolean first_aid_ignore_pas = false;
 boolean first_aid_ignore_speed = false;
+boolean first_aid_ignore_poti = false;
 
 // Forward declarations for compatibility with new gcc versions
 void pas_change();
@@ -315,7 +316,8 @@ void loop()
     handle_dspc();
 #endif
 #ifdef SUPPORT_POTI
-    poti_stat = constrain(map(analogRead(poti_in),poti_offset,poti_max,0,1023),0,1023);   // 0...1023
+    if (first_aid_ignore_poti == false)
+        poti_stat = constrain(map(analogRead(poti_in),poti_offset,poti_max,0,1023),0,1023);   // 0...1023
 #endif
 
 #if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS))
