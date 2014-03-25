@@ -210,6 +210,7 @@ boolean first_aid_ignore_break = false;
 boolean first_aid_ignore_pas = false;
 boolean first_aid_ignore_speed = false;
 boolean first_aid_ignore_poti = false;
+boolean first_aid_ignore_throttle = false;
 
 // Forward declarations for compatibility with new gcc versions
 void pas_change();
@@ -334,7 +335,7 @@ void loop()
 
 #ifdef SUPPORT_THROTTLE
     throttle_stat = constrain(map(analogRead(throttle_in),throttle_offset,throttle_max,0,1023),0,1023);   // 0...1023
-    if (throttle_stat<5) //avoid noisy throttle readout
+    if (throttle_stat<5 || first_aid_ignore_throttle) //avoid noisy throttle readout
     {
         throttle_stat=0;
     }
