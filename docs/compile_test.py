@@ -45,12 +45,28 @@ DISPLAY_TYPES = [
                 'BMS'
                 ]
 
+SERIAL_MODES = [
+                'NONE',
+                'DEBUG',
+                'ANDROID',
+                'MMC',
+                'LOGVIEW',
+                ]
+
+CONTROL_MODES = [
+                'NORMAL',
+                'LIMIT_WH_PER_KM',
+                'TORQUE'
+                ]
+
+HW_REVISIONS = [1, 2, 3, 4, 5]
+
 # Cleanup
 print('Cleaning build directories')
 subprocess.call('rm -rf ' + BUILD_PREFIX + '*', shell=True)
 print('')
 
-def prepare_config_h(append_str):
+def prepare_config_h(append_str, filter_support=False):
     config_h = BASE_DIR + '/config.h'
     config_new = config_h + '.new'
 
@@ -59,7 +75,11 @@ def prepare_config_h(append_str):
     print('');
 
     # TODO: Implement own filtering of config.h
-    subprocess.call('grep -h -v "define SUPPORT_" ' + config_h + ' > ' + config_new, shell=True)
+    if filter_support:
+        subprocess.call('grep -h -v "define SUPPORT_" ' + config_h + ' > ' + config_new, shell=True)
+    else:
+        subprocess.call('cp -f ' + config_h + ' ' + config_new, shell=True)
+
     # TODO: shell escaping
     subprocess.call('echo "' + append_str + '" >> ' + config_new, shell=True)
     os.remove(config_h)
@@ -74,39 +94,90 @@ def prepare_cmake(build_name):
 
 def run_make(build_name):
     ret = subprocess.call('make -j' + str(CPU_COUNT), shell=True)
+
+    # Keep config.h used for this build
+    os.rename('../' + BASE_DIR + '/config.h', 'config.h')
+
     if ret != 0:
         raise Exception('Build failed for config option: %s' % build_name)
 
-# Test all simple configs
-for config_option in SIMPLE_CONFIGS:
-    print('Testing config: %s' % config_option)
+def test_simple_configs():
+    for config_option in SIMPLE_CONFIGS:
+        print('Testing config: %s' % config_option)
 
-    prepare_config_h('#define ' + config_option)
+        prepare_config_h('#define ' + config_option, filter_support=True)
 
-    prepare_cmake(config_option)
-    run_make(config_option)
+        prepare_cmake(config_option)
+        run_make(config_option)
 
-    # Cleanup
-    os.chdir('..')
-    print('');
+        # Cleanup
+        os.chdir('..')
+        print('');
 
-# Test all display types
-for display_type in DISPLAY_TYPES:
-    full_display_name = 'DISPLAY_TYPE_' + display_type
-    print('Testing display: %s' % full_display_name)
+def test_display_types():
+    for display_type in DISPLAY_TYPES:
+        full_display_name = 'DISPLAY_TYPE_' + display_type
+        print('Testing display: %s' % full_display_name)
 
-    prepare_config_h('#undef DISPLAY_TYPE\n#define DISPLAY_TYPE ' + full_display_name)
-    prepare_cmake(display_type)
-    run_make(display_type)
+        prepare_config_h('#undef DISPLAY_TYPE\n#define DISPLAY_TYPE ' + full_display_name)
+        prepare_cmake(full_display_name)
+        run_make(full_display_name)
 
-    # Cleanup
-    os.chdir('..')
-    print('');
+        # Cleanup
+        os.chdir('..')
+        print('');
 
-# TODO: Compile all serial modes
-# TODO: Compile all control modes
-# TODO: Test all hardware revision
+# Test all serial modes
+def test_serial_modes():
+    for serial_mode in SERIAL_MODES:
+        full_mode_name = 'SERIAL_MODE_' + serial_mode
+        print('Testing serial mode: %s' % full_mode_name)
+
+        prepare_config_h('#undef SERIAL_MODE\n#define SERIAL_MODE ' + full_mode_name)
+        prepare_cmake(full_mode_name)
+        run_make(full_mode_name)
+
+        # Cleanup
+        os.chdir('..')
+        print('');
+
+# Test all control modes
+# TODO: Add XCELL_RT for TORQUE mode
+def test_control_modes():
+    for control_mode in CONTROL_MODES:
+        full_mode_name = 'CONTROL_MODE_' + control_mode
+        print('Testing control mode: %s' % full_mode_name)
+
+        prepare_config_h('#undef CONTROL_MODE\n#define CONTROLE_MODE ' + full_mode_name)
+        prepare_cmake(full_mode_name)
+        run_make(full_mode_name)
+
+        # Cleanup
+        os.chdir('..')
+        print('');
+
+# Test hardware revisions
+def test_hw_revisions():
+    for hw_revision in HW_REVISIONS:
+        test_name = 'HW_REV_' + str(hw_revision)
+        print('Testing hardware revision: %s' % hw_revision)
+
+        prepare_config_h('#undef HARDWARE_REV\n#define HARDWARE_REV ' + str(hw_revision))
+        prepare_cmake(test_name)
+        run_make(test_name)
+
+        # Cleanup
+        os.chdir('..')
+        print('');
+
+test_simple_configs()
+test_display_types()
+test_serial_modes()
+test_control_modes()
+test_hw_revisions()
+
 # TODO: Compile clever "real life" feature combinations
-# TODO: Add ability to run single 'test'
+# TODO: Add ability to run single 'test' -> convert to python unit test
+# TODO: Test 'max' config option -> enable as much sane features as possible
 
 print('Execution time: ' + str(datetime.now()-start_time))
