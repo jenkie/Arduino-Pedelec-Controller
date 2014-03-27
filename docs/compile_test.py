@@ -2,6 +2,7 @@
 """Try to configure different config.h settings"""
 """and see if everything still compiles"""
 """Licensed under the GPL v3, part of the pedelec controller"""
+"""Written by Thomas Jarosch, (c) 2014"""
 import os
 import subprocess
 import unittest
@@ -9,7 +10,7 @@ import multiprocessing
 from datetime import datetime
 
 BASE_DIR = 'Arduino_Pedelec_Controller'
-BUILD_PREFIX = 'compile-test-'
+BUILD_PREFIX = 'compile'
 CONFIG_H = BASE_DIR + '/config.h'
 CPU_COUNT = multiprocessing.cpu_count()                      # Number of CPUs for parallel make
 
@@ -53,7 +54,6 @@ def write_config_h(filename=CONFIG_H,
                    features=DEFAULT_FEATURES,
                    control_mode='NORMAL'):
     with open(filename, 'w') as f:
-        f.write('//place all your personal configurations here and keep this file when updating!\n')
         f.write('#ifndef CONFIG_H\n')
         f.write('#define CONFIG_H\n')
         f.write('\n')
@@ -95,30 +95,14 @@ def write_config_h(filename=CONFIG_H,
             f.write('#define ' + feature + '\n')
         f.write('// FEATURES end\n')
         f.write('\n')
-        f.write('\n')
 
         f.write('\n')
-        f.write('// Customizable buttons for use with the on-the-go-menu.\n')
-        f.write('// The menu is activated by the ACTION_ENTER_MENU action (see below).\n')
-        f.write('//\n')
-        f.write('// Choose from: SWITCH_THROTTLE, SWITCH_DISPLAY1 and SWITCH_DISPLAY2\n')
-        f.write('//\n')
         f.write('const switch_name MENU_BUTTON_UP = SWITCH_THROTTLE;\n')
         f.write('const switch_name MENU_BUTTON_DOWN = SWITCH_DISPLAY1;\n')
         f.write('\n')
-        f.write('// Switch actions: Customizable actions for short and long press\n')
-        f.write('//\n')
-        f.write('// Choose from: ACTION_NONE, ACTION_SET_SOFT_POTI, ACTION_SHUTDOWN_SYSTEM\n')
-        f.write('//              ACTION_ENABLE_BACKLIGHT_LONG, ACTION_TOGGLE_BLUETOOTH,\n')
-        f.write('//              ACTION_ENTER_MENU, ACTION_PROFILE_1, ACTION_PROFILE_2, ACTION_PROFILE\n')
-        f.write('//              ACTION_TOGGLE_LIGHTS, ACTION_INCREASE_POTI, ACTION_DECREASE_POTI\n')
-        f.write('//\n')
-        f.write('// The file "switches_action.h" contains a list with descriptions.\n')
-        f.write('//\n')
         f.write('const sw_action SW_THROTTLE_SHORT_PRESS = ACTION_SET_SOFT_POTI;\n')
         f.write('const sw_action SW_THROTTLE_LONG_PRESS  = ACTION_SHUTDOWN_SYSTEM;\n')
         f.write('\n')
-        f.write('// #define SUPPORT_SWITCH_ON_POTI_PIN              //uncomment if you have an additional switch on the poti pin\n')
         f.write('const sw_action SW_POTI_SHORT_PRESS = ACTION_NONE;\n')
         f.write('const sw_action SW_POTI_LONG_PRESS = ACTION_NONE;\n')
         f.write('\n')
@@ -196,26 +180,11 @@ def write_config_h(filename=CONFIG_H,
         f.write('\n')
         f.write('#endif\n')
 
-def prepare_cmake(build_name):
-    test_name = BUILD_PREFIX + build_name
-    os.mkdir(test_name)
-    os.chdir(test_name)
-
-    subprocess.call('cmake ../ -DDOCUMENTATION=OFF', shell=True)
-
-def run_make(build_name):
-    ret = subprocess.call('make -j' + str(CPU_COUNT), shell=True)
-
-    # Keep config.h used for this build
-    os.rename('../' + BASE_DIR + '/config.h', 'config.h')
-
-    if ret != 0:
-        raise Exception('Build failed for config option: %s' % build_name)
-
 
 class CompileTest(unittest.TestCase):
-    def setUp(self):
-        pass
+    def tearDownClass():
+        # Restore original config.h
+        subprocess.call('git checkout ' + CONFIG_H, shell=True)
 
     def tearDown(self):
         if not os.path.isdir(BASE_DIR):
@@ -223,82 +192,70 @@ class CompileTest(unittest.TestCase):
         if not os.path.isdir(BASE_DIR):
             raise Exception('Wrong directory, something is messed up: ' + os.getcwd())
 
-    def tearDownClass():
-        # Restore original config.h
-        subprocess.call('git checkout ' + CONFIG_H, shell=True)
+    def prepare_cmake(self, build_name):
+        test_name = BUILD_PREFIX + build_name
+        os.mkdir(test_name)
+        os.chdir(test_name)
+
+        subprocess.call('cmake ../ -DDOCUMENTATION=OFF', shell=True)
+
+    def run_make(self, build_name):
+        ret = subprocess.call('make -j' + str(CPU_COUNT), shell=True)
+
+        # Keep config.h used for this build
+        os.rename('../' + BASE_DIR + '/config.h', 'config.h')
+
+        if ret != 0:
+            raise Exception('Build failed for config option: %s' % build_name)
+
+    def build_firmware(self, name, *args, **kwargs):
+        full_id = self.id()
+        test_name = full_id[full_id.rfind('.'):] + '_' + name
+
+        print('Building firmware: ' + test_name)
+
+        # pass on all arguments to write_config_h
+        write_config_h(*args, **kwargs)
+
+        try:
+            self.prepare_cmake(test_name)
+            self.run_make(test_name)
+        finally:
+            # Cleanup
+            os.chdir('..')
+            print('')
 
     def test_single_feature(self):
         for feature in ALL_FEATURES:
-            print('Testing feature: %s' % feature)
-
-            # Create list of features with just that config option
-            write_config_h(features=[feature])
-            prepare_cmake(feature)
-            run_make(feature)
-
-            # Cleanup
-            os.chdir('..')
-            print('');
+            self.build_firmware(feature, features=[feature])
 
     def test_display_types(self):
         for disp_type in ['NONE', 'NOKIA_5PIN', 'NOKIA_4PIN', '16X2_LCD_4BIT', 'KINGMETER', 'BMS']:
-            full_display_name = 'DISPLAY_TYPE_' + disp_type
-            print('Testing display: %s' % full_display_name)
-
-            write_config_h(display_type=disp_type)
-            prepare_cmake(full_display_name)
-            run_make(full_display_name)
-
-            # Cleanup
-            os.chdir('..')
-            print('');
+            self.build_firmware(disp_type, display_type=disp_type)
 
     def test_serial_modes(self):
         for serial_mode in ['NONE', 'DEBUG', 'ANDROID', 'MMC', 'LOGVIEW']:
-            full_mode_name = 'SERIAL_MODE_' + serial_mode
-            print('Testing serial mode: %s' % full_mode_name)
-
-            write_config_h(serial_mode=serial_mode)
-            prepare_cmake(full_mode_name)
-            run_make(full_mode_name)
-
-            # Cleanup
-            os.chdir('..')
-            print('');
+            self.build_firmware(serial_mode, serial_mode=serial_mode)
 
     def test_control_modes(self):
         for control_mode in ['NORMAL', 'LIMIT_WH_PER_KM', 'TORQUE']:
-            full_mode_name = 'CONTROL_MODE_' + control_mode
-            print('Testing control mode: %s' % full_mode_name)
-
             # Enable XCELL_RT support in TORQUE mode
             my_features = DEFAULT_FEATURES
             if control_mode == 'TORQUE':
                 my_features.append('SUPPORT_XCELL_RT')
 
-            write_config_h(control_mode=control_mode, features=my_features)
-            prepare_cmake(full_mode_name)
-            run_make(full_mode_name)
-
-            # Cleanup
-            os.chdir('..')
-            print('');
+            self.build_firmware(control_mode, control_mode=control_mode, features=my_features)
 
     def test_hw_revisions(self):
         for hw_revision in [1, 2, 3, 4, 5]:
-            test_name = 'HW_REV_' + str(hw_revision)
-            print('Testing hardware revision: %s' % hw_revision)
-
-            write_config_h(hardware_rev = hw_revision)
-            prepare_cmake(test_name)
-            run_make(test_name)
-
-            # Cleanup
-            os.chdir('..')
-            print('');
+            self.build_firmware(str(hw_revision), hardware_rev = hw_revision)
 
     def test_max_config(self):
-        max_features = [
+        self.build_firmware('big_config', hardware_rev = 5,
+                    display_type='NOKIA_4PIN',
+                    serial_mode='DEBUG',
+                    control_mode='TORQUE',
+                    features=[
                             'SUPPORT_DISPLAY_BACKLIGHT',
                             'SUPPORT_BMP085',
                             'SUPPORT_SOFT_POTI',
@@ -312,20 +269,7 @@ class CompileTest(unittest.TestCase):
                             'SUPPORT_MOTOR_GUESS',
                             'SUPPORT_BATTERY_CHARGE_DETECTION',
                         ]
-
-        print('Testing big config')
-
-        write_config_h(hardware_rev = 5,
-                    display_type='NOKIA_4PIN',
-                    serial_mode='DEBUG',
-                    features=max_features,
-                    control_mode='TORQUE')
-        prepare_cmake('max_config')
-        run_make('max_config')
-
-        # Cleanup
-        os.chdir('..')
-        print('');
+                    )
 
 if __name__ == '__main__':
     if not os.path.isdir(BASE_DIR):
