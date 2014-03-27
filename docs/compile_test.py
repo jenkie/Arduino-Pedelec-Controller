@@ -8,6 +8,7 @@ from datetime import datetime
 
 BASE_DIR = 'Arduino_Pedelec_Controller'
 BUILD_PREFIX = 'compile-test-'
+CONFIG_H = BASE_DIR + '/config.h'
 CPU_COUNT = 8                      # Number of CPUs for parallel make
 
 if not os.path.isdir(BASE_DIR):
@@ -15,9 +16,9 @@ if not os.path.isdir(BASE_DIR):
 
 start_time = datetime.now()
 
-SIMPLE_CONFIGS = [
+ALL_FEATURES = [
                   'SUPPORT_SWITCH_ON_POTI_PIN',
-#                  'SUPPORT_DISPLAY_BACKLIGHT',
+                  'SUPPORT_DISPLAY_BACKLIGHT',
                   'SUPPORT_BMP085',
                   'SUPPORT_DSPC01',
                   'SUPPORT_POTI',
@@ -31,8 +32,20 @@ SIMPLE_CONFIGS = [
                   'SUPPORT_PROFILE_SWITCH_MENU',
                   'SUPPORT_FIRST_AID_MENU',
                   'SUPPORT_LIGHTS_SWITCH',
-#                  'SUPPORT_LIGHTS_ENABLE_ON_STARTUP',
+                  'SUPPORT_LIGHTS_ENABLE_ON_STARTUP',
+                  'SUPPORT_LIGHTS_SWITCH_MENU',
                   'SUPPORT_MOTOR_GUESS',
+                  'SUPPORT_BATTERY_CHARGE_DETECTION',
+                 ]
+
+# List of features that's enabled by default
+DEFAULT_FEATURES = [
+                  'SUPPORT_POTI',
+                  'SUPPORT_THROTTLE',
+                  'SUPPORT_PAS',
+                  'SUPPORT_BRAKE',
+                  'SUPPORT_PROFILE_SWITCH_MENU',
+                  'SUPPORT_FIRST_AID_MENU',
                   'SUPPORT_BATTERY_CHARGE_DETECTION',
                  ]
 
@@ -66,7 +79,12 @@ print('Cleaning build directories')
 subprocess.call('rm -rf ' + BUILD_PREFIX + '*', shell=True)
 print('')
 
-def write_config_h(filename):
+def write_config_h(filename=CONFIG_H,
+                   hardware_rev=4,
+                   display_type='NOKIA_4PIN',
+                   serial_mode='DEBUG',
+                   features=DEFAULT_FEATURES,
+                   control_mode='NORMAL'):
     with open(filename, 'w') as f:
         f.write('//place all your personal configurations here and keep this file when updating!\n')
         f.write('#ifndef CONFIG_H\n')
@@ -79,7 +97,7 @@ def write_config_h(filename):
         f.write('#endif\n')
         f.write('#include "switches_action.h"\n')
         f.write('\n')
-        f.write('#define HARDWARE_REV 4      //place your hardware revision (1-5) here: x means hardware-revision 1.x\n')
+        f.write('#define HARDWARE_REV ' + str(hardware_rev) + '      //place your hardware revision (1-5) here: x means hardware-revision 1.x\n')
         f.write('\n')
         f.write('#define DISPLAY_TYPE_NONE (1<<0)             //no display at all\n')
         f.write('#define DISPLAY_TYPE_NOKIA_5PIN (1<<1)       //Nokia 5110 5 pin mode\n')
@@ -88,7 +106,7 @@ def write_config_h(filename):
         f.write('#define DISPLAY_TYPE_16X2_LCD_4BIT (1<<3)    //16x2 LCD 4bit-mode\n')
         f.write('#define DISPLAY_TYPE_KINGMETER (1<<4)            //King-Meter J-LCD or SW-LCD\n')
         f.write('#define DISPLAY_TYPE_BMS (1<<5)              //BMS Battery S-LCD\n')
-        f.write('#define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_4PIN //Set your display type here. CHANGES ONLY HERE!<-----------------------------\n')
+        f.write('#define DISPLAY_TYPE DISPLAY_TYPE_' + display_type + '    //Set your display type here. CHANGES ONLY HERE!<-----------------------------\n')
         f.write('\n')
         f.write('#define NOKIA_LCD_CONTRAST 190                   //set display contrast here. values around 190 should do the job\n')
         f.write('\n')
@@ -97,8 +115,21 @@ def write_config_h(filename):
         f.write('#define SERIAL_MODE_ANDROID (1<<2)           //send Arduino Pedelec HMI compatible data over serial/bluetooth\n')
         f.write('#define SERIAL_MODE_MMC (1<<3)               //send MMC-App compatible data over serial/bluetooth (for future use, not implemented yet)\n')
         f.write('#define SERIAL_MODE_LOGVIEW (1<<4)           //send logview-compatible data over serial (for future use, not implemented yet)\n')
-        f.write('#define SERIAL_MODE SERIAL_MODE_DEBUG        //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------\n')
+        f.write('#define SERIAL_MODE SERIAL_MODE_' + serial_mode + '        //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------\n')
         f.write('\n')
+
+        # Output all enabled features
+        f.write('\n')
+        f.write('\n')
+        f.write('// FEATURES begin\n')
+        for feature in ALL_FEATURES:
+            if feature not in features:
+                continue
+            f.write('#define ' + feature + '\n')
+        f.write('// FEATURES end\n')
+        f.write('\n')
+        f.write('\n')
+
         f.write('\n')
         f.write('// Customizable buttons for use with the on-the-go-menu.\n')
         f.write('// The menu is activated by the ACTION_ENTER_MENU action (see below).\n')
@@ -130,42 +161,16 @@ def write_config_h(filename):
         f.write('const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_NONE;\n')
         f.write('const sw_action SW_DISPLAY2_LONG_PRESS  = ACTION_ENTER_MENU;\n')
         f.write('\n')
-        f.write('// #define SUPPORT_DISPLAY_BACKLIGHT // uncomment for LCD display backlight support\n')
-        f.write('                                     // The Nokia 5110 display needs a 120 Ohm resistor on the backlight pin\n')
         f.write('#ifdef SUPPORT_DISPLAY_BACKLIGHT\n')
         f.write('const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f.e. instead of display switch #2 (12, default).\n')
         f.write('#endif\n')
         f.write('\n')
-        f.write('// #define SUPPORT_BMP085   //uncomment if BMP085 available (barometric pressure + temperature sensor)\n')
-        f.write('// #define SUPPORT_DSPC01   //uncomment if DSPC01 available (barometric altitude + temperature sensor), connect to I2C-BUS\n')
-        f.write('#define SUPPORT_POTI        //uncomment if Poti connected\n')
-        f.write('// #define SUPPORT_SOFT_POTI //uncomment if Poti is emulated: The switch_disp button will store the current throttle value as poti value\n')
-        f.write('\n')
-        f.write('// #define SUPPORT_POTI_SWITCHES     //uncomment to increase/decrease the poti via switch action ACTION_INCREASE_POTI / ACTION_DECREASE_POTI\n')
         f.write('const int poti_level_step_size_in_watts = 50;        //number of watts to increase / decrease poti value by switch press\n')
-        f.write('\n')
-        f.write('#define SUPPORT_THROTTLE    //uncomment if Throttle connected\n')
-        f.write('#define SUPPORT_PAS         //uncomment if PAS-sensor connected\n')
-        f.write('// #define SUPPORT_XCELL_RT    //uncomment if X-CELL RT connected. FC1.4: pas_factor_min=0.2, pas_factor_max=0.5. FC1.5: pas_factor_min=0.5, pas_factor_max=1.5. pas_magnets=8\n')
-        f.write('// #define SUPPORT_HRMI         //uncomment if polar heart-rate monitor interface connected to i2c port\n')
-        f.write('#define SUPPORT_BRAKE        //uncomment if brake switch connected\n')
-        f.write('// #define INVERT_BRAKE         //uncomment if brake signal is low when not braking\n')
-        f.write('\n')
-        f.write('#define SUPPORT_PROFILE_SWITCH_MENU           //uncomment to disable support for profile switching in the menu\n')
-        f.write('#define SUPPORT_FIRST_AID_MENU                //uncomment if you want a on-the-go workaround menu ("Pannenhilfe")\n')
-        f.write('\n')
-        f.write('// Software controlled lights switch. Needs FC 1.3 or newer. Only possible if X-CELL RT is not in use as they share the A3 pin\n')
-        f.write('// #define SUPPORT_LIGHTS_SWITCH                   //uncomment if you want software switchable lights on pin A3 (lights_pin)\n')
-        f.write('// #define SUPPORT_LIGHTS_ENABLE_ON_STARTUP   //uncomment if you want the lights turned on when the system turns on\n')
-        f.write('// #define SUPPORT_LIGHTS_SWITCH_MENU       //uncomment if you want a "Toggle lights" menu entry\n')
         f.write('\n')
         f.write('#define CONTROL_MODE_NORMAL 0            //Normal mode: poti and throttle control motor power\n')
         f.write('#define CONTROL_MODE_LIMIT_WH_PER_KM 1   //Limit wh/km consumption: poti controls wh/km, throttle controls power to override poti\n')
         f.write('#define CONTROL_MODE_TORQUE 2            //power = x*power of the biker, see also description of power_poti_max!\n')
-        f.write('#define CONTROL_MODE CONTROL_MODE_NORMAL //Set your control mode here\n')
-        f.write('\n')
-        f.write('//#define SUPPORT_MOTOR_GUESS   //enable guess of motor drive depending on current speed. Usefull for motor controllers with speed-throttle to optimize response behaviour\n')
-        f.write('#define SUPPORT_BATTERY_CHARGE_DETECTION //support detection if the battery was charged -> reset wh / trip km / mah counters if detected.\n')
+        f.write('#define CONTROL_MODE CONTROL_MODE_' + control_mode + ' //Set your control mode here\n')
         f.write('\n')
         f.write('//Config Options-----------------------------------------------------------------------------------------------------\n')
         f.write('const int pas_tolerance=1;               //0... increase to make pas sensor slower but more tolerant against speed changes\n')
@@ -224,25 +229,6 @@ def write_config_h(filename):
         f.write('\n')
         f.write('#endif\n')
 
-def prepare_config_h(append_str, filter_support=False):
-    config_h = BASE_DIR + '/config.h'
-    config_new = config_h + '.new'
-
-    print('    Resetting config.h')
-    write_config_h(config_h)
-    print('');
-
-    # TODO: Implement own filtering of config.h
-    if filter_support:
-        subprocess.call('grep -h -v "define SUPPORT_" ' + config_h + ' > ' + config_new, shell=True)
-    else:
-        subprocess.call('cp -f ' + config_h + ' ' + config_new, shell=True)
-
-    # TODO: shell escaping
-    subprocess.call('echo "' + append_str + '" >> ' + config_new, shell=True)
-    os.remove(config_h)
-    os.rename(config_new, config_h)
-
 def prepare_cmake(build_name):
     test_name = BUILD_PREFIX + build_name
     os.mkdir(test_name)
@@ -259,25 +245,25 @@ def run_make(build_name):
     if ret != 0:
         raise Exception('Build failed for config option: %s' % build_name)
 
-def test_simple_configs():
-    for config_option in SIMPLE_CONFIGS:
-        print('Testing config: %s' % config_option)
+def test_single_feature():
+    for feature in ALL_FEATURES:
+        print('Testing feature: %s' % feature)
 
-        prepare_config_h('#define ' + config_option, filter_support=True)
-
-        prepare_cmake(config_option)
-        run_make(config_option)
+        # Create list of features with just that config option
+        write_config_h(features=[feature])
+        prepare_cmake(feature)
+        run_make(feature)
 
         # Cleanup
         os.chdir('..')
         print('');
 
 def test_display_types():
-    for display_type in DISPLAY_TYPES:
-        full_display_name = 'DISPLAY_TYPE_' + display_type
+    for disp_type in DISPLAY_TYPES:
+        full_display_name = 'DISPLAY_TYPE_' + disp_type
         print('Testing display: %s' % full_display_name)
 
-        prepare_config_h('#undef DISPLAY_TYPE\n#define DISPLAY_TYPE ' + full_display_name)
+        write_config_h(display_type=disp_type)
         prepare_cmake(full_display_name)
         run_make(full_display_name)
 
@@ -291,7 +277,7 @@ def test_serial_modes():
         full_mode_name = 'SERIAL_MODE_' + serial_mode
         print('Testing serial mode: %s' % full_mode_name)
 
-        prepare_config_h('#undef SERIAL_MODE\n#define SERIAL_MODE ' + full_mode_name)
+        write_config_h(serial_mode=serial_mode)
         prepare_cmake(full_mode_name)
         run_make(full_mode_name)
 
@@ -306,7 +292,7 @@ def test_control_modes():
         full_mode_name = 'CONTROL_MODE_' + control_mode
         print('Testing control mode: %s' % full_mode_name)
 
-        prepare_config_h('#undef CONTROL_MODE\n#define CONTROLE_MODE ' + full_mode_name)
+        write_config_h(control_mode=control_mode)
         prepare_cmake(full_mode_name)
         run_make(full_mode_name)
 
@@ -320,7 +306,7 @@ def test_hw_revisions():
         test_name = 'HW_REV_' + str(hw_revision)
         print('Testing hardware revision: %s' % hw_revision)
 
-        prepare_config_h('#undef HARDWARE_REV\n#define HARDWARE_REV ' + str(hw_revision))
+        write_config_h(hardware_rev = hw_revision)
         prepare_cmake(test_name)
         run_make(test_name)
 
@@ -328,14 +314,18 @@ def test_hw_revisions():
         os.chdir('..')
         print('');
 
-test_simple_configs()
+test_single_feature()
 test_display_types()
 test_serial_modes()
 test_control_modes()
 test_hw_revisions()
 
+# Restore sane config.h
+write_config_h()
+
 # TODO: Compile clever "real life" feature combinations
 # TODO: Add ability to run single 'test' -> convert to python unit test
 # TODO: Test 'max' config option -> enable as much sane features as possible
 
+print('ALL FINE!')
 print('Execution time: ' + str(datetime.now()-start_time))
