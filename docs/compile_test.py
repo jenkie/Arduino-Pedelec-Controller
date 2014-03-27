@@ -4,17 +4,14 @@
 """Licensed under the GPL v3, part of the pedelec controller"""
 import os
 import subprocess
+import unittest
+import multiprocessing
 from datetime import datetime
 
 BASE_DIR = 'Arduino_Pedelec_Controller'
 BUILD_PREFIX = 'compile-test-'
 CONFIG_H = BASE_DIR + '/config.h'
-CPU_COUNT = 8                      # Number of CPUs for parallel make
-
-if not os.path.isdir(BASE_DIR):
-    raise Exception('Please call from base directory: docs/compile_test.py')
-
-start_time = datetime.now()
+CPU_COUNT = multiprocessing.cpu_count()                      # Number of CPUs for parallel make
 
 ALL_FEATURES = [
                   'SUPPORT_SWITCH_ON_POTI_PIN',
@@ -48,36 +45,6 @@ DEFAULT_FEATURES = [
                   'SUPPORT_FIRST_AID_MENU',
                   'SUPPORT_BATTERY_CHARGE_DETECTION',
                  ]
-
-DISPLAY_TYPES = [
-                'NONE',
-                'NOKIA_5PIN',
-                'NOKIA_4PIN',
-                '16X2_LCD_4BIT',
-                'KINGMETER',
-                'BMS'
-                ]
-
-SERIAL_MODES = [
-                'NONE',
-                'DEBUG',
-                'ANDROID',
-                'MMC',
-                'LOGVIEW',
-                ]
-
-CONTROL_MODES = [
-                'NORMAL',
-                'LIMIT_WH_PER_KM',
-                'TORQUE'
-                ]
-
-HW_REVISIONS = [1, 2, 3, 4, 5]
-
-# Cleanup
-print('Cleaning build directories')
-subprocess.call('rm -rf ' + BUILD_PREFIX + '*', shell=True)
-print('')
 
 def write_config_h(filename=CONFIG_H,
                    hardware_rev=4,
@@ -245,118 +212,128 @@ def run_make(build_name):
     if ret != 0:
         raise Exception('Build failed for config option: %s' % build_name)
 
-def test_single_feature():
-    for feature in ALL_FEATURES:
-        print('Testing feature: %s' % feature)
 
-        # Create list of features with just that config option
-        write_config_h(features=[feature])
-        prepare_cmake(feature)
-        run_make(feature)
+class CompileTest(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        if not os.path.isdir(BASE_DIR):
+            os.chdir('..')
+        if not os.path.isdir(BASE_DIR):
+            raise Exception('Wrong directory, something is messed up: ' + os.getcwd())
+
+    def tearDownClass():
+        # Restore original config.h
+        subprocess.call('git checkout ' + CONFIG_H, shell=True)
+
+    def test_single_feature(self):
+        for feature in ALL_FEATURES:
+            print('Testing feature: %s' % feature)
+
+            # Create list of features with just that config option
+            write_config_h(features=[feature])
+            prepare_cmake(feature)
+            run_make(feature)
+
+            # Cleanup
+            os.chdir('..')
+            print('');
+
+    def test_display_types(self):
+        for disp_type in ['NONE', 'NOKIA_5PIN', 'NOKIA_4PIN', '16X2_LCD_4BIT', 'KINGMETER', 'BMS']:
+            full_display_name = 'DISPLAY_TYPE_' + disp_type
+            print('Testing display: %s' % full_display_name)
+
+            write_config_h(display_type=disp_type)
+            prepare_cmake(full_display_name)
+            run_make(full_display_name)
+
+            # Cleanup
+            os.chdir('..')
+            print('');
+
+    def test_serial_modes(self):
+        for serial_mode in ['NONE', 'DEBUG', 'ANDROID', 'MMC', 'LOGVIEW']:
+            full_mode_name = 'SERIAL_MODE_' + serial_mode
+            print('Testing serial mode: %s' % full_mode_name)
+
+            write_config_h(serial_mode=serial_mode)
+            prepare_cmake(full_mode_name)
+            run_make(full_mode_name)
+
+            # Cleanup
+            os.chdir('..')
+            print('');
+
+    def test_control_modes(self):
+        for control_mode in ['NORMAL', 'LIMIT_WH_PER_KM', 'TORQUE']:
+            full_mode_name = 'CONTROL_MODE_' + control_mode
+            print('Testing control mode: %s' % full_mode_name)
+
+            # Enable XCELL_RT support in TORQUE mode
+            my_features = DEFAULT_FEATURES
+            if control_mode == 'TORQUE':
+                my_features.append('SUPPORT_XCELL_RT')
+
+            write_config_h(control_mode=control_mode, features=my_features)
+            prepare_cmake(full_mode_name)
+            run_make(full_mode_name)
+
+            # Cleanup
+            os.chdir('..')
+            print('');
+
+    def test_hw_revisions(self):
+        for hw_revision in [1, 2, 3, 4, 5]:
+            test_name = 'HW_REV_' + str(hw_revision)
+            print('Testing hardware revision: %s' % hw_revision)
+
+            write_config_h(hardware_rev = hw_revision)
+            prepare_cmake(test_name)
+            run_make(test_name)
+
+            # Cleanup
+            os.chdir('..')
+            print('');
+
+    def test_max_config(self):
+        max_features = [
+                            'SUPPORT_DISPLAY_BACKLIGHT',
+                            'SUPPORT_BMP085',
+                            'SUPPORT_SOFT_POTI',
+                            'SUPPORT_THROTTLE',
+                            'SUPPORT_PAS',
+                            'SUPPORT_XCELL_RT',
+                            'SUPPORT_HRMI',
+                            'SUPPORT_BRAKE',
+                            'SUPPORT_PROFILE_SWITCH_MENU',
+                            'SUPPORT_FIRST_AID_MENU',
+                            'SUPPORT_MOTOR_GUESS',
+                            'SUPPORT_BATTERY_CHARGE_DETECTION',
+                        ]
+
+        print('Testing big config')
+
+        write_config_h(hardware_rev = 5,
+                    display_type='NOKIA_4PIN',
+                    serial_mode='DEBUG',
+                    features=max_features,
+                    control_mode='TORQUE')
+        prepare_cmake('max_config')
+        run_make('max_config')
 
         # Cleanup
         os.chdir('..')
         print('');
 
-def test_display_types():
-    for disp_type in DISPLAY_TYPES:
-        full_display_name = 'DISPLAY_TYPE_' + disp_type
-        print('Testing display: %s' % full_display_name)
-
-        write_config_h(display_type=disp_type)
-        prepare_cmake(full_display_name)
-        run_make(full_display_name)
-
-        # Cleanup
-        os.chdir('..')
-        print('');
-
-# Test all serial modes
-def test_serial_modes():
-    for serial_mode in SERIAL_MODES:
-        full_mode_name = 'SERIAL_MODE_' + serial_mode
-        print('Testing serial mode: %s' % full_mode_name)
-
-        write_config_h(serial_mode=serial_mode)
-        prepare_cmake(full_mode_name)
-        run_make(full_mode_name)
-
-        # Cleanup
-        os.chdir('..')
-        print('');
-
-# Test all control modes
-# TODO: Add XCELL_RT for TORQUE mode
-def test_control_modes():
-    for control_mode in CONTROL_MODES:
-        full_mode_name = 'CONTROL_MODE_' + control_mode
-        print('Testing control mode: %s' % full_mode_name)
-
-        write_config_h(control_mode=control_mode)
-        prepare_cmake(full_mode_name)
-        run_make(full_mode_name)
-
-        # Cleanup
-        os.chdir('..')
-        print('');
-
-# Test hardware revisions
-def test_hw_revisions():
-    for hw_revision in HW_REVISIONS:
-        test_name = 'HW_REV_' + str(hw_revision)
-        print('Testing hardware revision: %s' % hw_revision)
-
-        write_config_h(hardware_rev = hw_revision)
-        prepare_cmake(test_name)
-        run_make(test_name)
-
-        # Cleanup
-        os.chdir('..')
-        print('');
-
-# Compile really fat config to see if it still fits the 32kb flash rom
-def test_max_config():
-    max_features = [
-                        'SUPPORT_DISPLAY_BACKLIGHT',
-                        'SUPPORT_BMP085',
-                        'SUPPORT_SOFT_POTI',
-                        'SUPPORT_THROTTLE',
-                        'SUPPORT_PAS',
-                        'SUPPORT_XCELL_RT',
-                        'SUPPORT_HRMI',
-                        'SUPPORT_BRAKE',
-                        'SUPPORT_PROFILE_SWITCH_MENU',
-                        'SUPPORT_FIRST_AID_MENU',
-                        'SUPPORT_MOTOR_GUESS',
-                        'SUPPORT_BATTERY_CHARGE_DETECTION',
-                    ]
-
-    print('Testing big config')
-
-    write_config_h(hardware_rev = 5,
-                   display_type='NOKIA_4PIN',
-                   serial_mode='DEBUG',
-                   features=max_features,
-                   control_mode='TORQUE')
-    prepare_cmake('max_config')
-    run_make('max_config')
+if __name__ == '__main__':
+    if not os.path.isdir(BASE_DIR):
+        raise Exception('Please call from base directory: docs/compile_test.py')
 
     # Cleanup
-    os.chdir('..')
-    print('');
+    print('Cleaning build directories')
+    subprocess.call('rm -rf ' + BUILD_PREFIX + '*', shell=True)
+    print('')
 
-test_single_feature()
-test_display_types()
-test_serial_modes()
-test_control_modes()
-test_hw_revisions()
-test_max_config()
-
-# Restore sane config.h
-write_config_h()
-
-# TODO: Compile clever "real life" feature combinations
-# TODO: Add ability to run single 'test' -> convert to python unit test
-
-print('ALL FINE!')
-print('Execution time: ' + str(datetime.now()-start_time))
+    unittest.main()
