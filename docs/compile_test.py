@@ -10,7 +10,7 @@ import multiprocessing
 from datetime import datetime
 
 BASE_DIR = 'Arduino_Pedelec_Controller'
-BUILD_PREFIX = 'compile'
+BUILD_PREFIX = 'compile_'
 CONFIG_H = BASE_DIR + '/config.h'
 CPU_COUNT = multiprocessing.cpu_count()                      # Number of CPUs for parallel make
 
@@ -208,9 +208,12 @@ class CompileTest(unittest.TestCase):
         if ret != 0:
             raise Exception('Build failed for config option: %s' % build_name)
 
-    def build_firmware(self, name, *args, **kwargs):
+    def build_firmware(self, name_hint=None, *args, **kwargs):
+        # Compute firmware directory from current test case name
         full_id = self.id()
-        test_name = full_id[full_id.rfind('.'):] + '_' + name
+        test_name = full_id[full_id.rfind('.')+1:]
+        if name_hint:
+            test_name = test_name + '_' + name_hint
 
         print('Building firmware: ' + test_name)
 
@@ -251,7 +254,7 @@ class CompileTest(unittest.TestCase):
             self.build_firmware(str(hw_revision), hardware_rev = hw_revision)
 
     def test_max_config(self):
-        self.build_firmware('big_config', hardware_rev = 5,
+        self.build_firmware(hardware_rev = 5,
                     display_type='NOKIA_4PIN',
                     serial_mode='DEBUG',
                     control_mode='TORQUE',
@@ -269,6 +272,13 @@ class CompileTest(unittest.TestCase):
                             'SUPPORT_MOTOR_GUESS',
                             'SUPPORT_BATTERY_CHARGE_DETECTION',
                         ]
+                    )
+
+    def test_minimal_config(self):
+        self.build_firmware(hardware_rev = 5,
+                    display_type='NONE',
+                    serial_mode='NONE',
+                    features=[]
                     )
 
 if __name__ == '__main__':
