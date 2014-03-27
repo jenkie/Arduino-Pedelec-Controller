@@ -314,18 +314,49 @@ def test_hw_revisions():
         os.chdir('..')
         print('');
 
+# Compile really fat config to see if it still fits the 32kb flash rom
+def test_max_config():
+    max_features = [
+                        'SUPPORT_DISPLAY_BACKLIGHT',
+                        'SUPPORT_BMP085',
+                        'SUPPORT_SOFT_POTI',
+                        'SUPPORT_THROTTLE',
+                        'SUPPORT_PAS',
+                        'SUPPORT_XCELL_RT',
+                        'SUPPORT_HRMI',
+                        'SUPPORT_BRAKE',
+                        'SUPPORT_PROFILE_SWITCH_MENU',
+                        'SUPPORT_FIRST_AID_MENU',
+                        'SUPPORT_MOTOR_GUESS',
+                        'SUPPORT_BATTERY_CHARGE_DETECTION',
+                    ]
+
+    print('Testing big config')
+
+    write_config_h(hardware_rev = 5,
+                   display_type='NOKIA_4PIN',
+                   serial_mode='DEBUG',
+                   features=max_features,
+                   control_mode='TORQUE')
+    prepare_cmake('max_config')
+    run_make('max_config')
+
+    # Cleanup
+    os.chdir('..')
+    print('');
+
 test_single_feature()
 test_display_types()
 test_serial_modes()
 test_control_modes()
 test_hw_revisions()
+test_max_config()
 
 # Restore sane config.h
 write_config_h()
 
 # TODO: Compile clever "real life" feature combinations
 # TODO: Add ability to run single 'test' -> convert to python unit test
-# TODO: Test 'max' config option -> enable as much sane features as possible
 
 print('ALL FINE!')
 print('Execution time: ' + str(datetime.now()-start_time))
