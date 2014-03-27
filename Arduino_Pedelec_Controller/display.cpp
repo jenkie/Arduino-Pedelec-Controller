@@ -138,12 +138,14 @@ void display_show_welcome_msg()
 */
 void display_show_welcome_msg_temp()
 {
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     lcd.setCursor(0,0);
     lcd.print((int)(temperature));
     lcd.print(" C / ");
 
     lcd.print((int)(altitude_start));
     lcd.print("m");
+#endif
 }
 #endif
 
