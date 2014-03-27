@@ -9,6 +9,9 @@ import unittest
 import multiprocessing
 from datetime import datetime
 
+# Hint: You can run a single test case f.e. with:
+#       tools/compile_test.py CompileTest.test_max_config
+
 BASE_DIR = 'Arduino_Pedelec_Controller'
 BUILD_PREFIX = 'compile_'
 CONFIG_H = BASE_DIR + '/config.h'
@@ -262,6 +265,7 @@ class CompileTest(unittest.TestCase):
                             'SUPPORT_DISPLAY_BACKLIGHT',
                             'SUPPORT_BMP085',
                             'SUPPORT_SOFT_POTI',
+                            'SUPPORT_POTI_SWITCHES',
                             'SUPPORT_THROTTLE',
                             'SUPPORT_PAS',
                             'SUPPORT_XCELL_RT',
