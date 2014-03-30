@@ -228,26 +228,27 @@ size_t PCD8544::write(uint8_t chr)
     const unsigned char *glyph;
     unsigned char pgm_buffer[5];
 
+    // Characters are kept in flash to save RAM...
+    const void *src;
     if (chr >= ' ')
     {
-        // Regular ASCII characters are kept in flash to save RAM...
-        memcpy_P(pgm_buffer, &charset[chr - ' '], sizeof(pgm_buffer));
-        glyph = pgm_buffer;
+        src = &charset[chr - ' '];
     }
     else
     {
-        // Custom glyphs, on the other hand, are stored in RAM...
         if (this->custom[chr])
         {
-            glyph = this->custom[chr];
+            src = this->custom[chr];
         }
         else
         {
             // Default to a space character if unset...
-            memcpy_P(pgm_buffer, &charset[0], sizeof(pgm_buffer));
-            glyph = pgm_buffer;
+            src = &charset[0];
         }
     }
+    memcpy_P(pgm_buffer, src, sizeof(pgm_buffer));
+    glyph = pgm_buffer;
+
 
     // Output one column at a time...
     for (unsigned char i = 0; i < 5; i++)
