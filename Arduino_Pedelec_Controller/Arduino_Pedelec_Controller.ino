@@ -240,9 +240,13 @@ void setup()
     pinMode(wheel_in, INPUT);
     pinMode(switch_thr, INPUT);
     pinMode(switch_disp, INPUT);
+    pinMode(poti_in, INPUT);
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
     pinMode(switch_disp_2, INPUT);
     digitalWrite(switch_disp_2, HIGH);    // turn on pullup resistors on display-switch 2
+#endif
+#ifdef SUPPORT_SWITCH_ON_POTI_PIN
+  digitalWrite(poti_in, HIGH);
 #endif
 #ifdef SUPPORT_BRAKE
     pinMode(brake_in, INPUT);
