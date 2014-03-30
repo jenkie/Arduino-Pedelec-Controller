@@ -287,7 +287,7 @@ class CompileTest(unittest.TestCase):
 
 if __name__ == '__main__':
     if not os.path.isdir(BASE_DIR):
-        raise Exception('Please call from base directory: docs/compile_test.py')
+        raise Exception('Please call from base directory: tools/compile_test.py')
 
     # Cleanup
     print('Cleaning build directories')
