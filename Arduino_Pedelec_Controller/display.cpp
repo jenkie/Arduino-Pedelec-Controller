@@ -121,12 +121,12 @@ void display_show_welcome_msg()
     number_len = 12 - number_len;
     while(number_len > 1)
     {
-        lcd.print(" ");
+        lcd.print(MY_F(" "));
         --number_len;
     }
 
     lcd.print(total_km);
-    lcd.print(" km");
+    lcd.print(MY_F(" km"));
 #endif
 }
 
@@ -141,10 +141,10 @@ void display_show_welcome_msg_temp()
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     lcd.setCursor(0,0);
     lcd.print((int)(temperature));
-    lcd.print(" C / ");
+    lcd.print(MY_F(" C / "));
 
     lcd.print((int)(altitude_start));
-    lcd.print("m");
+    lcd.print(MY_F("m"));
 #endif
 }
 #endif
@@ -157,15 +157,15 @@ static void display_nokia_setup()    //first time setup of nokia display
     lcd.createChar(1, glyph2);
     lcd.createChar(2, glyph3);
     lcd.setCursor(4,0);
-    lcd.print("V");
+    lcd.print(MY_F("V"));
     lcd.setCursor(13,0);
-    lcd.print("%");
+    lcd.print(MY_F("%"));
     lcd.setCursor(3,1);
-    lcd.print("W");
+    lcd.print(MY_F("W"));
     lcd.setCursor(12,1);
-    lcd.print("Wh");
+    lcd.print(MY_F("Wh"));
     lcd.setCursor(0,2);
-    lcd.print(" SPD   KM  CAD");
+    lcd.print(MY_F(" SPD   KM  CAD"));
     lcd.setCursor(12,4);
     lcd.write(0);
     lcd.write(1);
@@ -209,14 +209,14 @@ static void display_4bit_update()
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
     lcd.setCursor(0,0);
     lcd.print(voltage_display,1);
-    lcd.print(" ");
+    lcd.print(MY_F(" "));
     lcd.print(battery_percent_fromcapacity,0);
-    lcd.print("%  ");
+    lcd.print(MY_F("%  "));
     lcd.setCursor(0,1);
     lcd.print(power,0);
-    lcd.print("/");
+    lcd.print(MY_F("/"));
     lcd.print(power_set);
-    lcd.print("W      ");
+    lcd.print(MY_F("W      "));
 #endif
 }
 
@@ -262,9 +262,9 @@ static void display_nokia_menu()
 
         MenuComponent const *item = menu->get_menu_component(i);
         if (item == selected)
-            lcd.print("> ");
+            lcd.print(MY_F("> "));
         else
-            lcd.print("  ");
+            lcd.print(MY_F("  "));
 
         lcd.print(item->get_name());
 
@@ -283,60 +283,60 @@ static void display_nokia_update()
 
     lcd.setCursor(6,0);
     if ((current_display<9.5)&&(current_display>0))
-        {lcd.print(" ");}
+        {lcd.print(MY_F(" "));}
     lcd.print(current_display,1);
 
     lcd.setCursor(10,0);
     if (battery_percent_fromcapacity<100)
-        {lcd.print(" ");}
+        {lcd.print(MY_F(" "));}
     if (battery_percent_fromcapacity<9.5)
-        {lcd.print(" ");}
+        {lcd.print(MY_F(" "));}
     lcd.print(battery_percent_fromcapacity);
 
     lcd.setCursor(0,1);
     if (power<99.5)
-        {lcd.print(" ");}
+        {lcd.print(MY_F(" "));}
     if (power<9.5)
-        {lcd.print(" ");}
+        {lcd.print(MY_F(" "));}
     lcd.print(power,0);
 
     lcd.setCursor(9,1);
     if (wh<99.5)
-        {lcd.print(" ");}
+        {lcd.print(MY_F(" "));}
     if (wh<9.5)
-        {lcd.print(" ");}
+        {lcd.print(MY_F(" "));}
     lcd.print(wh,0);
 
     lcd.setCursor(0,3);
     if (spd<9.5)
-        {lcd.print(" ");}
+        {lcd.print(MY_F(" "));}
     lcd.print(spd,1);
 
     lcd.setCursor(5,3);
     if (km<99.5)
-        {lcd.print(" ");}
+        {lcd.print(MY_F(" "));}
     if (km<9.5)
-        {lcd.print(" ");}
+        {lcd.print(MY_F(" "));}
     lcd.print(km,1);
 
     lcd.setCursor(11,3);
     if (cad<100)
-        {lcd.print(" ");}
+        {lcd.print(MY_F(" "));}
     if (cad<10)
-        {lcd.print(" ");}
+        {lcd.print(MY_F(" "));}
     lcd.print(cad,10);
 
     lcd.setCursor(0,4);
     if ( spd > 5.0)
         lcd.print(power/spd,1);
     else
-        lcd.print("---");
-    lcd.print("/");
+        lcd.print(MY_F("---"));
+    lcd.print(MY_F("/"));
     if ( km > 0.1)
         lcd.print(wh/km,1);
     else
-        lcd.print("---");
-    lcd.print(" ");
+        lcd.print(MY_F("---"));
+    lcd.print(MY_F(" "));
 
     lcd.setCursor(0,5);
 //lcd.print(millis()/60000.0,1);   //uncomment this to display minutes since startup
@@ -345,22 +345,22 @@ static void display_nokia_update()
     //lcd.print(temperature,1);
     //lcd.print(" ");
     lcd.print(slope,0);
-    lcd.print("% ");
+    lcd.print(MY_F("% "));
     lcd.print((int)altitude);
-    lcd.print(" ");
+    lcd.print(MY_F(" "));
 #endif
 #ifdef SUPPORT_HRMI
     lcd.print((byte) pulse_human);
-    lcd.print(" ");
+    lcd.print(MY_F(" "));
 #endif
     lcd.print(range,0);
-    lcd.print("km ");
+    lcd.print(MY_F("km "));
 #if HARDWARE_REV >=2
     lcd.setCursor(13,5);
     if (digitalRead(bluetooth_pin)==1)
         {lcd.write(2);}
     else
-        {lcd.print(" ");}
+        {lcd.print(MY_F(" "));}
 #endif
 #endif // (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 }
@@ -545,27 +545,27 @@ static void printTime(unsigned long sec)  //print time in exactly 5 characters: 
     {first=hours; second=minutes;}
     else
     {first=minutes; second=seconds;}
-    if(first<10) lcd.print("0");
+    if(first<10) lcd.print(MY_F("0"));
     lcd.print(first);
-    lcd.print(":");
-    if(second<10) lcd.print("0");
+    lcd.print(MY_F(":"));
+    if(second<10) lcd.print(MY_F("0"));
     lcd.print(second);
 }
 
 static void printTripDistance(float km)  // print distance in exactly 6 characters, left aligned: "1234km" or "123km " or "12,1km" or "9,1km "
 {
-    if (km<10.0) {lcd.print(km,1); lcd.print("km ");}
+    if (km<10.0) {lcd.print(km,1); lcd.print(MY_F("km "));}
     else
     {
         if (km<100)
-        {lcd.print(km,1); lcd.print("km");}
+        {lcd.print(km,1); lcd.print(MY_F("km"));}
         else
         {
             if(km<1000.0)
             {
-                lcd.print(km,0); lcd.print("km ");
+                lcd.print(km,0); lcd.print(MY_F("km "));
             }
-            else {lcd.print(km,0); lcd.print("km");}
+            else {lcd.print(km,0); lcd.print(MY_F("km"));}
         }
     }
 }
@@ -574,7 +574,7 @@ static void display_nokia_update_graphic()
 {
     //print range in km in the top left corner
     lcd.setCursorInPixels(0,0);
-    lcd.print(range,0); lcd.print("km ");
+    lcd.print(range,0); lcd.print(MY_F("km "));
 
     lcd.setCursorInPixels(42-10,0);
     if(brake_stat==0) //if brake is active
@@ -589,15 +589,15 @@ static void display_nokia_update_graphic()
     if (digitalRead(bluetooth_pin)==1)
     {lcd.write(2);}
     else
-    {lcd.print(" ");}
+    {lcd.print(MY_F(" "));}
 #endif
 
     //print the electrical power (Watt) in the top right corner
     lcd.setCursorInPixels(84-4*6,0);
-    if (power<99.5) {lcd.print(" ");}
-    if (power<9.5)  {lcd.print(" ");}
+    if (power<99.5) {lcd.print(MY_F(" "));}
+    if (power<9.5)  {lcd.print(MY_F(" "));}
     lcd.print(power,0);
-    lcd.print("W");
+    lcd.print(MY_F("W"));
 
     drawSpeed(spd, 20, 2); //centered vertically
 
