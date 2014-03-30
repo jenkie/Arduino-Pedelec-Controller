@@ -735,54 +735,54 @@ void send_serial_data()  //send serial data-------------------------------------
 {
 #if (SERIAL_MODE & SERIAL_MODE_ANDROID)
     Serial.print(voltage,1);
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print(current,1);
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print((int)power);
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print(spd,1);
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print(km,3);
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print((int)cad);
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print((int)wh);
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print((int)power_human);
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print((int)wh_human);
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print((int)(poti_stat/1023.0*curr_power_poti_max));
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.println(CONTROL_MODE);
 #endif
 
 #if (SERIAL_MODE & SERIAL_MODE_LOGVIEW)
-    Serial.print("$1;1;0;");
+    Serial.print(MY_F("$1;1;0;"));
     Serial.print(voltage,2);
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print(current,2);
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print(wh,1);
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print(spd,2);
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print(km,3);
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print(cad);
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print(0);   //arbitrary user data here
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print(0);   //arbitrary user data here
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print(0);   //arbitrary user data here
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print(0);  //arbitrary user data here
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print(0);   //arbitrary user data here
-    Serial.print(";");
+    Serial.print(MY_F(";"));
     Serial.print(0);   //arbitrary user data here
-    Serial.print(";0");
+    Serial.print(MY_F(";0"));
     Serial.println(13,DEC);
 #endif
 
@@ -792,60 +792,60 @@ void send_serial_data()  //send serial data-------------------------------------
     Serial.print(memFree());
     Serial.print(MY_F(" "));
 #endif
-    Serial.print("Voltage");
+    Serial.print(MY_F("Voltage"));
     Serial.print(voltage,2);
-    Serial.print(" Current");
+    Serial.print(MY_F(" Current"));
     Serial.print(current,1);
-    Serial.print(" Power");
+    Serial.print(MY_F(" Power"));
     Serial.print(power,0);
-    Serial.print(" PAS_On");
+    Serial.print(MY_F(" PAS_On"));
     Serial.print(pas_on_time);
-    Serial.print(" PAS_Off");
+    Serial.print(MY_F(" PAS_Off"));
     Serial.print(pas_off_time);
-    Serial.print(" PAS_factor");
+    Serial.print(MY_F(" PAS_factor"));
     Serial.print((float)pas_on_time/pas_off_time);
-    Serial.print(" Speed");
+    Serial.print(MY_F(" Speed"));
     Serial.print(spd);
-    Serial.print(" Brake");
+    Serial.print(MY_F(" Brake"));
     Serial.print(brake_stat);
-    Serial.print(" Poti");
+    Serial.print(MY_F(" Poti"));
     Serial.print(poti_stat);
-    Serial.print(" Throttle");
+    Serial.print(MY_F(" Throttle"));
     Serial.print(throttle_stat);
     /*
-        Serial.print(" TEMP");
+        Serial.print(MY_F(" TEMP"));
         Serial.print(temperature);
-        Serial.print(" ALTI");
+        Serial.print(MY_F(" ALTI"));
         Serial.print(altitude);
-        Serial.print("/");
+        Serial.print(MY_F("/"));
         Serial.print(altitude_start);
     */
     //now: data for Arduino Pedelec Configurator
     //0:voltage 1:current 2:pasfactor*100 3:option-pin 4:poti 5:throttle 6: brake
-    Serial.print("---raw---");
-    Serial.print(analogRead(voltage_in)); Serial.print(";");
-    Serial.print(analogRead(current_in)); Serial.print(";");
-    Serial.print(((int)(100*(double)pas_on_time/(double)pas_off_time))); Serial.print(";");
-    Serial.print(analogRead(option_pin)); Serial.print(";");
-    Serial.print(analogRead(poti_in)); Serial.print(";");
-    Serial.print(analogRead(throttle_in)); Serial.print(";");
+    Serial.print(MY_F("---raw---"));
+    Serial.print(analogRead(voltage_in)); Serial.print(MY_F(";"));
+    Serial.print(analogRead(current_in)); Serial.print(MY_F(";"));
+    Serial.print(((int)(100*(double)pas_on_time/(double)pas_off_time))); Serial.print(MY_F(";"));
+    Serial.print(analogRead(option_pin)); Serial.print(MY_F(";"));
+    Serial.print(analogRead(poti_in)); Serial.print(MY_F(";"));
+    Serial.print(analogRead(throttle_in)); Serial.print(MY_F(";"));
     Serial.println(digitalRead(brake_in));
 
 #endif
 
 #if (SERIAL_MODE & SERIAL_MODE_MMC)
     Serial.print((int)(voltage_display*10));
-    Serial.print("\t");
+    Serial.print(MY_F("\t"));
     Serial.print((int)(current*1000));
-    Serial.print("\t");
+    Serial.print(MY_F("\t"));
     Serial.print((int)(spd*10));
-    Serial.print("\t");
+    Serial.print(MY_F("\t"));
     Serial.print((long)(mah*3600));
-    Serial.print("\t");
+    Serial.print(MY_F("\t"));
     Serial.print((int)0); //naximum current
-    Serial.print("\t");
+    Serial.print(MY_F("\t"));
     Serial.print((long)(km*1000/wheel_circumference)); //distance
-    Serial.print("\t");
+    Serial.print(MY_F("\t"));
     Serial.println((int)0); //profile
 #endif
 }
