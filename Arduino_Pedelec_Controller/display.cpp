@@ -504,13 +504,12 @@ static const byte bitmapBigNumber[10][2 * 9] = {{  0xFC, 0xFE, 0x07, 0x03, 0x03,
     {   0x3C, 0xFE, 0xE7, 0xC3, 0xC3, 0xC3, 0xE7, 0xFE, 0x3C,   0x1F, 0x3F, 0x71, 0x60, 0x60, 0x60, 0x71, 0x3F, 0x1F},
     {   0x7C, 0xFE, 0xC7, 0x83, 0x83, 0x83, 0xC7, 0xFE, 0xFC,   0x00, 0x60, 0x61, 0x71, 0x31, 0x19, 0x1C, 0x0F, 0x07}
 };
-static const byte bitmapBigComma[2 * 3] = {    0x00, 0x00, 0x00, 0xC0, 0xF0, 0x30};  //comma character, 3 bits wide, for big numbers
-static const byte bitmapBigkmh[2 * 9] = { 0xBC, 0x90, 0xA8, 0x80, 0xB8, 0x88, 0xB8, 0x88, 0xB8, 0x00, 0x00, 0x00, 0x3E, 0x08, 0x38, 0x00, 0x00, 0x00}; // km/h
-static const byte bitmapBigSpace[2 * 9] = {    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // " "
+static const PROGMEM byte bitmapBigComma_p[2 * 3] = {    0x00, 0x00, 0x00, 0xC0, 0xF0, 0x30};  //comma character, 3 bits wide, for big numbers
+static const PROGMEM byte bitmapBigkmh_p[2 * 9] = { 0xBC, 0x90, 0xA8, 0x80, 0xB8, 0x88, 0xB8, 0x88, 0xB8, 0x00, 0x00, 0x00, 0x3E, 0x08, 0x38, 0x00, 0x00, 0x00}; // km/h
+static const PROGMEM byte bitmapBigSpace_p[2 * 9] = {    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // " "
 
-static const byte bitmapBrakeSymbol[10] = {0x3C, 0x66, 0xC3, 0x18, 0x3C, 0x3C, 0x18, 0xC3, 0x66, 0x3C}; //Symbol for showing that the bikes brake is active
-static const byte bitmapBrakeSymbolClear[10] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; //10x0 empty rectangle for clearing the brake symbol
-static const byte character_average_symbol[5] = {0x38, 0x64, 0x54, 0x4C, 0x38};
+static const PROGMEM byte bitmapBrakeSymbol_p[10] = {0x3C, 0x66, 0xC3, 0x18, 0x3C, 0x3C, 0x18, 0xC3, 0x66, 0x3C}; //Symbol for showing that the bikes brake is active
+static const PROGMEM byte bitmapBrakeSymbolClear_p[10] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; //10x0 empty rectangle for clearing the brake symbol
 
 static void drawSpeed(float speed, byte xpos, byte ypos) //print the speed in big 9x16 pixel characters, e.g. "27,6"
 {
@@ -518,7 +517,7 @@ static void drawSpeed(float speed, byte xpos, byte ypos) //print the speed in bi
     lcd.setCursorInPixels(xpos,ypos);
     if(speed_digits<100) //<10kmh
     {
-        lcd.drawBitmap(bitmapBigSpace, 9,2);
+        lcd.drawBitmap(bitmapBigSpace_p, 9,2, true);
     }
     else
     {
@@ -527,11 +526,11 @@ static void drawSpeed(float speed, byte xpos, byte ypos) //print the speed in bi
     lcd.setCursorInPixels(xpos+10,ypos);
     lcd.drawBitmap(bitmapBigNumber[(speed_digits/10)%10], 9,2);
     lcd.setCursorInPixels(xpos+19,ypos);
-    lcd.drawBitmap(bitmapBigComma, 3,2);
+    lcd.drawBitmap(bitmapBigComma_p, 3,2, true);
     lcd.setCursorInPixels(xpos+23,ypos);
     lcd.drawBitmap(bitmapBigNumber[speed_digits%10], 9,2);
     lcd.setCursorInPixels(xpos+33,ypos);
-    lcd.drawBitmap(bitmapBigkmh, 9,2);
+    lcd.drawBitmap(bitmapBigkmh_p, 9,2, true);
 }
 
 static void printTime(unsigned long sec)  //print time in exactly 5 characters: in the format "mm:ss" or "hh:mm", if the time is >1 hour
@@ -579,9 +578,9 @@ static void display_nokia_update_graphic()
     lcd.setCursorInPixels(42-10,0);
     if(brake_stat==0) //if brake is active
 
-    {lcd.drawBitmap(bitmapBrakeSymbol, 10,1);}
+    {lcd.drawBitmap(bitmapBrakeSymbol_p, 10,1, true);}
     else  //clear the brake symbol
-    {lcd.drawBitmap(bitmapBrakeSymbolClear, 10,1);}
+    {lcd.drawBitmap(bitmapBrakeSymbolClear_p, 10,1, true);}
     lcd.setCursor(7,5);
     lcd.print(current_profile+1);
 #if HARDWARE_REV >=2
