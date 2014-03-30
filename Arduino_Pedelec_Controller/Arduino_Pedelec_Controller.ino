@@ -80,6 +80,9 @@ boolean dspc_mode=0;  //is false if temperature, true if altitude
 #include <SoftwareSerial.h>      //for Kingmeter J-LCD and BMS S-LCD
 #endif
 
+
+// #define DEBUG_MEMORY_USAGE               // enable this define to print memory usage in SERIAL_MODE_DEBUG
+
 struct savings   //add variables if you want to store additional values to the eeprom
 {
     float voltage;
@@ -219,9 +222,26 @@ void send_serial_data();
 void handle_dspc();
 void save_eeprom();
 
+#ifdef DEBUG_MEMORY_USAGE
+int memFree()
+{
+    extern int __heap_start, *__brkval;
+    int next_pointer;
+
+    return (int) &next_pointer - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
+}
+#endif
+
 //Setup---------------------------------------------------------------------------------------------------------------------
 void setup()
 {
+    Serial.begin(115200);     //bluetooth-module requires 115200
+#ifdef DEBUG_MEMORY_USAGE
+    Serial.print(MY_F("memFree before setup:"));
+    Serial.print(memFree());
+    Serial.print(MY_F("\n"));
+#endif
+
 #ifdef SUPPORT_DSPC01
     dspc.begin(A5,A4);
     dspc.request_temperature();
@@ -235,7 +255,6 @@ void setup()
     init_menu();
     display_init();
 
-    Serial.begin(115200);     //bluetooth-module requires 115200
     pinMode(pas_in, INPUT);
     pinMode(wheel_in, INPUT);
     pinMode(switch_thr, INPUT);
@@ -311,6 +330,11 @@ void setup()
     torque_zero=analogRead(option_pin);
 #endif
 
+#ifdef DEBUG_MEMORY_USAGE
+    Serial.print(MY_F("memFree after setup:"));
+    Serial.print(memFree());
+    Serial.print(MY_F("\n"));
+#endif
 }
 
 void loop()
@@ -763,6 +787,11 @@ void send_serial_data()  //send serial data-------------------------------------
 #endif
 
 #if (SERIAL_MODE & SERIAL_MODE_DEBUG)
+#ifdef DEBUG_MEMORY_USAGE
+    Serial.print(MY_F("memFree"));
+    Serial.print(memFree());
+    Serial.print(MY_F(" "));
+#endif
     Serial.print("Voltage");
     Serial.print(voltage,2);
     Serial.print(" Current");

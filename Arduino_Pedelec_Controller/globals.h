@@ -68,4 +68,9 @@ extern boolean first_aid_ignore_throttle;
 extern void save_eeprom();
 extern void activate_new_profile();
 
+// Define own version of F() macro since compile will
+// fail on newer gcc versions with a "const" warning.
+// This is the version as in Arduino 1.5 and newer.
+#define MY_F(string_literal) (reinterpret_cast<const __FlashStringHelper *>(PSTR(string_literal)))
+
 #endif
