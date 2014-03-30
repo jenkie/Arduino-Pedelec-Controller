@@ -790,6 +790,8 @@ void send_serial_data()  //send serial data-------------------------------------
 #ifdef DEBUG_MEMORY_USAGE
     Serial.print(MY_F("memFree"));
     Serial.print(memFree());
+    Serial.print(MY_F(" looptime"));
+    Serial.print(millis()-looptime);
     Serial.print(MY_F(" "));
 #endif
     Serial.print(MY_F("Voltage"));
