@@ -403,7 +403,7 @@ void loop()
     handle_switch(SWITCH_DISPLAY2, digitalRead(switch_disp_2));
 #endif
 #ifdef SUPPORT_SWITCH_ON_POTI_PIN
-    handle_switch(SWITCH_POTI, digitalRead(poti_in));
+    handle_switch(SWITCH_POTI, (analogRead(poti_in)>512));
 #endif
 
 //Check if Battery was charged since last power down-----------------------------------------------------------------------

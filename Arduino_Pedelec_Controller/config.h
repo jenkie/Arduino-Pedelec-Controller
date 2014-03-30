@@ -50,7 +50,7 @@ const switch_name MENU_BUTTON_DOWN = SWITCH_DISPLAY1;
 const sw_action SW_THROTTLE_SHORT_PRESS = ACTION_SET_SOFT_POTI;
 const sw_action SW_THROTTLE_LONG_PRESS  = ACTION_SHUTDOWN_SYSTEM;
 
-// #define SUPPORT_SWITCH_ON_POTI_PIN              //uncomment if you have an additional switch on the poti pin
+// #define SUPPORT_SWITCH_ON_POTI_PIN              //uncomment if you have an additional switch on the poti pin. use external 10k pullup resistor or it will not work!
 const sw_action SW_POTI_SHORT_PRESS = ACTION_NONE;
 const sw_action SW_POTI_LONG_PRESS = ACTION_NONE;
 
