@@ -12,17 +12,17 @@
 // MenuComponent
 // *********************************************************
 
-MenuComponent::MenuComponent(char* name)
+MenuComponent::MenuComponent(const char* name)
 : _name(name)
 {
 }
 
-char* MenuComponent::get_name() const
+const char* MenuComponent::get_name() const
 {
     return _name;
 }
 
-void MenuComponent::set_name(char* name)
+void MenuComponent::set_name(const char* name)
 {
     _name = name;
 }
@@ -32,7 +32,7 @@ void MenuComponent::set_name(char* name)
 // Menu
 // *********************************************************
 
-Menu::Menu(char* name)
+Menu::Menu(const char* name)
 : MenuComponent(name),
   _p_sel_menu_component(NULL),
   _p_parent(NULL),
@@ -158,7 +158,7 @@ byte Menu::get_cur_menu_component_num() const
 // MenuItem
 // *********************************************************
 
-MenuItem::MenuItem(char* name)
+MenuItem::MenuItem(const char* name)
 : MenuComponent(name),
   _on_select(0)
 {

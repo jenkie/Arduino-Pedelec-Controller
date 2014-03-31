@@ -266,7 +266,7 @@ static void display_nokia_menu()
         else
             lcd.print(MY_F("  "));
 
-        lcd.print(item->get_name());
+        lcd.print(reinterpret_cast<const __FlashStringHelper *>(item->get_name()));
 
         ++current_lcd_row;
         if (current_lcd_row == nokia_screen_rows)

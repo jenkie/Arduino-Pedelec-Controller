@@ -53,29 +53,66 @@ Layout:
     └── Zurück
 */
 MenuSystem menu_system;
-static Menu menu_main("");
-static Menu menu_display("Anzeige ->");
-static MenuItem m_display_reset_wh("Reset Wh");
-static MenuItem m_display_reset_km("Reset KM");
-static MenuItem m_display_graphical_onoff("Graf. an/aus");
-static MenuItem m_main_lights_onoff("Licht an/aus");
-static MenuItem m_main_bt_onoff("BT an/aus");
-static MenuItem m_main_shutdown("Ausschalten");
-static MenuItem m_main_profile("Profil 1<>2");
+
+static const char desc_main[] PROGMEM = "";
+static Menu menu_main(desc_main);
+
+static const char desc_display[] PROGMEM = "Anzeige ->";
+static Menu menu_display(desc_display);
+
+static const char desc_display_reset_wh[] PROGMEM = "Reset Wh";
+static MenuItem m_display_reset_wh(desc_display_reset_wh);
+
+static const char desc_display_reset_km[] PROGMEM = "Reset KM";
+static MenuItem m_display_reset_km(desc_display_reset_km);
+
+static const char desc_display_graphical_onoff[] PROGMEM = "Graf. an/aus";
+static MenuItem m_display_graphical_onoff(desc_display_graphical_onoff);
+
+static const char desc_main_lights_onoff[] PROGMEM = "Licht an/aus";
+static MenuItem m_main_lights_onoff(desc_main_lights_onoff);
+
+static const char desc_main_bt_onoff[] PROGMEM = "BT an/aus";
+static MenuItem m_main_bt_onoff(desc_main_bt_onoff);
+
+static const char desc_main_shutdown[] PROGMEM = "Ausschalten";
+static MenuItem m_main_shutdown(desc_main_shutdown);
+
+static const char desc_main_profile[] PROGMEM = "Profil 1<>2";
+static MenuItem m_main_profile(desc_main_profile);
+
 #ifdef SUPPORT_FIRST_AID_MENU
-static Menu menu_misc("Sonstiges ->");
-static Menu menu_first_aid("Nothilfe ->");
-static MenuItem m_first_aid_ignore_break("Ign. Bremse");
-static MenuItem m_first_aid_ignore_pas("Ign. Treten");
-static MenuItem m_first_aid_ignore_speed("Ign. Tacho");
-static MenuItem m_first_aid_ignore_throttle("Ign. Gasgr.");
-static MenuItem m_first_aid_ignore_poti("Ignore Poti");
-static MenuItem m_first_aid_inc_poti("Poti +");
-static MenuItem m_first_aid_dec_poti("Poti -");
+static const char desc_misc[] PROGMEM = "Sonstiges ->";
+static Menu menu_misc(desc_misc);
+
+static const char desc_first_aid[] PROGMEM = "Nothilfe ->";
+static Menu menu_first_aid(desc_first_aid);
+
+static const char desc_first_aid_ignore_break[] PROGMEM = "Ign. Bremse";
+static MenuItem m_first_aid_ignore_break(desc_first_aid_ignore_break);
+
+static const char desc_first_aid_ignore_pas[] PROGMEM = "Ign. Treten";
+static MenuItem m_first_aid_ignore_pas(desc_first_aid_ignore_pas);
+
+static const char desc_first_aid_ignore_speed[] PROGMEM = "Ign. Tacho";
+static MenuItem m_first_aid_ignore_speed(desc_first_aid_ignore_speed);
+
+static const char desc_first_aid_ignore_throttle[] PROGMEM = "Ign. Gasgr.";
+static MenuItem m_first_aid_ignore_throttle(desc_first_aid_ignore_throttle);
+
+static const char desc_first_aid_ignore_poti[] PROGMEM = "Ignore Poti";
+static MenuItem m_first_aid_ignore_poti(desc_first_aid_ignore_poti);
+
+static const char desc_first_aid_inc_poti[] PROGMEM = "Poti +";
+static MenuItem m_first_aid_inc_poti(desc_first_aid_inc_poti);
+
+static const char desc_first_aid_dec_poti[] PROGMEM = "Poti -";
+static MenuItem m_first_aid_dec_poti(desc_first_aid_dec_poti);
 #endif
 
 // Universally used "go back" menu entry
-static MenuItem m_go_back("Zurueck ->");
+static const char desc_go_back[] PROGMEM = "Zurueck ->";
+static MenuItem m_go_back(desc_go_back);
 
 static void handle_reset_wh(MenuItem* p_menu_item)
 {
