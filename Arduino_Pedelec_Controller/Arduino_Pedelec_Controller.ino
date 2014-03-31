@@ -579,7 +579,7 @@ void loop()
                 if (mmc_command=="at-cdist")          //reset distance
                     km=0;
                 if (mmc_command=="at-0")              //anybody there?
-                    Serial.println("ok");
+                    Serial.println(MY_F("ok"));
                 readchar=0;
                 mmc_command="";
                 return;
