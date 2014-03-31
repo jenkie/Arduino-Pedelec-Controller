@@ -177,9 +177,9 @@ def write_config_h(filename=CONFIG_H,
         f.write('const float current_amplitude_R11 = 0.0296;   // for Rev 1.1 - 1.2 set this value according to your own current-calibration. Default: 0.0296\n')
         f.write('const float current_amplitude_R13 = 0.0741;   // for Rev 1.3 set this value according to your own current-calibration. Default: 0.0741\n')
         f.write('\n')
-        f.write('const char* const msg_welcome = "Welcome";\n')
-        f.write('const char* const msg_shutdown = "Live long and prosper.";\n')
-        f.write('const char* const msg_battery_charged = "Batt. charged! Resetting counters";\n')
+        f.write('const char msg_welcome[] PROGMEM = "Welcome";\n')
+        f.write('const char msg_shutdown[] PROGMEM = "Live long and prosper.";\n')
+        f.write('const char msg_battery_charged[] PROGMEM = "Batt. charged! Resetting counters";\n')
         f.write('\n')
         f.write('#endif\n')
 
