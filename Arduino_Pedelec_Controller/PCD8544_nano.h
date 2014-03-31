@@ -102,7 +102,7 @@ public:
 #endif
 
     // Draw a bitmap at the current cursor position...
-    void drawBitmap(const unsigned char *data, unsigned char columns, unsigned char lines, bool is_progmem=false);
+    void drawBitmap(const unsigned char *data, unsigned char columns, unsigned char lines);
 
     // Draw a chart element at the current cursor position...
     void drawColumn(unsigned char lines, unsigned char value);

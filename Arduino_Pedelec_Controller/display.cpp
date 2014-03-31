@@ -493,7 +493,8 @@ void display_init()
 //all bitmaps are created using this great bitmap generator http://www.introtoarduino.com/utils/pcd8544.html
 //big characters 0-9 for displaying speed in 9x16 pixel format.
 //big characters for the numbers 0..9  in 9x15 pixel size, used for displaying the speed
-static const byte bitmapBigNumber[10][2 * 9] = {{  0xFC, 0xFE, 0x07, 0x03, 0x03, 0x03, 0x07, 0xFE, 0xFC,   0x1F, 0x3F, 0x70, 0x60, 0x60, 0x60, 0x70, 0x3F, 0x1F},
+static const byte bitmapBigNumber[10][2 * 9] PROGMEM = {
+    {   0xFC, 0xFE, 0x07, 0x03, 0x03, 0x03, 0x07, 0xFE, 0xFC,   0x1F, 0x3F, 0x70, 0x60, 0x60, 0x60, 0x70, 0x3F, 0x1F},
     {   0x00, 0x18, 0x1C, 0x0E, 0xFF, 0xFF, 0x00, 0x00, 0x00,   0x00, 0x00, 0x60, 0x60, 0x7F, 0x7F, 0x60, 0x60, 0x00},
     {   0x0C, 0x0E, 0x07, 0x03, 0x03, 0x83, 0xC7, 0xFE, 0x7C,   0x70, 0x78, 0x7C, 0x6E, 0x67, 0x63, 0x61, 0x60, 0x60},
     {   0x0C, 0x0E, 0x07, 0x03, 0xC3, 0xC3, 0xE7, 0xFE, 0x3C,   0x18, 0x38, 0x70, 0x60, 0x60, 0x60, 0x71, 0x3F, 0x1F},
@@ -517,7 +518,7 @@ static void drawSpeed(float speed, byte xpos, byte ypos) //print the speed in bi
     lcd.setCursorInPixels(xpos,ypos);
     if(speed_digits<100) //<10kmh
     {
-        lcd.drawBitmap(bitmapBigSpace_p, 9,2, true);
+        lcd.drawBitmap(bitmapBigSpace_p, 9,2);
     }
     else
     {
@@ -526,11 +527,11 @@ static void drawSpeed(float speed, byte xpos, byte ypos) //print the speed in bi
     lcd.setCursorInPixels(xpos+10,ypos);
     lcd.drawBitmap(bitmapBigNumber[(speed_digits/10)%10], 9,2);
     lcd.setCursorInPixels(xpos+19,ypos);
-    lcd.drawBitmap(bitmapBigComma_p, 3,2, true);
+    lcd.drawBitmap(bitmapBigComma_p, 3,2);
     lcd.setCursorInPixels(xpos+23,ypos);
     lcd.drawBitmap(bitmapBigNumber[speed_digits%10], 9,2);
     lcd.setCursorInPixels(xpos+33,ypos);
-    lcd.drawBitmap(bitmapBigkmh_p, 9,2, true);
+    lcd.drawBitmap(bitmapBigkmh_p, 9,2);
 }
 
 static void printTime(unsigned long sec)  //print time in exactly 5 characters: in the format "mm:ss" or "hh:mm", if the time is >1 hour
@@ -578,9 +579,9 @@ static void display_nokia_update_graphic()
     lcd.setCursorInPixels(42-10,0);
     if(brake_stat==0) //if brake is active
 
-    {lcd.drawBitmap(bitmapBrakeSymbol_p, 10,1, true);}
+    {lcd.drawBitmap(bitmapBrakeSymbol_p, 10,1);}
     else  //clear the brake symbol
-    {lcd.drawBitmap(bitmapBrakeSymbolClear_p, 10,1, true);}
+    {lcd.drawBitmap(bitmapBrakeSymbolClear_p, 10,1);}
     lcd.setCursor(7,5);
     lcd.print(current_profile+1);
 #if HARDWARE_REV >=2

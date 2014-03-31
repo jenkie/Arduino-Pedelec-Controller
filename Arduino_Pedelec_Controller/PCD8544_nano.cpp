@@ -273,7 +273,7 @@ size_t PCD8544::write(uint8_t chr)
 }
 
 
-void PCD8544::drawBitmap(const unsigned char *data, unsigned char columns, unsigned char lines, bool is_progmem)
+void PCD8544::drawBitmap(const unsigned char *data, unsigned char columns, unsigned char lines)
 {
     unsigned char scolumn = this->column;
     unsigned char sline = this->line;
@@ -288,13 +288,7 @@ void PCD8544::drawBitmap(const unsigned char *data, unsigned char columns, unsig
 
         for (unsigned char x = 0; x < mx; x++)
         {
-            unsigned char data_to_send;
-            if (!is_progmem)
-               data_to_send = data[y * columns + x];
-            else
-               data_to_send = pgm_read_byte(data + (y*columns+x));
-
-            this->send(PCD8544_DATA, data_to_send);
+            this->send(PCD8544_DATA, pgm_read_byte(data + (y*columns+x)));
         }
     }
 
