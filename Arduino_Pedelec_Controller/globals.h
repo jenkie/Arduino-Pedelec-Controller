@@ -73,4 +73,6 @@ extern void activate_new_profile();
 // This is the version as in Arduino 1.5 and newer.
 #define MY_F(string_literal) (reinterpret_cast<const __FlashStringHelper *>(PSTR(string_literal)))
 
+#define FROM_FLASH(str) (reinterpret_cast<const __FlashStringHelper *>(str))
+
 #endif

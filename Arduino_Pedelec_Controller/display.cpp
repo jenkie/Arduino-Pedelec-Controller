@@ -65,9 +65,9 @@ static const PROGMEM byte glyph2[] = {0xc8, 0x2f, 0x6a, 0x2e, 0xc8}; //symbol fo
 static const PROGMEM byte glyph3[] = {0x44, 0x28, 0xfe, 0x6c, 0x28}; //bluetooth-symbol       check this out: http://www.carlos-rodrigues.com/projects/pcd8544/
 
 unsigned long show_important_info_until = 0;
-void display_show_important_info(const char *str, int duration_secs)
-{
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+static void prepare_important_info(int duration_secs)
+{
     unsigned long seconds = 2;
     if (duration_secs)
         seconds = duration_secs;
@@ -81,9 +81,25 @@ void display_show_important_info(const char *str, int duration_secs)
     // TODO: Implement and test 4bit display mode
     lcd.clear();
     lcd.setCursor(0, 2);
+}
+#endif
+
+void display_show_important_info(const char *str, int duration_secs)
+{
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+    prepare_important_info(duration_secs);
     lcd.print(str);
 #endif
 }
+
+void display_show_important_info(const __FlashStringHelper *str, int duration_secs)
+{
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+    prepare_important_info(duration_secs);
+    lcd.print(str);
+#endif
+}
+
 
 // Calculate length of number.
 // Don't use sprintf() here is it sucks up 1.5kb of code space.
@@ -106,7 +122,7 @@ static byte calc_number_length(const unsigned long x)
 
 void display_show_welcome_msg()
 {
-    display_show_important_info(msg_welcome, 5);
+    display_show_important_info(FROM_FLASH(msg_welcome), 5);
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     lcd.setCursor(0, 5);
@@ -266,7 +282,7 @@ static void display_nokia_menu()
         else
             lcd.print(MY_F("  "));
 
-        lcd.print(reinterpret_cast<const __FlashStringHelper *>(item->get_name()));
+        lcd.print(FROM_FLASH((item->get_name())));
 
         ++current_lcd_row;
         if (current_lcd_row == nokia_screen_rows)

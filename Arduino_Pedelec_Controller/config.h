@@ -148,8 +148,8 @@ const float current_offset = 0.0;             // for Rev 1.3 ONLY! set this valu
 const float current_amplitude_R11 = 0.0296;   // for Rev 1.1 - 1.2 set this value according to your own current-calibration. Default: 0.0296
 const float current_amplitude_R13 = 0.0741;   // for Rev 1.3 set this value according to your own current-calibration. Default: 0.0741
 
-const char* const msg_welcome = "Welcome";
-const char* const msg_shutdown = "Live long and prosper.";
-const char* const msg_battery_charged = "Batt. charged! Resetting counters";
+const char msg_welcome[] PROGMEM = "Welcome";
+const char msg_shutdown[] PROGMEM = "Live long and prosper.";
+const char msg_battery_charged[] PROGMEM = "Batt. charged! Resetting counters";
 
 #endif

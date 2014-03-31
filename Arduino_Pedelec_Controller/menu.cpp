@@ -188,9 +188,9 @@ static void handle_profile(MenuItem* p_menu_item)
 static void show_new_state(const boolean is_on)
 {
     if (is_on)
-        display_show_important_info("Aktiviert", 1);
+        display_show_important_info(MY_F("Aktiviert"), 1);
     else
-        display_show_important_info("Deaktiviert", 1);
+        display_show_important_info(MY_F("Deaktiviert"), 1);
 
     menu_active = false;
 }

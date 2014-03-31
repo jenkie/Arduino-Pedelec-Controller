@@ -440,7 +440,7 @@ void loop()
             km=variable.kilometers;
             mah=variable.mah;
         } else
-            display_show_important_info(msg_battery_charged, 5);
+            display_show_important_info(FROM_FLASH(msg_battery_charged), 5);
 #endif
         if (voltage<6.0)                                   //do not write new data to eeprom when on USB Power
         {variables_saved=true;}
@@ -650,7 +650,7 @@ void loop()
                 ++idle_shutdown_count;
                 if (idle_shutdown_count > idle_shutdown_secs)
                 {
-                    display_show_important_info("Idle shutdown. Good night.", 60);
+                    display_show_important_info(MY_F("Idle shutdown. Good night."), 60);
                     save_eeprom();
                     digitalWrite(fet_out,HIGH);
                 }
@@ -662,7 +662,7 @@ void loop()
             if (voltage < vemergency_shutdown && voltage_display < vemergency_shutdown
                     && voltage > 6.0)
             {
-                display_show_important_info("Battery undervoltage detected. Emergency shutdown.", 60);
+                display_show_important_info(MY_F("Battery undervoltage detected. Emergency shutdown."), 60);
                 delay(1000);
                 save_eeprom();
                 digitalWrite(fet_out,HIGH);
