@@ -35,7 +35,7 @@ struct serial_command {char mnemonic[3];};
 serial_command serial_commands[] =
 {
     {{"ps"}},     //0: poti stat, gets and sets poti stat
-    {{"od"}},     //1: total kilometers (odo), gets and sets poti stat
+    {{"od"}},     //1: total kilometers (odo), gets and sets total kilometers
 };
 int n_commands = sizeof(serial_commands)/sizeof(serial_command); //number of commands that we have
 
