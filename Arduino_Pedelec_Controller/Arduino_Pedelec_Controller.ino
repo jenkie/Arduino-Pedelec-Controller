@@ -195,9 +195,7 @@ byte mmc_value=0;
 boolean mmc_nextisvalue=false;
 #endif
 
-#if (SERIAL_MODE & SERIAL_MODE_ANDROID)
 char inchar = 0;      //curent read char
-#endif
 
 //declarations for profile switching
 int curr_startingaid_speed=startingaid_speed;
@@ -353,13 +351,11 @@ void loop()
     display_update();
 #endif
 
-#if (SERIAL_MODE & SERIAL_MODE_ANDROID)
     if (Serial.available() > 0)
     {
         inchar = Serial.read();
         next(inchar);
     }
-#endif
 
 #ifdef SUPPORT_THROTTLE
     throttle_stat = constrain(map(analogRead(throttle_in),throttle_offset,throttle_max,0,1023),0,1023);   // 0...1023

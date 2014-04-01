@@ -21,56 +21,32 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "bluetooth.h"
 #include "globals.h"
 
-#if (SERIAL_MODE & SERIAL_MODE_ANDROID)
-// Serial comm variables
-
+extern boolean variables_saved;
 char firstchar = 0;
-const byte numberlength = 12;
+const byte numberlength = 5;
 char numberstring[numberlength];
 byte num_i=0;
 byte validcommand = 0;
 byte i = 0;
 
-byte com_i;
-byte com_type; // 0=float, 1=int
-float samplefloat;
+byte com_i; //index of current command
 
-struct serial_float { char mnemonic[3]; float *pointer;};
-serial_float sc_float[] =
+struct serial_command {char mnemonic[3];};
+serial_command serial_commands[] =
 {
-    {{"sf"},&samplefloat},
+    {{"ps"}},     //0: poti stat, gets and sets poti stat
+    {{"od"}},     //1: total kilometers (odo), gets and sets poti stat
 };
-int n_float = sizeof(sc_float)/sizeof(serial_float);
-
-struct serial_int { char mnemonic[3]; int *pointer;};
-serial_int sc_int[] =
-{
-    {{"ps"},&poti_stat},     //poti stat                  //at the moment the only valid command :) gets and sets poti stat
-};
-int n_int = sizeof(sc_int)/sizeof(serial_int);
-
-
-
+int n_commands = sizeof(serial_commands)/sizeof(serial_command); //number of commands that we have
 
 void find_commands() //a command is always AA# or AA? where AA# sets # to variable AA and AA? returns value of AA
 {
     validcommand = 0;
-    for (i=0; i < n_float ; i++)    //try float mnemonics
+    for (i=0; i < n_commands ; i++)    //try int mnemonics
     {
-        if (sc_float[i].mnemonic[0] == firstchar && sc_float[i].mnemonic[1] == inchar)
+        if (serial_commands[i].mnemonic[0] == firstchar && serial_commands[i].mnemonic[1] == inchar)
         {
             com_i = i;
-            com_type = 0;
-            validcommand = 1;
-            return;
-        }
-    }
-    for (i=0; i < n_int ; i++)    //try int mnemonics
-    {
-        if (sc_int[i].mnemonic[0] == firstchar && sc_int[i].mnemonic[1] == inchar)
-        {
-            com_i = i;
-            com_type = 1;
             validcommand = 1;
             return;
         }
@@ -89,22 +65,19 @@ void next(char inchar)
         if (validcommand && numberstring[0] != '\0')
         {
             // if command and number, write now!
-            switch(com_type)
+            switch(com_i)
             {
-                case 0:              //float
-                    *sc_float[com_i].pointer = atof(numberstring);
-                    Serial.print(sc_float[com_i].mnemonic);
-                    Serial.println(*sc_float[com_i].pointer,6);
+                case 0:              //poti_stat
+                    poti_stat = min(atoi(numberstring)*1023.0/power_poti_max,1023);
                     break;
-                case 1:             //int
-                    if (com_i==0) //poti-stat!
-                        *sc_int[com_i].pointer = min(atoi(numberstring)*1023.0/power_poti_max,1023);
-                    else
-                        *sc_int[com_i].pointer = atoi(numberstring);
-                    Serial.print(sc_int[com_i].mnemonic);
-                    Serial.println(*sc_int[com_i].pointer);
+                case 1:              //total kilometers
+                    odo = atoi(numberstring)*1000.0/wheel_circumference;
+                    variables_saved=false;
+                    save_eeprom();
                     break;
             }
+            Serial.print(serial_commands[com_i].mnemonic);
+            Serial.println(MY_F("OK"));
         }
         validcommand = 0;
         firstchar = 0;
@@ -119,17 +92,15 @@ void next(char inchar)
     {
         if (inchar == 63 )   //"?"
         {
-            switch(com_type)
+            validcommand = 0;
+            Serial.print(serial_commands[com_i].mnemonic);
+            switch(com_i)
             {
-                case 0:              //float
-                    Serial.print(sc_float[com_i].mnemonic);
-                    Serial.println(*sc_float[com_i].pointer,6);
-                    validcommand = 0;
+                case 0:             //poti_stat
+                    Serial.println(poti_stat);
                     break;
-                case 1:             //int
-                    Serial.print(sc_int[com_i].mnemonic);
-                    Serial.println(*sc_int[com_i].pointer);
-                    validcommand = 0;
+                case 1:             //total kilometers
+                    Serial.println(odo/1000.0*wheel_circumference,0);
                     break;
             }
         }
@@ -152,8 +123,5 @@ void next(char inchar)
         }
     }
 }
-
-
-#endif
 
 
