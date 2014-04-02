@@ -90,7 +90,7 @@ void next(char inchar)
     }
     if (validcommand)
     {
-        if (inchar == 63 )   //"?"
+        if (inchar == '?')
         {
             validcommand = 0;
             Serial.print(serial_commands[com_i].mnemonic);
