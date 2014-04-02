@@ -47,7 +47,7 @@ BMP085 bmp;
 #ifdef SUPPORT_DSPC01
 #include "DSPC01_nano.h"
 DSPC01 dspc;
-long int dspc_timer;
+unsigned long dspc_timer = 0;
 boolean dspc_mode=0;  //is false if temperature, true if altitude
 #endif
 
