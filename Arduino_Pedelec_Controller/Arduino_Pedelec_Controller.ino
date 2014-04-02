@@ -253,22 +253,12 @@ void setup()
     init_menu();
     display_init();
 
-    pinMode(pas_in, INPUT);
-    pinMode(wheel_in, INPUT);
-    pinMode(switch_thr, INPUT);
-    pinMode(switch_disp, INPUT);
-    pinMode(poti_in, INPUT);
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
-    pinMode(switch_disp_2, INPUT);
     digitalWrite(switch_disp_2, HIGH);    // turn on pullup resistors on display-switch 2
 #endif
 #ifdef SUPPORT_SWITCH_ON_POTI_PIN
   digitalWrite(poti_in, HIGH);
 #endif
-#ifdef SUPPORT_BRAKE
-    pinMode(brake_in, INPUT);
-#endif
-    pinMode(option_pin,INPUT);
 
 #ifdef SUPPORT_LIGHTS_SWITCH
     // Note: lights_pin is normally also the options_pin
