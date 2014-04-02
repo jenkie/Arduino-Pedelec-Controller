@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 2.8)
 project(Pedelec_Controller C CXX)
 
 # Documentation
-option(DOCUMENTATION "Generate API documentation with Doxygen" ON)
+option(DOCUMENTATION "Generate API documentation with Doxygen" OFF)
 
 find_package(Doxygen)
 if(DOCUMENTATION AND DOXYGEN_FOUND)
