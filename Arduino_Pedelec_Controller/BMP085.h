@@ -45,7 +45,7 @@ public:
     void begin(uint8_t mode = BMP085_ULTRAHIGHRES);  // by default go highres
     float readTemperature(void);
     int32_t readPressure(void);
-    float readAltitude(float sealevelPressure = 101325); // std atmosphere
+    float readAltitude(void); // std atmosphere
     uint16_t readRawTemperature(void);
     uint32_t readRawPressure(void);
 

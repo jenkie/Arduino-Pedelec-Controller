@@ -202,13 +202,13 @@ float BMP085::readTemperature(void)
     return temp;
 }
 
-float BMP085::readAltitude(float sealevelPressure)
+float BMP085::readAltitude()
 {
     float altitude;
 
     float pressure = readPressure();
 
-    altitude = 44330 * (1.0 - pow(pressure /sealevelPressure,0.1903));
+    altitude=12517.15344-0.16439*pressure+4.03319e-7*pressure*pressure;
 
     return altitude;
 }
