@@ -1,16 +1,17 @@
 /**********************************************************************************************
- * Arduino PID Library - Version 1
+ * Arduino PID Library - Version 1.0.1
  * by Brett Beauregard <br3ttb@gmail.com> brettbeauregard.com
  *
- * This Code is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.
+ * This Library is licensed under a GPLv3 License
  **********************************************************************************************/
 
-#if ARDUINO < 100
-#include <WProgram.h>
+#if ARDUINO >= 100
+#include "Arduino.h"
 #else
-#include <Arduino.h>
+#include "WProgram.h"
 #endif
-#include "PID_v1_nano.h"
+
+#include <PID_v1_nano.h>
 
 /*Constructor (...)*********************************************************
  *    The parameters specified here are those for for which we can't set up
@@ -19,6 +20,12 @@
 PID::PID(double* Input, double* Output, double* Setpoint,
          double Kp, double Ki, double Kd, int ControllerDirection)
 {
+
+    myOutput = Output;
+    myInput = Input;
+    mySetpoint = Setpoint;
+    inAuto = false;
+
     PID::SetOutputLimits(0, 255);               //default output limit corresponds to
     //the arduino pwm limits
 
@@ -28,24 +35,20 @@ PID::PID(double* Input, double* Output, double* Setpoint,
     PID::SetTunings(Kp, Ki, Kd);
 
     lastTime = millis()-SampleTime;
-    inAuto = false;
-    myOutput = Output;
-    myInput = Input;
-    mySetpoint = Setpoint;
-
 }
 
 
 /* Compute() **********************************************************************
  *     This, as they say, is where the magic happens.  this function should be called
  *   every time "void loop()" executes.  the function will decide for itself whether a new
- *   pid Output needs to be computed
+ *   pid Output needs to be computed.  returns true when the output is computed,
+ *   false when nothing has been done.
  **********************************************************************************/
-void PID::Compute()
+bool PID::Compute()
 {
-    if(!inAuto) return;
+    if(!inAuto) return false;
     unsigned long now = millis();
-    int timeChange = (now - lastTime);
+    unsigned long timeChange = (now - lastTime);
     if(timeChange>=SampleTime)
     {
         /*Compute all the working error variables*/
@@ -66,7 +69,9 @@ void PID::Compute()
         /*Remember some variables for next time*/
         lastInput = input;
         lastTime = now;
+        return true;
     }
+    else return false;
 }
 
 
