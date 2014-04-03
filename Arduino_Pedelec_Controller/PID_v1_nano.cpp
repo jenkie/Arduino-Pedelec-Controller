@@ -11,7 +11,7 @@
 #include "WProgram.h"
 #endif
 
-#include <PID_v1_nano.h>
+#include "PID_v1_nano.h"
 
 /*Constructor (...)*********************************************************
  *    The parameters specified here are those for for which we can't set up
