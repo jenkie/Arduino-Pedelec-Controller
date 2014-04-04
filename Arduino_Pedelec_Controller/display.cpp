@@ -193,7 +193,7 @@ static void display_nokia_setup()    //first time setup of nokia display
 #endif
 }
 
-static void display_4bit_setup()
+static void display_16x2_setup()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
     lcd.begin(16, 2);
@@ -228,7 +228,7 @@ static bool handle_important_info_expire()
     return false;
 }
 
-static void display_4bit_update()
+static void display_16x2_update()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
     lcd.setCursor(0,0);
@@ -503,7 +503,7 @@ void display_init()
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     display_nokia_setup();
 #elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
-    display_4bit_setup();
+    display_16x2_setup();
 #endif
 
 #if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS))
@@ -684,7 +684,7 @@ void display_update()
             break;
     }
 #elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
-    display_4bit_update();
+    display_16x2_update();
 #endif
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
     jlcd_update(2,wheel_time,0,power);
