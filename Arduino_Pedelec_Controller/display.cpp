@@ -70,7 +70,7 @@ static const PROGMEM byte glyph2[] = {0xc8, 0x2f, 0x6a, 0x2e, 0xc8}; //symbol fo
 static const PROGMEM byte glyph3[] = {0x44, 0x28, 0xfe, 0x6c, 0x28}; //bluetooth-symbol       check this out: http://www.carlos-rodrigues.com/projects/pcd8544/
 
 unsigned long show_important_info_until = 0;
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
 static void prepare_important_info(int duration_secs)
 {
     unsigned long seconds = 2;
@@ -91,7 +91,7 @@ static void prepare_important_info(int duration_secs)
 
 void display_show_important_info(const char *str, int duration_secs)
 {
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
     prepare_important_info(duration_secs);
     lcd.print(str);
 #endif
@@ -99,7 +99,7 @@ void display_show_important_info(const char *str, int duration_secs)
 
 void display_show_important_info(const __FlashStringHelper *str, int duration_secs)
 {
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
     prepare_important_info(duration_secs);
     lcd.print(str);
 #endif
@@ -220,7 +220,7 @@ static bool handle_important_info_expire()
         nokia_screen_last = NOKIA_SCREEN_IMPORTANT_INFO;
 #endif
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
-        display_4bit_setup();
+        lcd.clear();
 #endif
     }
 
@@ -649,10 +649,12 @@ static void display_nokia_update_graphic()
 
 void display_update()
 {
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
     if (handle_important_info_expire())
         return;
+#endif
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     if (menu_active)
         nokia_screen=NOKIA_SCREEN_MENU;
     else if (spd>0 && !display_force_text)
