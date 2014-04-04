@@ -38,6 +38,11 @@ boolean display_force_text = false;
 static LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   //for 4bit (e.g. EA-DOGM) Display
 #endif
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
+#include "serial_lcd.h"
+static SerialLCD lcd(serial_display_16x2_pin);                      //16x2 New Haven display connected via one serial pin
+#endif
+
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
 #include <SoftwareSerial.h>                //for Kingmeter J-LCD
 static SoftwareSerial mySerial(10, 11);           // RX (YELLOW cable of J-LCD), TX (GREEN-Cable)
@@ -193,6 +198,9 @@ static void display_4bit_setup()
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
     lcd.begin(16, 2);
 #endif
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
+    lcd.init();
+#endif
 }
 
 // Check if we should show an important info to the user
@@ -211,7 +219,7 @@ static bool handle_important_info_expire()
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
         nokia_screen_last = NOKIA_SCREEN_IMPORTANT_INFO;
 #endif
-#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
         display_4bit_setup();
 #endif
     }
@@ -222,11 +230,11 @@ static bool handle_important_info_expire()
 
 static void display_4bit_update()
 {
-#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
     lcd.setCursor(0,0);
     lcd.print(voltage_display,1);
     lcd.print(MY_F(" "));
-    lcd.print(battery_percent_fromcapacity,0);
+    lcd.print(battery_percent_fromcapacity);
     lcd.print(MY_F("%  "));
     lcd.setCursor(0,1);
     lcd.print(power,0);
@@ -494,7 +502,7 @@ void display_init()
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     display_nokia_setup();
-#elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
+#elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
     display_4bit_setup();
 #endif
 
@@ -673,7 +681,7 @@ void display_update()
             display_nokia_update();
             break;
     }
-#elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
+#elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
     display_4bit_update();
 #endif
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)

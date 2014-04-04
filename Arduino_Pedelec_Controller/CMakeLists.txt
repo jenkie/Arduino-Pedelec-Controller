@@ -36,6 +36,8 @@ set(${FIRMWARE_NAME}_SRCS                          # Source code
     hrmi_funcs.h
     menu.cpp
     menu.h
+    serial_lcd.cpp
+    serial_lcd.h
     switches.cpp
     switches.h
     switches_action.h

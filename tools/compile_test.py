@@ -76,9 +76,13 @@ def write_config_h(filename=CONFIG_H,
         f.write('#define DISPLAY_TYPE_16X2_LCD_4BIT (1<<3)    //16x2 LCD 4bit-mode\n')
         f.write('#define DISPLAY_TYPE_KINGMETER (1<<4)            //King-Meter J-LCD or SW-LCD\n')
         f.write('#define DISPLAY_TYPE_BMS (1<<5)              //BMS Battery S-LCD\n')
+        f.write('#define DISPLAY_TYPE_16X2_SERIAL (1<<6)    //16x2 LCD via serial connection (New Haven display)\n')
+        f.write('#define DISPLAY_TYPE_16X2 (DISPLAY_TYPE_16X2_LCD_4BIT|DISPLAY_TYPE_16X2_SERIAL)\n')
+        f.write('\n')
         f.write('#define DISPLAY_TYPE DISPLAY_TYPE_' + display_type + '    //Set your display type here. CHANGES ONLY HERE!<-----------------------------\n')
         f.write('\n')
         f.write('#define NOKIA_LCD_CONTRAST 190                   //set display contrast here. values around 190 should do the job\n')
+        f.write('const int serial_display_16x2_pin = 12;\n')
         f.write('\n')
         f.write('#define SERIAL_MODE_NONE (1<<0)              //dont send serial data at all\n')
         f.write('#define SERIAL_MODE_DEBUG (1<<1)             //send debug data over Serial Monitor\n')
@@ -236,7 +240,7 @@ class CompileTest(unittest.TestCase):
             self.build_firmware(feature, features=[feature])
 
     def test_display_types(self):
-        for disp_type in ['NONE', 'NOKIA_5PIN', 'NOKIA_4PIN', '16X2_LCD_4BIT', 'KINGMETER', 'BMS']:
+        for disp_type in ['NONE', 'NOKIA_5PIN', 'NOKIA_4PIN', '16X2_LCD_4BIT', '16X2_SERIAL', 'KINGMETER', 'BMS']:
             self.build_firmware(disp_type, display_type=disp_type)
 
     def test_serial_modes(self):

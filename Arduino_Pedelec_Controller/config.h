@@ -18,7 +18,13 @@
 #define DISPLAY_TYPE_16X2_LCD_4BIT (1<<3)    //16x2 LCD 4bit-mode
 #define DISPLAY_TYPE_KINGMETER (1<<4)            //King-Meter J-LCD or SW-LCD
 #define DISPLAY_TYPE_BMS (1<<5)              //BMS Battery S-LCD
+#define DISPLAY_TYPE_16X2_SERIAL (1<<6)    //16x2 LCD via serial connection (New Haven display)
+#define DISPLAY_TYPE_16X2 (DISPLAY_TYPE_16X2_LCD_4BIT|DISPLAY_TYPE_16X2_SERIAL)
+
 #define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_4PIN //Set your display type here. CHANGES ONLY HERE!<-----------------------------
+
+// If using a New Haven serial 16x2 display: The pin the display is connected to
+const int serial_display_16x2_pin = 12;
 
 #define NOKIA_LCD_CONTRAST 190                   //set display contrast here. values around 190 should do the job
 
