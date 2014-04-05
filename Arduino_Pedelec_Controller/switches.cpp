@@ -242,6 +242,9 @@ static void execute_action(const sw_action action)
 // Switch handling code starts here
 void handle_switch(const switch_name sw_name, boolean current_state)
 {
+    if (sw_name >= _SWITCHES_COUNT)
+        return;
+
     const enum switch_result res = _read_switch(&switch_states[sw_name], current_state);
     if (res == PRESSED_NONE)
         return;
