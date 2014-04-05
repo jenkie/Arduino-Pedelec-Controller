@@ -34,7 +34,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 class SerialLCD : public SoftwareSerial
 {
 public:
-    SerialLCD(const byte &display_pin=7);
+    SerialLCD(const byte &display_pin=10, const byte &unused_pin=11);
 
     void init();
     void clear();

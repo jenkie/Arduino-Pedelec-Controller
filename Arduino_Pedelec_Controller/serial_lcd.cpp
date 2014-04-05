@@ -32,8 +32,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
  * @param display_pin The pin the display is connected to
  */
-SerialLCD::SerialLCD(const byte &display_pin)
-    : SoftwareSerial(0, display_pin)
+SerialLCD::SerialLCD(const byte &display_pin, const byte &unused_pin)
+    : SoftwareSerial(unused_pin, display_pin)
     , DisplayPin(display_pin)
 {
 }

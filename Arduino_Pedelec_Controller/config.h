@@ -24,7 +24,8 @@
 #define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_4PIN //Set your display type here. CHANGES ONLY HERE!<-----------------------------
 
 // If using a New Haven serial 16x2 display: The pin the display is connected to
-const int serial_display_16x2_pin = 12;
+const int serial_display_16x2_pin = 10;
+const int serial_display_16x2_second_unused_pin = 11;               // SoftSerial always needs an additional pin for RX
 
 #define NOKIA_LCD_CONTRAST 190                   //set display contrast here. values around 190 should do the job
 
