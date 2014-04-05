@@ -36,7 +36,7 @@ Features:
 #include "PID_v1_nano.h"
 #include "switches.h"        //contains switch handling functions
 #include "menu.h"            //on the go menu
-#include "bluetooth.h"       //bluetooth communication stuff
+#include "serial_command.h"       //serial (bluetooth) communication stuff
 
 #ifdef SUPPORT_BMP085
 #include <Wire.h>

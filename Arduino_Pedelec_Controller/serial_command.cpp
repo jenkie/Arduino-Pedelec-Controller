@@ -1,5 +1,5 @@
 /*
-Bluetooth communication functions
+Serial (bluetooth) communication functions
 Written by Jens Kießling and Thomas Jarosch
 
 This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
 #include "config.h"
-#include "bluetooth.h"
+#include "serial_command.h"
 #include "globals.h"
 
 //a command is always AA# or AA? where AA# sets # to variable AA and AA? returns value of AA
