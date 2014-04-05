@@ -22,8 +22,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "Arduino.h"
 #include "config.h"
 
+enum switch_result { PRESSED_NONE=0, PRESSED_SHORT=1, PRESSED_LONG=2 };
+
 void init_switches();
-void handle_switch(const switch_name sw_name, boolean sw_state);
+void handle_switch(const switch_name sw_name, boolean sw_state, const switch_result &force_press=PRESSED_NONE);
 
 void action_increase_poti();
 void action_decrease_poti();

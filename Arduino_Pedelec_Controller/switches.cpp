@@ -34,7 +34,6 @@ struct switch_state
 
 // Generic switch handler. Returns a 'switch_result'
 enum button_state { BUTTON_ON=0, BUTTON_OFF=1 };
-enum switch_result { PRESSED_NONE=0, PRESSED_SHORT=1, PRESSED_LONG=2 };
 
 // Forward declarations
 static enum switch_result _read_switch(switch_state *state, boolean switch_current);
@@ -240,12 +239,17 @@ static void execute_action(const sw_action action)
 }
 
 // Switch handling code starts here
-void handle_switch(const switch_name sw_name, boolean current_state)
+void handle_switch(const switch_name sw_name, boolean current_state, const switch_result &force_press)
 {
     if (sw_name >= _SWITCHES_COUNT)
         return;
 
-    const enum switch_result res = _read_switch(&switch_states[sw_name], current_state);
+    enum switch_result res;
+    if (force_press != PRESSED_NONE)
+        res = force_press;
+    else
+        res = _read_switch(&switch_states[sw_name], current_state);
+
     if (res == PRESSED_NONE)
         return;
 

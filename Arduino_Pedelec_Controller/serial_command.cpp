@@ -20,6 +20,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "config.h"
 #include "serial_command.h"
 #include "globals.h"
+#include "switches.h"
 
 //a command is always AA# or AA? where AA# sets # to variable AA and AA? returns value of AA
 struct serial_command {char mnemonic[3];};
@@ -27,6 +28,8 @@ serial_command serial_commands[] =
 {
     {{"ps"}},     //0: poti stat, gets and sets poti stat
     {{"od"}},     //1: total kilometers (odo), gets and sets total kilometers
+    {{"sp"}},     //2: short button press, send button between 0 and 3
+    {{"lp"}},     //3: long button press, send button between 0 and 3
 };
 const byte n_commands = sizeof(serial_commands)/sizeof(serial_command); //number of commands that we have
 
@@ -101,6 +104,12 @@ static void handle_command()
             odo = atoi(numberstring)*1000.0/wheel_circumference;
             variables_saved=false;
             save_eeprom();
+            break;
+        case 2:              //short button press
+            handle_switch(static_cast<switch_name>(atoi(numberstring)), 0, PRESSED_SHORT);
+            break;
+        case 3:              //long button press
+            handle_switch(static_cast<switch_name>(atoi(numberstring)), 0, PRESSED_LONG);
             break;
     }
     Serial.println(MY_F("OK"));
