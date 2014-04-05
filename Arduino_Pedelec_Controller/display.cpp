@@ -244,9 +244,9 @@ static void display_16x2_update()
 #endif
 }
 
-static void display_nokia_menu()
+static void display_menu()
 {
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
     // Check if user has been idle for too long
     if (menu_activity_expire && millis() > menu_activity_expire)
     {
@@ -269,9 +269,15 @@ static void display_nokia_menu()
     byte current_lcd_row = 0;
     byte items_to_skip = 0;
 
-    const byte nokia_screen_rows = 6;
-    if (menu->get_cur_menu_component_num() >= nokia_screen_rows)
-        items_to_skip = menu->get_cur_menu_component_num() - nokia_screen_rows + 1;
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+    const byte num_screen_rows = 6;
+#elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+    const byte num_screen_rows = 2;
+#endif
+
+    if (menu->get_cur_menu_component_num() >= num_screen_rows)
+        items_to_skip = menu->get_cur_menu_component_num() - num_screen_rows + 1;
 
     for (byte i = 0; i < menu->get_num_menu_components(); ++i)
     {
@@ -293,7 +299,7 @@ static void display_nokia_menu()
         lcd.print(FROM_FLASH((item->get_name())));
 
         ++current_lcd_row;
-        if (current_lcd_row == nokia_screen_rows)
+        if (current_lcd_row == num_screen_rows)
             break;
     }
 #endif
@@ -684,7 +690,10 @@ void display_update()
             break;
     }
 #elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
-    display_16x2_update();
+    if (menu_active)
+        display_menu();
+    else
+        display_16x2_update();
 #endif
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
     jlcd_update(2,wheel_time,0,power);
