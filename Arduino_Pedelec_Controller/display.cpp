@@ -680,7 +680,7 @@ void display_update()
     switch(nokia_screen)
     {
         case NOKIA_SCREEN_MENU:
-            display_nokia_menu();
+            display_menu();
             break;
         case NOKIA_SCREEN_GRAPHIC:
             display_nokia_update_graphic();
