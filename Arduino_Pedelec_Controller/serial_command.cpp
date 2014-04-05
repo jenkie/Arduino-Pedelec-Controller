@@ -21,6 +21,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "serial_command.h"
 #include "globals.h"
 #include "switches.h"
+#ifdef SUPPORT_RTC
+#include "ds1307.h"
+#endif
 
 //a command is always AA# or AA? where AA# sets # to variable AA and AA? returns value of AA
 struct serial_command {char mnemonic[3];};
@@ -30,6 +33,10 @@ serial_command serial_commands[] =
     {{"od"}},     //1: total kilometers (odo), gets and sets total kilometers
     {{"sp"}},     //2: short button press, send button between 0 and 3
     {{"lp"}},     //3: long button press, send button between 0 and 3
+    {{"hh"}},     //4: set/get hours
+    {{"mm"}},     //5: set/get minutes
+    {{"ss"}},     //6: set/get seconds
+    
 };
 const byte n_commands = sizeof(serial_commands)/sizeof(serial_command); //number of commands that we have
 
@@ -89,6 +96,21 @@ static void handle_command()
             case 1:             //total kilometers
                 Serial.println(odo/1000.0*wheel_circumference,0);
                 break;
+            case 4:              //hours read
+                #ifdef SUPPORT_RTC
+                Serial.println(now.hh);
+                #endif
+            break;
+            case 5:              //minutes read
+                #ifdef SUPPORT_RTC
+                Serial.println(now.mm);
+                #endif
+                break;
+            case 6:              //seconds read
+                #ifdef SUPPORT_RTC
+                Serial.println(now.ss);
+                #endif
+                break;
         }
 
         return;
@@ -110,6 +132,21 @@ static void handle_command()
             break;
         case 3:              //long button press
             handle_switch(static_cast<switch_name>(atoi(numberstring)), 0, PRESSED_LONG);
+            break;
+        case 4:              //hours write
+            #ifdef SUPPORT_RTC
+            rtc.adjust_time(atoi(numberstring),now.mm,now.ss);
+            #endif
+            break;
+        case 5:              //minutes write
+            #ifdef SUPPORT_RTC
+            rtc.adjust_time(now.hh,atoi(numberstring),now.ss);
+            #endif
+            break;
+        case 6:              //seconds write
+            #ifdef SUPPORT_RTC
+            rtc.adjust_time(now.hh,now.mm,atoi(numberstring));
+            #endif
             break;
     }
     Serial.println(MY_F("OK"));

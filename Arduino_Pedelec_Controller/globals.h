@@ -20,6 +20,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include "ds1307.h"
+
 // Global defines from the main program code
 extern float mah;
 extern boolean display_force_text;
@@ -67,6 +69,9 @@ extern boolean first_aid_ignore_throttle;
 
 extern void save_eeprom();
 extern void activate_new_profile();
+
+extern RTC_DS1307 rtc;
+extern Time now;
 
 // Define own version of F() macro since compile will
 // fail on newer gcc versions with a "const" warning.

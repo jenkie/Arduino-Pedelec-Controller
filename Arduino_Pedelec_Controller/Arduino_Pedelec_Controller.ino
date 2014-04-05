@@ -51,6 +51,13 @@ unsigned long dspc_timer = 0;
 boolean dspc_mode=0;  //is false if temperature, true if altitude
 #endif
 
+#ifdef SUPPORT_RTC
+#include <Wire.h>
+#include "ds1307.h"
+RTC_DS1307 rtc;
+Time now;
+#endif
+
 #ifdef SUPPORT_HRMI
 #include <Wire.h>
 #include "hrmi_funcs.h"
@@ -308,6 +315,9 @@ void setup()
 #endif
 #ifdef SUPPORT_HRMI
     hrmi_open();
+#endif
+#ifdef SUPPORT_RTC
+  Wire.begin();
 #endif
 #ifndef SUPPORT_PAS
     pedaling=true;
@@ -656,6 +666,17 @@ void loop()
 #ifdef SUPPORT_HRMI
         pulse_human=getHeartRate();
 #endif
+
+#ifdef SUPPORT_RTC
+    now=rtc.get_time(); //read current time
+    //Serial.print(now.hh, DEC);
+    //Serial.print(':');
+    //Serial.print(now.mm, DEC);
+    //Serial.print(':');
+    //Serial.print(now.ss, DEC);
+    //Serial.println();
+#endif
+
         last_writetime=millis();
 //slow loop end------------------------------------------------------------------------------------------------------
     }
