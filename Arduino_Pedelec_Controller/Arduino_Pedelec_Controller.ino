@@ -121,7 +121,7 @@ const int switch_thr = 5;            //Throttle-Switch read-Pin
 const int throttle_out = 6;          //Throttle out-Pin
 const int bluetooth_pin = 7;         //Bluetooth-Supply, do not use in Rev. 1.1!!!
 const int switch_disp = 8;           //Display switch
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
+#if (DISPLAY_TYPE & (DISPLAY_TYPE_NOKIA_4PIN|DISPLAY_TYPE_16X2_SERIAL))
 const int switch_disp_2 = 12;        //second Display switch with Nokia-Display in 4-pin-mode
 #endif
 
@@ -252,7 +252,7 @@ void setup()
     init_menu();
     display_init();
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
+#if (DISPLAY_TYPE & (DISPLAY_TYPE_NOKIA_4PIN|DISPLAY_TYPE_16X2_SERIAL))
     digitalWrite(switch_disp_2, HIGH);    // turn on pullup resistors on display-switch 2
 #endif
 #ifdef SUPPORT_SWITCH_ON_POTI_PIN
@@ -407,7 +407,7 @@ void loop()
 //handle switches----------------------------------------------------------------------------------------------------------
     handle_switch(SWITCH_THROTTLE, digitalRead(switch_thr));
     handle_switch(SWITCH_DISPLAY1, digitalRead(switch_disp));
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
+#if (DISPLAY_TYPE & (DISPLAY_TYPE_NOKIA_4PIN|DISPLAY_TYPE_16X2_SERIAL))
     handle_switch(SWITCH_DISPLAY2, digitalRead(switch_disp_2));
 #endif
 #ifdef SUPPORT_SWITCH_ON_POTI_PIN
