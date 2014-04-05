@@ -195,8 +195,6 @@ byte mmc_value=0;
 boolean mmc_nextisvalue=false;
 #endif
 
-char inchar = 0;      //curent read char
-
 //declarations for profile switching
 int curr_startingaid_speed=startingaid_speed;
 int curr_spd_max1=spd_max1;
@@ -234,6 +232,7 @@ int memFree()
 void setup()
 {
     Serial.begin(115200);     //bluetooth-module requires 115200
+
 #ifdef DEBUG_MEMORY_USAGE
     Serial.print(MY_F("memFree before setup:"));
     Serial.print(memFree());
@@ -343,8 +342,7 @@ void loop()
 
     if (Serial.available() > 0)
     {
-        inchar = Serial.read();
-        next(inchar);
+        parse_serial(Serial.read());
     }
 
 #ifdef SUPPORT_THROTTLE

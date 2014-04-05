@@ -1,6 +1,6 @@
 /*
 Bluetooth communication functions
-Written by Jens Kießling / jenkie
+Written by Jens Kießling and Thomas Jarosch
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,107 +21,152 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "bluetooth.h"
 #include "globals.h"
 
-extern boolean variables_saved;
-char firstchar = 0;
-const byte numberlength = 5;
-char numberstring[numberlength];
-byte num_i=0;
-byte validcommand = 0;
-byte i = 0;
-
-byte com_i; //index of current command
-
+//a command is always AA# or AA? where AA# sets # to variable AA and AA? returns value of AA
 struct serial_command {char mnemonic[3];};
 serial_command serial_commands[] =
 {
     {{"ps"}},     //0: poti stat, gets and sets poti stat
     {{"od"}},     //1: total kilometers (odo), gets and sets total kilometers
 };
-int n_commands = sizeof(serial_commands)/sizeof(serial_command); //number of commands that we have
+const byte n_commands = sizeof(serial_commands)/sizeof(serial_command); //number of commands that we have
 
-void find_commands() //a command is always AA# or AA? where AA# sets # to variable AA and AA? returns value of AA
+enum parse_states
 {
-    validcommand = 0;
-    for (i=0; i < n_commands ; i++)    //try int mnemonics
+    Reset,
+    SearchCommand,
+    StoreNumber,
+    ErrorWaitReturn,
+};
+
+parse_states parse_state = Reset;
+char cmdbuf[2];
+byte cmd_index;
+
+char numberstring[6];
+static byte number_pos;
+
+/**
+ * @brief Look for valid commands in command input buffer
+ * Also sets "cmd_index".
+ *
+ * @return bool True if command found, false otherwise
+ */
+static bool find_commands()
+{
+    for (byte i=0; i < n_commands; ++i)
     {
-        if (serial_commands[i].mnemonic[0] == firstchar && serial_commands[i].mnemonic[1] == inchar)
+        if (serial_commands[i].mnemonic[0] == cmdbuf[0] && serial_commands[i].mnemonic[1] == cmdbuf[1])
         {
-            com_i = i;
-            validcommand = 1;
-            return;
+            cmd_index = i;
+            return true;
         }
     }
-    if (validcommand == 0)
-    {
-        //unrecognized command
-        firstchar = 0;
-    }
+
+    return false;
 }
 
-void next(char inchar)
+static void handle_command()
 {
-    if (inchar == 10 || inchar == 13)  // LF, CR
+    // sanity check
+    if (number_pos == 0 || cmd_index == -1)
     {
-        if (validcommand && numberstring[0] != '\0')
-        {
-            // if command and number, write now!
-            switch(com_i)
-            {
-                case 0:              //poti_stat
-                    poti_stat = min(atoi(numberstring)*1023.0/power_poti_max,1023);
-                    break;
-                case 1:              //total kilometers
-                    odo = atoi(numberstring)*1000.0/wheel_circumference;
-                    variables_saved=false;
-                    save_eeprom();
-                    break;
-            }
-            Serial.print(serial_commands[com_i].mnemonic);
-            Serial.println(MY_F("OK"));
-        }
-        validcommand = 0;
-        firstchar = 0;
-        for (num_i = 0; num_i < numberlength; num_i++)
-        {
-            numberstring[num_i] = '\0';
-        }
-        num_i = 0;
+        Serial.println(MY_F("ERROR"));
         return;
     }
-    if (validcommand)
+
+    Serial.print(serial_commands[cmd_index].mnemonic);
+    // Info command?
+    if (numberstring[0] == '?')
     {
-        if (inchar == '?')
+        switch(cmd_index)
         {
-            validcommand = 0;
-            Serial.print(serial_commands[com_i].mnemonic);
-            switch(com_i)
-            {
-                case 0:             //poti_stat
-                    Serial.println(poti_stat);
-                    break;
-                case 1:             //total kilometers
-                    Serial.println(odo/1000.0*wheel_circumference,0);
-                    break;
-            }
+            case 0:             //poti_stat
+                Serial.println(poti_stat);
+                break;
+            case 1:             //total kilometers
+                Serial.println(odo/1000.0*wheel_circumference,0);
+                break;
         }
-        else
-        {
-            numberstring[num_i++]=inchar;
-            return;
-        }
+
+        return;
     }
-    else   //no comand found, read letters
+
+    // Write command?
+    switch(cmd_index)
     {
-        if (firstchar == 0)                 //save first letter
-        {
-            firstchar = inchar;
-            return;
-        }
-        else                                //second letter
-        {
-            find_commands();
-        }
+        case 0:              //poti_stat
+            poti_stat = min(atoi(numberstring)*1023.0/power_poti_max,1023);
+            break;
+        case 1:              //total kilometers
+            odo = atoi(numberstring)*1000.0/wheel_circumference;
+            variables_saved=false;
+            save_eeprom();
+            break;
     }
+    Serial.println(MY_F("OK"));
 }
 
+void parse_serial(const char &read_c)
+{
+    byte i;
 
+    switch(parse_state)
+    {
+        case Reset:
+            memset(cmdbuf, 0, sizeof(cmdbuf));
+            memset(numberstring, 0, sizeof(numberstring));
+            cmd_index = -1;
+            number_pos = 0;
+
+            parse_state = SearchCommand;
+            // fall through to "search command"
+
+        case SearchCommand:
+            // skip return chars
+            if (read_c == 10 || read_c == 13)
+            {
+                parse_state = Reset;
+                break;
+            }
+
+            if (cmdbuf[0] == 0)
+            {
+                // store first character
+                cmdbuf[0] = read_c;
+            } else
+            {
+                cmdbuf[1] = read_c;
+
+                // Look for valid commands
+                if (find_commands() == true)
+                    parse_state = StoreNumber;
+                else
+                    parse_state = ErrorWaitReturn;
+            }
+            break;
+
+        case StoreNumber:
+            if (read_c == 10 || read_c == 13)
+            {
+                // User input is done
+                handle_command();
+                parse_state = Reset;
+            } else
+            {
+                // Store character
+                if (number_pos < sizeof(numberstring)-1)        // reserve one byte for the terminating zero (atoi())
+                {
+                    numberstring[number_pos] = read_c;
+                    ++number_pos;
+                }
+            }
+            break;
+        case ErrorWaitReturn:
+            if (read_c == 10 || read_c == 13)
+            {
+                Serial.println(MY_F("ERROR"));
+                parse_state = Reset;
+            }
+            break;
+    }
+}

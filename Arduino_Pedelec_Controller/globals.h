@@ -45,7 +45,7 @@ extern boolean brake_stat;
 extern volatile unsigned long wheel_time;
 extern byte pulse_human;
 extern double power_human;
-extern char inchar;
+extern boolean variables_saved;
 
 extern const int bluetooth_pin;
 extern const int fet_out;

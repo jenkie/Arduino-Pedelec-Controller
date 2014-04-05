@@ -21,8 +21,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #include "Arduino.h"
 
-void next(char inchar);
-void find_commands();
-
+void parse_serial(const char &read_c);
 
 #endif
