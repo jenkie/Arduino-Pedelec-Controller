@@ -25,15 +25,16 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #define DS1307_ADDRESS 0x68
 
 #if (ARDUINO >= 100)
- #include <Arduino.h> // capital A so it is error prone on case-sensitive filesystems
+#include <Arduino.h> // capital A so it is error prone on case-sensitive filesystems
 #else
- #include <WProgram.h>
+#include <WProgram.h>
 #endif
 
 static uint8_t bcd2bin (uint8_t val) { return val - 6 * (val >> 4); }
 static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
 
-void RTC_DS1307::adjust_time(uint8_t hh, uint8_t mm, uint8_t ss) {
+void RTC_DS1307::adjust_time(uint8_t hh, uint8_t mm, uint8_t ss)
+{
     WIRE.beginTransmission(DS1307_ADDRESS);
     WIRE.write(0);
     WIRE.write(bin2bcd(ss));
@@ -42,14 +43,15 @@ void RTC_DS1307::adjust_time(uint8_t hh, uint8_t mm, uint8_t ss) {
     WIRE.endTransmission();
 }
 
-Time RTC_DS1307::get_time() {
-  WIRE.beginTransmission(DS1307_ADDRESS);
-  WIRE.write(0);	
-  WIRE.endTransmission();
-  WIRE.requestFrom(DS1307_ADDRESS, 7);
-  uint8_t ss = bcd2bin(WIRE.read() & 0x7F);
-  uint8_t mm = bcd2bin(WIRE.read());
-  uint8_t hh = bcd2bin(WIRE.read());
-  return (Time){hh,mm,ss};
+Time RTC_DS1307::get_time()
+{
+    WIRE.beginTransmission(DS1307_ADDRESS);
+    WIRE.write(0);
+    WIRE.endTransmission();
+    WIRE.requestFrom(DS1307_ADDRESS, 7);
+    uint8_t ss = bcd2bin(WIRE.read() & 0x7F);
+    uint8_t mm = bcd2bin(WIRE.read());
+    uint8_t hh = bcd2bin(WIRE.read());
+    return (Time) {hh,mm,ss};
 }
 

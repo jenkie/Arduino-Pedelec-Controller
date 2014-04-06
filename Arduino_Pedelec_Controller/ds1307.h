@@ -21,14 +21,15 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #ifndef _ds1307_H_
 #define _ds1307_H_
 
-struct Time   
+struct Time
 {
-    uint8_t hh; //hours  
+    uint8_t hh; //hours
     uint8_t mm; //minutes
     uint8_t ss; //seconds
 };
 
-class RTC_DS1307 {
+class RTC_DS1307
+{
 public:
     static void adjust_time(uint8_t hh, uint8_t mm, uint8_t ss);
     Time get_time(void);

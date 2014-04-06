@@ -36,7 +36,7 @@ serial_command serial_commands[] =
     {{"hh"}},     //4: set/get hours
     {{"mm"}},     //5: set/get minutes
     {{"ss"}},     //6: set/get seconds
-    
+
 };
 const byte n_commands = sizeof(serial_commands)/sizeof(serial_command); //number of commands that we have
 
@@ -97,19 +97,19 @@ static void handle_command()
                 Serial.println(odo/1000.0*wheel_circumference,0);
                 break;
             case 4:              //hours read
-                #ifdef SUPPORT_RTC
+#ifdef SUPPORT_RTC
                 Serial.println(now.hh);
-                #endif
-            break;
+#endif
+                break;
             case 5:              //minutes read
-                #ifdef SUPPORT_RTC
+#ifdef SUPPORT_RTC
                 Serial.println(now.mm);
-                #endif
+#endif
                 break;
             case 6:              //seconds read
-                #ifdef SUPPORT_RTC
+#ifdef SUPPORT_RTC
                 Serial.println(now.ss);
-                #endif
+#endif
                 break;
         }
 
@@ -134,19 +134,19 @@ static void handle_command()
             handle_switch(static_cast<switch_name>(atoi(numberstring)), 0, PRESSED_LONG);
             break;
         case 4:              //hours write
-            #ifdef SUPPORT_RTC
+#ifdef SUPPORT_RTC
             rtc.adjust_time(atoi(numberstring),now.mm,now.ss);
-            #endif
+#endif
             break;
         case 5:              //minutes write
-            #ifdef SUPPORT_RTC
+#ifdef SUPPORT_RTC
             rtc.adjust_time(now.hh,atoi(numberstring),now.ss);
-            #endif
+#endif
             break;
         case 6:              //seconds write
-            #ifdef SUPPORT_RTC
+#ifdef SUPPORT_RTC
             rtc.adjust_time(now.hh,now.mm,atoi(numberstring));
-            #endif
+#endif
             break;
     }
     Serial.println(MY_F("OK"));
@@ -179,7 +179,8 @@ void parse_serial(const char &read_c)
             {
                 // store first character
                 cmdbuf[0] = read_c;
-            } else
+            }
+            else
             {
                 cmdbuf[1] = read_c;
 
@@ -197,7 +198,8 @@ void parse_serial(const char &read_c)
                 // User input is done
                 handle_command();
                 parse_state = Reset;
-            } else
+            }
+            else
             {
                 // Store character
                 if (number_pos < sizeof(numberstring)-1)        // reserve one byte for the terminating zero (atoi())

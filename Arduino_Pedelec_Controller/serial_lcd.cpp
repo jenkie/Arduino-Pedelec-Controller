@@ -86,7 +86,7 @@ void SerialLCD::home()
 
 /**
  * @brief Set display contrast
- * 
+ *
  * @param contrast Value between 1 and 50
  */
 void SerialLCD::setContrast(const byte &contrast)
@@ -98,7 +98,7 @@ void SerialLCD::setContrast(const byte &contrast)
 
 /**
  * @brief Set backlight brightness
- * 
+ *
  * @param brightness Backlight brightness. Value between 1 and 8. '1' is off.
  */
 void SerialLCD::setBacklight(const byte& brightness)
@@ -110,7 +110,7 @@ void SerialLCD::setBacklight(const byte& brightness)
 
 /**
  * @brief Set cursor x/y position. Use an out-of-screen position to hide the cursor
- * 
+ *
  * @param x Horizontal position, starting at 0
  * @param y Line, starting at 0
  */
@@ -151,7 +151,7 @@ void SerialLCD::createChar(byte address, const byte data[])
     address = address & 0x7;
 
     write(0xFE);
-    write(0x54),
+    write(0x54);
     write(address);
 
     for (byte i = 0; i < 8; ++i)

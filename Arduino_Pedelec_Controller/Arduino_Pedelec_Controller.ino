@@ -263,7 +263,7 @@ void setup()
     digitalWrite(switch_disp_2, HIGH);    // turn on pullup resistors on display-switch 2
 #endif
 #ifdef SUPPORT_SWITCH_ON_POTI_PIN
-  digitalWrite(poti_in, HIGH);
+    digitalWrite(poti_in, HIGH);
 #endif
 
 #ifdef SUPPORT_LIGHTS_SWITCH
@@ -317,7 +317,7 @@ void setup()
     hrmi_open();
 #endif
 #ifdef SUPPORT_RTC
-  Wire.begin();
+    Wire.begin();
 #endif
 #ifndef SUPPORT_PAS
     pedaling=true;
@@ -433,7 +433,8 @@ void loop()
             wh=variable.wh;
             km=variable.kilometers;
             mah=variable.mah;
-        } else
+        }
+        else
             display_show_important_info(FROM_FLASH(msg_battery_charged), 5);
 #endif
         if (voltage<6.0)                                   //do not write new data to eeprom when on USB Power
@@ -668,13 +669,13 @@ void loop()
 #endif
 
 #ifdef SUPPORT_RTC
-    now=rtc.get_time(); //read current time
-    //Serial.print(now.hh, DEC);
-    //Serial.print(':');
-    //Serial.print(now.mm, DEC);
-    //Serial.print(':');
-    //Serial.print(now.ss, DEC);
-    //Serial.println();
+        now=rtc.get_time(); //read current time
+        //Serial.print(now.hh, DEC);
+        //Serial.print(':');
+        //Serial.print(now.mm, DEC);
+        //Serial.print(':');
+        //Serial.print(now.ss, DEC);
+        //Serial.println();
 #endif
 
         last_writetime=millis();
