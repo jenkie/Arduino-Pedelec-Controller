@@ -22,6 +22,7 @@ ALL_FEATURES = [
                   'SUPPORT_DISPLAY_BACKLIGHT',
                   'SUPPORT_BMP085',
                   'SUPPORT_DSPC01',
+                  'SUPPORT_RTC',
                   'SUPPORT_POTI',
                   'SUPPORT_SOFT_POTI',
                   'SUPPORT_POTI_SWITCHES',
@@ -268,6 +269,7 @@ class CompileTest(unittest.TestCase):
                     features=[
                             'SUPPORT_DISPLAY_BACKLIGHT',
                             'SUPPORT_BMP085',
+                            'SUPPORT_RTC',
                             'SUPPORT_SOFT_POTI',
                             'SUPPORT_POTI_SWITCHES',
                             'SUPPORT_THROTTLE',
