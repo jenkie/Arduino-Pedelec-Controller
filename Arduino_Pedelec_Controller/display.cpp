@@ -649,7 +649,17 @@ static void display_nokia_update_graphic()
     //print the trip-time in the lower right corner (displayed in the last 5 characters in this line)
     lcd.setCursorInPixels(84-5*6,5);
     //todo: implement real trip time measurement, including timeouts. Currently it is only the time after the last reset
+#ifdef SUPPORT_RTC
+    if (now.hh<10)
+      lcd.print(MY_F("0"));
+    lcd.print(now.hh);
+    lcd.print(":");
+    if (now.mm<10)
+      lcd.print(MY_F("0"));
+    lcd.print(now.mm);
+#else  
     printTime(millis() / 1000UL);  //millis can be used, because they roll over only after 50 days
+#endif
 }
 #endif
 
