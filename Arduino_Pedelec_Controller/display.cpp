@@ -653,7 +653,7 @@ static void display_nokia_update_graphic()
     if (now.hh<10)
       lcd.print(MY_F("0"));
     lcd.print(now.hh);
-    lcd.print(":");
+    lcd.print(MY_F(":"));
     if (now.mm<10)
       lcd.print(MY_F("0"));
     lcd.print(now.mm);
