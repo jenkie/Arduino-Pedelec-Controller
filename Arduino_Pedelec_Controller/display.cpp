@@ -426,9 +426,9 @@ static void jlcd_update(byte battery, unsigned int wheeltime, byte error, int po
             mySerial.write((byte)(power/12.7));
             mySerial.write(highByte(wheeltime));
             mySerial.write(lowByte(wheeltime));
-            mySerial.write(0X7D);
+            mySerial.write(0X9F);
             mySerial.write(error);
-            mySerial.write(battery^(byte)(power/12.7)^highByte(wheeltime)^lowByte(wheeltime)^0X7D^error); //this is XOR-checksum
+            mySerial.write(battery^(byte)(power/12.7)^highByte(wheeltime)^lowByte(wheeltime)^0X9F^error); //this is XOR-checksum
             //-------------------------------------------Output to J-LCD end
         }
         else
