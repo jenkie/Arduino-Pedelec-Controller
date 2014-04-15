@@ -231,16 +231,52 @@ static bool handle_important_info_expire()
 static void display_16x2_update()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+/*
+    // DEBUG code
+    spd = 25;
+    power = 198;
+    battery_percent_fromcapacity = 21;
+    km = 137.8;
+*/
+
     lcd.setCursor(0,0);
-    lcd.print(voltage_display,1);
-    lcd.print(MY_F(" "));
-    lcd.print(battery_percent_fromcapacity);
-    lcd.print(MY_F("%  "));
+    if (spd<10)
+        {lcd.print(MY_F(" "));}
+    lcd.print(round(spd),0);
+    lcd.print(MY_F(" km/h  "));
+
+    double power_display = power;
+    if (power_display > 999)
+        power_display = 999;
+    else if (power_display < 0)
+        power_display = 0;
+
+    if (power_display<10)
+        {lcd.print(MY_F(" "));}
+    if (power_display<100)
+        {lcd.print(MY_F(" "));}
+    if (power_display < 0)
+        lcd.print(MY_F("0"));
+    else
+        lcd.print(power_display,0);
+    lcd.print(MY_F(" W "));
+
+    // Break status
+    // TODO: Custom break symbol
+    if(brake_stat==0)
+        lcd.print(MY_F("B"));
+    else
+        lcd.print(MY_F(" "));
+
     lcd.setCursor(0,1);
-    lcd.print(power,0);
-    lcd.print(MY_F("/"));
-    lcd.print(power_set);
-    lcd.print(MY_F("W      "));
+    // TODO: Custom battery symbol
+    lcd.print(MY_F("B "));
+    lcd.print(battery_percent_fromcapacity);
+    lcd.print(MY_F("%"));
+
+    lcd.setCursor(8,1);
+    lcd.print(km,1);
+    lcd.print(MY_F(" km"));
 #endif
 }
 
