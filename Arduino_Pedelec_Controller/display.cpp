@@ -193,6 +193,12 @@ static void display_nokia_setup()    //first time setup of nokia display
 #endif
 }
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+    // TODO: Add PROGMEM support
+    static const byte serial_break_symbol[8] = { 0x0,0xa,0x11,0x15,0x11,0xa,0x0,0x0 }; //Symbol for showing that the bikes brake is active
+    static const byte serial_batt_symbol[8] = { 0xe,0x1f,0x1f,0x1f,0x1f,0x1f,0x1f,0x0 };  //Symbol for the battery
+#endif
+
 static void display_16x2_setup()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
@@ -200,6 +206,13 @@ static void display_16x2_setup()
 #endif
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
     lcd.init();
+#endif
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+    // Online editor for custom chars:
+    // http://www.quinapalus.com/hd44780udg.html
+    lcd.createChar(0x01, serial_break_symbol);
+    lcd.createChar(0x02, serial_batt_symbol);
 #endif
 }
 
@@ -262,15 +275,14 @@ static void display_16x2_update()
     lcd.print(MY_F(" W "));
 
     // Break status
-    // TODO: Custom break symbol
     if(brake_stat==0)
-        lcd.print(MY_F("B"));
+        lcd.write(0x01);
     else
         lcd.print(MY_F(" "));
 
     lcd.setCursor(0,1);
-    // TODO: Custom battery symbol
-    lcd.print(MY_F("B "));
+    // Custom battery symbol
+    lcd.write(0x02);
     lcd.print(battery_percent_fromcapacity);
     lcd.print(MY_F("%"));
 
