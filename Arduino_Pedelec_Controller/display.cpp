@@ -284,7 +284,8 @@ static void display_16x2_update()
     // Custom battery symbol
     lcd.write(0x02);
     lcd.print(battery_percent_fromcapacity);
-    lcd.print(MY_F("%"));
+    // Note: two extra spaces to clear chars when the capacity gets lower
+    lcd.print(MY_F("%  "));
 
     lcd.setCursor(8,1);
     lcd.print(km,1);
