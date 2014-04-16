@@ -78,7 +78,7 @@ public:
     void autoscroll();
     void noAutoscroll();
 
-    void createChar(uint8_t, uint8_t[]);
+    void createChar(uint8_t, const uint8_t[]);
     void setCursor(uint8_t, uint8_t);
     virtual size_t write(uint8_t);
     void command(uint8_t);

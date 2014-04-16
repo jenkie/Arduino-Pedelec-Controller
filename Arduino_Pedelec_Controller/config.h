@@ -158,6 +158,14 @@ const float current_amplitude_R13 = 0.0741;   // for Rev 1.3 set this value acco
 
 const char msg_welcome[] PROGMEM = "Welcome";
 const char msg_shutdown[] PROGMEM = "Live long and prosper.";
+
 const char msg_battery_charged[] PROGMEM = "Batt. charged! Resetting counters";
+const char msg_idle_shutdown[] PROGMEM = "Idle shutdown. Good night.";
+const char msg_emergency_shutdown[] PROGMEM = "Battery undervoltage detected. Emergency shutdown.";
+
+const char msg_tempomat_reset[] PROGMEM = "Tempomat reset";
+const char msg_unknown_action[] PROGMEM = "Unknown action!";
+const char msg_activated[] PROGMEM = "Activated";
+const char msg_deactivated[] PROGMEM = "Deactivated";
 
 #endif

@@ -193,6 +193,12 @@ static void display_nokia_setup()    //first time setup of nokia display
 #endif
 }
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+    // TODO: Add PROGMEM support
+    static const byte serial_break_symbol[8] = { 0x0,0xa,0x11,0x15,0x11,0xa,0x0,0x0 }; //Symbol for showing that the bikes brake is active
+    static const byte serial_batt_symbol[8] = { 0xe,0x1f,0x1f,0x1f,0x1f,0x1f,0x1f,0x0 };  //Symbol for the battery
+#endif
+
 static void display_16x2_setup()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
@@ -200,6 +206,13 @@ static void display_16x2_setup()
 #endif
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
     lcd.init();
+#endif
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+    // Online editor for custom chars:
+    // http://www.quinapalus.com/hd44780udg.html
+    lcd.createChar(0x01, serial_break_symbol);
+    lcd.createChar(0x02, serial_batt_symbol);
 #endif
 }
 
@@ -231,16 +244,51 @@ static bool handle_important_info_expire()
 static void display_16x2_update()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+/*
+    // DEBUG code
+    spd = 25;
+    power = 198;
+    battery_percent_fromcapacity = 21;
+    km = 137.8;
+*/
+
     lcd.setCursor(0,0);
-    lcd.print(voltage_display,1);
-    lcd.print(MY_F(" "));
-    lcd.print(battery_percent_fromcapacity);
-    lcd.print(MY_F("%  "));
+    if (spd<10)
+        {lcd.print(MY_F(" "));}
+    lcd.print(round(spd),0);
+    lcd.print(MY_F(" km/h  "));
+
+    double power_display = power;
+    if (power_display > 999)
+        power_display = 999;
+    else if (power_display < 0)
+        power_display = 0;
+
+    if (power_display<10)
+        {lcd.print(MY_F(" "));}
+    if (power_display<100)
+        {lcd.print(MY_F(" "));}
+    if (power_display < 0)
+        lcd.print(MY_F("0"));
+    else
+        lcd.print(power_display,0);
+    lcd.print(MY_F(" W "));
+
+    // Break status
+    if(brake_stat==0)
+        lcd.write(0x01);
+    else
+        lcd.print(MY_F(" "));
+
     lcd.setCursor(0,1);
-    lcd.print(power,0);
-    lcd.print(MY_F("/"));
-    lcd.print(power_set);
-    lcd.print(MY_F("W      "));
+    // Custom battery symbol
+    lcd.write(0x02);
+    lcd.print(battery_percent_fromcapacity);
+    lcd.print(MY_F("%"));
+
+    lcd.setCursor(8,1);
+    lcd.print(km,1);
+    lcd.print(MY_F(" km"));
 #endif
 }
 
@@ -653,7 +701,7 @@ static void display_nokia_update_graphic()
     if (now.hh<10)
       lcd.print(MY_F("0"));
     lcd.print(now.hh);
-    lcd.print(":");
+    lcd.print(MY_F(":"));
     if (now.mm<10)
       lcd.print(MY_F("0"));
     lcd.print(now.mm);

@@ -78,7 +78,7 @@ static void action_set_soft_poti(int new_throttle_stat)
 #endif
         poti_stat = new_throttle_stat;
         if (poti_stat == 0)
-            display_show_important_info(MY_F("Tempomat reset"), 0);
+            display_show_important_info(FROM_FLASH(msg_tempomat_reset), 0);
         else
 
         {
@@ -233,7 +233,7 @@ static void execute_action(const sw_action action)
             break;
 #endif
         default:
-            display_show_important_info(MY_F("Unknown action!"), 2);
+            display_show_important_info(FROM_FLASH(msg_unknown_action), 2);
             break;
     }
 }
