@@ -23,15 +23,14 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "menu.h"
 #include "globals.h"
 
+display_screen_type display_screen = DISPLAY_SCREEN_GRAPHIC; //startup screen
+display_screen_type display_screen_last = DISPLAY_SCREEN_TEXT; //last screen type
+boolean display_force_text = false;
+
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 #include "PCD8544_nano.h"                    //for Nokia Display
 static PCD8544 lcd;                          //for Nokia Display
-nokia_screen_type nokia_screen = NOKIA_SCREEN_GRAPHIC; //startup screen on the Nokia display
-nokia_screen_type nokia_screen_last = NOKIA_SCREEN_TEXT; //last screen type on the Nokia display
-boolean display_force_text = false;
 #endif
-
-
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
 #include "LiquidCrystalDogm.h"             //for 4bit (e.g. EA-DOGM) Display
@@ -83,7 +82,6 @@ static void prepare_important_info(int duration_secs)
     enable_backlight();
 #endif
 
-    // TODO: Implement and test 4bit display mode
     lcd.clear();
     lcd.setCursor(0, 2);
 }
@@ -229,12 +227,7 @@ static bool handle_important_info_expire()
 
         // Important info expired
         show_important_info_until = 0;
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
-        nokia_screen_last = NOKIA_SCREEN_IMPORTANT_INFO;
-#endif
-#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
-        lcd.clear();
-#endif
+        display_screen_last = DISPLAY_SCREEN_IMPORTANT_INFO;
     }
 
     // No important info shown
@@ -717,43 +710,44 @@ void display_update()
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
     if (handle_important_info_expire())
         return;
-#endif
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     if (menu_active)
-        nokia_screen=NOKIA_SCREEN_MENU;
+        display_screen=DISPLAY_SCREEN_MENU;
     else if (spd>0 && !display_force_text)
-        nokia_screen=NOKIA_SCREEN_GRAPHIC;
+        display_screen=DISPLAY_SCREEN_GRAPHIC;
     else
-        nokia_screen=NOKIA_SCREEN_TEXT;
+        display_screen=DISPLAY_SCREEN_TEXT;
 
-    if (nokia_screen!=nokia_screen_last)
+    if (display_screen!=display_screen_last)
     {
-        if (nokia_screen==NOKIA_SCREEN_TEXT)
+        lcd.clear();
+        if (display_screen==DISPLAY_SCREEN_TEXT)        // Note: noop for non-Nokia displays
             display_nokia_setup();
-        else
-            lcd.clear();
-        nokia_screen_last=nokia_screen;
+
+        display_screen_last=display_screen;
     }
 
-    switch(nokia_screen)
+    switch(display_screen)
     {
-        case NOKIA_SCREEN_MENU:
+        case DISPLAY_SCREEN_MENU:
             display_menu();
             break;
-        case NOKIA_SCREEN_GRAPHIC:
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+        case DISPLAY_SCREEN_GRAPHIC:
             display_nokia_update_graphic();
             break;
-        case NOKIA_SCREEN_TEXT:
+        case DISPLAY_SCREEN_TEXT:
             display_nokia_update();
             break;
-    }
 #elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
-    if (menu_active)
-        display_menu();
-    else
-        display_16x2_update();
+        case DISPLAY_SCREEN_GRAPHIC:
+        case DISPLAY_SCREEN_TEXT:
+            display_16x2_update();
+            break;
 #endif
+    }
+#endif // (end of DISPLAY_TYPE stuff)
+
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
     jlcd_update(2,wheel_time,0,power);
 #endif
