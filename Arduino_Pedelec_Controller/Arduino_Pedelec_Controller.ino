@@ -278,8 +278,14 @@ void setup()
 
 #if HARDWARE_REV >= 2
     pinMode(fet_out,OUTPUT);
+
     pinMode(bluetooth_pin,OUTPUT);
+#ifdef SUPPORT_BLUETOOTH_ENABLE_ON_STARTUP
+    digitalWrite(bluetooth_pin, HIGH);    // turn bluetooth on during boot
+#else
     digitalWrite(bluetooth_pin, LOW);     // turn bluetooth off
+#endif
+
     digitalWrite(fet_out, LOW);           // turn on whole system on (write high to fet_out if you want to power off)
 #endif
 #ifdef SUPPORT_BRAKE

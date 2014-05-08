@@ -37,6 +37,8 @@ const int serial_display_16x2_second_unused_pin = 11;               // SoftSeria
 #define SERIAL_MODE SERIAL_MODE_DEBUG        //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------
 
 
+// #define SUPPORT_BLUETOOTH_ENABLE_ON_STARTUP    //uncomment to enable bluetooth during startup
+
 // Customizable buttons for use with the on-the-go-menu.
 // The menu is activated by the ACTION_ENTER_MENU action (see below).
 //
