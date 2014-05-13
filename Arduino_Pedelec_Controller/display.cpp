@@ -23,8 +23,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "menu.h"
 #include "globals.h"
 
-display_screen_type display_screen = DISPLAY_SCREEN_GRAPHIC; //startup screen
-display_screen_type display_screen_last = DISPLAY_SCREEN_TEXT; //last screen type
+display_mode_type display_mode = DISPLAY_MODE_GRAPHIC; //startup screen
+display_mode_type display_mode_last = DISPLAY_MODE_TEXT; //last screen type
 boolean display_force_text = false;
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
@@ -227,7 +227,7 @@ static bool handle_important_info_expire()
 
         // Important info expired
         show_important_info_until = 0;
-        display_screen_last = DISPLAY_SCREEN_IMPORTANT_INFO;
+        display_mode_last = DISPLAY_MODE_IMPORTANT_INFO;
     }
 
     // No important info shown
@@ -712,36 +712,36 @@ void display_update()
         return;
 
     if (menu_active)
-        display_screen=DISPLAY_SCREEN_MENU;
+        display_mode=DISPLAY_MODE_MENU;
     else if (spd>0 && !display_force_text)
-        display_screen=DISPLAY_SCREEN_GRAPHIC;
+        display_mode=DISPLAY_MODE_GRAPHIC;
     else
-        display_screen=DISPLAY_SCREEN_TEXT;
+        display_mode=DISPLAY_MODE_TEXT;
 
-    if (display_screen!=display_screen_last)
+    if (display_mode!=display_mode_last)
     {
         lcd.clear();
-        if (display_screen==DISPLAY_SCREEN_TEXT)        // Note: noop for non-Nokia displays
+        if (display_mode==DISPLAY_MODE_TEXT)        // Note: noop for non-Nokia displays
             display_nokia_setup();
 
-        display_screen_last=display_screen;
+        display_mode_last=display_mode;
     }
 
-    switch(display_screen)
+    switch(display_mode)
     {
-        case DISPLAY_SCREEN_MENU:
+        case DISPLAY_MODE_MENU:
             display_menu();
             break;
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
-        case DISPLAY_SCREEN_GRAPHIC:
+        case DISPLAY_MODE_GRAPHIC:
             display_nokia_update_graphic();
             break;
-        case DISPLAY_SCREEN_TEXT:
+        case DISPLAY_MODE_TEXT:
             display_nokia_update();
             break;
 #elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
-        case DISPLAY_SCREEN_GRAPHIC:
-        case DISPLAY_SCREEN_TEXT:
+        case DISPLAY_MODE_GRAPHIC:
+        case DISPLAY_MODE_TEXT:
             display_16x2_update();
             break;
 #endif

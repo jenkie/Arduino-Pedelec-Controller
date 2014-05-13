@@ -29,14 +29,14 @@ void display_show_important_info(const __FlashStringHelper *str, int duration_se
 void display_show_welcome_msg();
 void display_show_welcome_msg_temp();
 
-//definitions for different screen types
-typedef enum {DISPLAY_SCREEN_TEXT,
-              DISPLAY_SCREEN_GRAPHIC,               // Note: Same as _TEXT on 16x2 displays
-              DISPLAY_SCREEN_MENU,
-              DISPLAY_SCREEN_IMPORTANT_INFO
-} display_screen_type;
+//definitions for different screen mode
+typedef enum {DISPLAY_MODE_TEXT,
+              DISPLAY_MODE_GRAPHIC,               // Note: Same as _TEXT on 16x2 displays
+              DISPLAY_MODE_MENU,
+              DISPLAY_MODE_IMPORTANT_INFO
+} display_mode_type;
 
-extern display_screen_type display_screen; //currently displayed screen
+extern display_mode_type display_mode; //currently display mode
 extern boolean display_force_text;         //only valid for Nokia displays
 
 #endif
