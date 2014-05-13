@@ -219,6 +219,12 @@ static void execute_action(const sw_action action)
         case ACTION_PROFILE:
             action_set_profile(!current_profile);
             break;
+        case ACTION_DISPLAY_PREV_VIEW:
+            display_prev_view();
+            break;
+        case ACTION_DISPLAY_NEXT_VIEW:
+            display_next_view();
+            break;
 #ifdef SUPPORT_LIGHTS_SWITCH
         case ACTION_TOGGLE_LIGHTS:
             action_toggle_lights();

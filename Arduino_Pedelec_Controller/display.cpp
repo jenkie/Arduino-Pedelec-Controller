@@ -27,6 +27,9 @@ display_mode_type display_mode = DISPLAY_MODE_GRAPHIC; //startup screen
 display_mode_type display_mode_last = DISPLAY_MODE_TEXT; //last screen type
 boolean display_force_text = false;
 
+display_view_type display_view = DISPLAY_VIEW_MAIN;
+display_view_type display_view_last = display_view;
+
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 #include "PCD8544_nano.h"                    //for Nokia Display
 static PCD8544 lcd;                          //for Nokia Display
@@ -168,6 +171,25 @@ void display_show_welcome_msg_temp()
 }
 #endif
 
+void display_prev_view()
+{
+    if (display_view == DISPLAY_VIEW_MAIN)
+        display_view = _DISPLAY_VIEW_END;
+
+    byte prev_view = static_cast<byte>(display_view) - 1;
+    display_view = static_cast<display_view_type>(prev_view);
+}
+
+void display_next_view()
+{
+    // enums can't be incremented directly
+    byte next_view = static_cast<byte>(display_view) + 1;
+    display_view = static_cast<display_view_type>(next_view);
+
+    if (display_view == _DISPLAY_VIEW_END)
+        display_view = DISPLAY_VIEW_MAIN;
+}
+
 static void display_nokia_setup()    //first time setup of nokia display
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
@@ -234,9 +256,29 @@ static bool handle_important_info_expire()
     return false;
 }
 
-static void display_16x2_update()
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+static void printTime(unsigned long sec)  //print time in exactly 5 characters: in the format "mm:ss" or "hh:mm", if the time is >1 hour
 {
+    word hours = sec/3600UL;
+    byte minutes = (sec/60UL) % 60UL; //numberOfMinutes(val);
+    byte seconds = sec % 60UL; //numberOfSeconds(val);
+    word first,second; //only 2 numbers are displayed: either hours:minutes or minutes:seconds
+
+    if(hours>0)
+    {first=hours; second=minutes;}
+    else
+    {first=minutes; second=seconds;}
+    if(first<10) lcd.print(MY_F("0"));
+    lcd.print(first);
+    lcd.print(MY_F(":"));
+    if(second<10) lcd.print(MY_F("0"));
+    lcd.print(second);
+}
+#endif
+
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+static void display_16x2_view_main()
+{
 /*
     // DEBUG code
     spd = 25;
@@ -244,7 +286,6 @@ static void display_16x2_update()
     battery_percent_fromcapacity = 21;
     km = 137.8;
 */
-
     lcd.setCursor(0,0);
     if (spd<10)
         {lcd.print(MY_F(" "));}
@@ -283,8 +324,124 @@ static void display_16x2_update()
     lcd.setCursor(8,1);
     lcd.print(km,1);
     lcd.print(MY_F(" km"));
+}
+
+static void display_16x2_view_time()
+{
+    lcd.setCursor(0,0);
+    lcd.print(MY_F("Time: "));
+    printTime(millis() / 1000UL);  //millis can be used, because they roll over only after 50 days
+
+#ifdef SUPPORT_RTC
+    lcd.setCursor(0,1);
+    lcd.print("Clock: ");
+
+    if (now.hh<10)
+      lcd.print(MY_F("0"));
+    lcd.print(now.hh);
+    lcd.print(MY_F(":"));
+    if (now.mm<10)
+      lcd.print(MY_F("0"));
+    lcd.print(now.mm);
 #endif
 }
+
+static void display_16x2_view_trip()
+{
+    lcd.setCursor(0,0);
+    lcd.print(MY_F("Trip: "));
+    lcd.print(km,1);
+    lcd.print(MY_F(" km"));
+
+    lcd.setCursor(0,1);
+    lcd.print(MY_F("Power: "));
+    if (km > 0.1)
+        lcd.print(wh/km,1);
+    else
+        lcd.print(MY_F("---"));
+    lcd.print(MY_F(" "));
+}
+
+bool show_altitude = false;
+static void display_16x2_view_environment()
+{
+#if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
+    lcd.setCursor(0,0);
+    lcd.print(MY_F("Temp: "));
+    lcd.print((int)temperature);
+    lcd.print(MY_F(" C"));
+
+    lcd.setCursor(0,1);
+
+    // switch between altitude and slope very five seconds
+    byte current_second = (millis() / 1000) % 60UL;
+    if (current_second % 5 == 0)
+        show_altitude = !show_altitude;
+    if (show_altitude)
+    {
+        lcd.print(MY_F("Altitude: "));
+        lcd.print((int)altitude);
+        lcd.print(MY_F("m"));
+        lcd.print(MY_F(" "));
+    } else
+    {
+        lcd.print(MY_F("Slope: "));
+        lcd.print(slope,0);
+        lcd.print(MY_F("%    "));
+    }
+#endif
+}
+
+static void display_16x2_view_human()
+{
+    lcd.setCursor(0,0);
+    lcd.print(MY_F("CAD: "));
+    if (cad<100)
+        {lcd.print(MY_F(" "));}
+    if (cad<10)
+        {lcd.print(MY_F(" "));}
+    lcd.print(cad,10);
+
+#ifdef SUPPORT_HRMI
+    lcd.setCursor(0,1);
+    lcd.print(MY_F("Pulse: "));
+    lcd.print((byte) pulse_human);
+    lcd.print(MY_F(" "));
+#endif
+}
+
+static void display_16x2_update()
+{
+    // View changed?
+    if (display_view_last != display_view)
+    {
+        lcd.clear();
+        display_view_last = display_view;
+    }
+
+    switch (display_view)
+    {
+        case DISPLAY_VIEW_TIME:
+            display_16x2_view_time();
+            break;
+        case DISPLAY_VIEW_TRIP:
+            display_16x2_view_trip();
+            break;
+#if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
+        case DISPLAY_VIEW_ENVIRONMENT:
+            display_16x2_view_environment();
+            break;
+#endif
+        case DISPLAY_VIEW_HUMAN:
+            display_16x2_view_human();
+            break;
+        case DISPLAY_VIEW_MAIN:
+        default:
+            display_16x2_view_main();
+            break;
+    }
+}
+#endif
 
 static void display_menu()
 {
@@ -604,24 +761,6 @@ static void drawSpeed(float speed, byte xpos, byte ypos) //print the speed in bi
     lcd.drawBitmap(bitmapBigNumber[speed_digits%10], 9,2);
     lcd.setCursorInPixels(xpos+33,ypos);
     lcd.drawBitmap(bitmapBigkmh_p, 9,2);
-}
-
-static void printTime(unsigned long sec)  //print time in exactly 5 characters: in the format "mm:ss" or "hh:mm", if the time is >1 hour
-{
-    word hours = sec/3600UL;
-    byte minutes = (sec/60UL) % 60UL; //numberOfMinutes(val);
-    byte seconds = sec % 60UL; //numberOfSeconds(val);
-    word first,second; //only 2 numbers are displayed: either hours:minutes or minutes:seconds
-
-    if(hours>0)
-    {first=hours; second=minutes;}
-    else
-    {first=minutes; second=seconds;}
-    if(first<10) lcd.print(MY_F("0"));
-    lcd.print(first);
-    lcd.print(MY_F(":"));
-    if(second<10) lcd.print(MY_F("0"));
-    lcd.print(second);
 }
 
 static void printTripDistance(float km)  // print distance in exactly 6 characters, left aligned: "1234km" or "123km " or "12,1km" or "9,1km "

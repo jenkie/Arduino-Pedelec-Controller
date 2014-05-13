@@ -29,12 +29,27 @@ void display_show_important_info(const __FlashStringHelper *str, int duration_se
 void display_show_welcome_msg();
 void display_show_welcome_msg_temp();
 
+void display_prev_view();
+void display_next_view();
+
 //definitions for different screen mode
 typedef enum {DISPLAY_MODE_TEXT,
               DISPLAY_MODE_GRAPHIC,               // Note: Same as _TEXT on 16x2 displays
               DISPLAY_MODE_MENU,
               DISPLAY_MODE_IMPORTANT_INFO
 } display_mode_type;
+
+typedef enum {DISPLAY_VIEW_MAIN=0,
+              DISPLAY_VIEW_TIME,
+              DISPLAY_VIEW_TRIP,
+#if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
+              DISPLAY_VIEW_ENVIRONMENT,
+#endif
+              DISPLAY_VIEW_HUMAN,
+              _DISPLAY_VIEW_END
+} display_view_type;
+
+extern display_view_type display_view;
 
 extern display_mode_type display_mode; //currently display mode
 extern boolean display_force_text;         //only valid for Nokia displays
