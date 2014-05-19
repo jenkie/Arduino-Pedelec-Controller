@@ -38,6 +38,7 @@ ALL_FEATURES = [
                   'SUPPORT_LIGHTS_SWITCH_MENU',
                   'SUPPORT_MOTOR_GUESS',
                   'SUPPORT_BATTERY_CHARGE_DETECTION',
+                  'SUPPORT_GEAR_SHIFT',
                  ]
 
 # List of features that's enabled by default
@@ -126,6 +127,11 @@ def write_config_h(filename=CONFIG_H,
         f.write('\n')
         f.write('const int poti_level_step_size_in_watts = 50;        //number of watts to increase / decrease poti value by switch press\n')
         f.write('\n')
+        f.write('#ifdef SUPPORT_GEAR_SHIFT\n')
+        f.write('const byte gear_shift_pin_low_gear = 5;      //pin that connect to the low gear signal ("red" cable)\n')
+        f.write('const byte gear_shift_pin_high_gear = 7;     //pin that connects to the high gear signal ("green" cable)\n')
+        f.write('#endif\n')
+        f.write('\n')
         f.write('#define CONTROL_MODE_NORMAL 0            //Normal mode: poti and throttle control motor power\n')
         f.write('#define CONTROL_MODE_LIMIT_WH_PER_KM 1   //Limit wh/km consumption: poti controls wh/km, throttle controls power to override poti\n')
         f.write('#define CONTROL_MODE_TORQUE 2            //power = x*power of the biker, see also description of power_poti_max!\n')
@@ -193,6 +199,12 @@ def write_config_h(filename=CONFIG_H,
         f.write('const char msg_unknown_action[] PROGMEM = "Unknown action!";\n')
         f.write('const char msg_activated[] PROGMEM = "Activated";\n')
         f.write('const char msg_deactivated[] PROGMEM = "Deactivated";\n')
+        f.write('\n')
+        f.write('#ifdef SUPPORT_GEAR_SHIFT\n')
+        f.write('const char msg_gear_shift_low_gear[] PROGMEM = "Low gear active";\n')
+        f.write('const char msg_gear_shift_high_gear[] PROGMEM = "High gear active";\n')
+        f.write('const char msg_gear_shift_auto_selection[] PROGMEM = "Auto gear shift";\n')
+        f.write('#endif\n')
         f.write('\n')
         f.write('#endif\n')
 
@@ -289,6 +301,7 @@ class CompileTest(unittest.TestCase):
                             'SUPPORT_FIRST_AID_MENU',
                             'SUPPORT_MOTOR_GUESS',
                             'SUPPORT_BATTERY_CHARGE_DETECTION',
+                            'SUPPORT_GEAR_SHIFT'
                         ]
                     )
 

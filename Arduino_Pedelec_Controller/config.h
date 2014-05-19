@@ -110,6 +110,10 @@ const int poti_level_step_size_in_watts = 50;        //number of watts to increa
 //#define SUPPORT_MOTOR_GUESS   //enable guess of motor drive depending on current speed. Usefull for motor controllers with speed-throttle to optimize response behaviour
 #define SUPPORT_BATTERY_CHARGE_DETECTION //support detection if the battery was charged -> reset wh / trip km / mah counters if detected.
 
+//#define SUPPORT_GEAR_SHIFT                 //support shifting gears on the "double speed" motor
+const byte gear_shift_pin_low_gear = 5;      //pin that connect to the low gear signal ("red" cable)
+const byte gear_shift_pin_high_gear = 7;     //pin that connects to the high gear signal ("green" cable)
+
 //Config Options-----------------------------------------------------------------------------------------------------
 const int pas_tolerance=1;               //0... increase to make pas sensor slower but more tolerant against speed changes
 const int throttle_offset=196;           //Offset voltage of throttle control when in "0" position (0..1023 = 0..5V)
@@ -172,5 +176,11 @@ const char msg_tempomat_reset[] PROGMEM = "Tempomat reset";
 const char msg_unknown_action[] PROGMEM = "Unknown action!";
 const char msg_activated[] PROGMEM = "Activated";
 const char msg_deactivated[] PROGMEM = "Deactivated";
+
+#ifdef SUPPORT_GEAR_SHIFT
+const char msg_gear_shift_low_gear[] PROGMEM = "Low gear active";
+const char msg_gear_shift_high_gear[] PROGMEM = "High gear active";
+const char msg_gear_shift_auto_selection[] PROGMEM = "Auto gear shift";
+#endif
 
 #endif

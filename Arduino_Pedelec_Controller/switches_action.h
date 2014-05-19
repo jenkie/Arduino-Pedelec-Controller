@@ -42,6 +42,11 @@ enum sw_action { ACTION_NONE=0,                // do nothing
                  ACTION_DECREASE_POTI,         // decrease poti value. Only working when SUPPORT_POTI is disabled
                  ACTION_DISPLAY_PREV_VIEW,     // go to prev view in display. Rools over if at the beginning
                  ACTION_DISPLAY_NEXT_VIEW,     // go the new view in display. Rolls over if at the end
+                 ACTION_GEAR_SHIFT_LOW,                   // gear shift: shift to low gear
+                 ACTION_GEAR_SHIFT_HIGH,                  // gear shift: shift to high gear
+                 ACTION_GEAR_SHIFT_AUTO,                  // gear shift: shift motor controller to "auto" mode
+                 ACTION_GEAR_SHIFT_TOGGLE_LOW_HIGH,       // gear shift: toggle between low and high
+                 ACTION_GEAR_SHIFT_TOGGLE_LOW_HIGH_AUTO   // gear shift: toggle between low, high and auto
                };
 
 #endif

@@ -298,6 +298,13 @@ void setup()
 #if defined(SUPPORT_DISPLAY_BACKLIGHT) && !(DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
     pinMode(display_backlight_pin, OUTPUT);
 #endif
+#ifdef SUPPORT_GEAR_SHIFT
+    pinMode(gear_shift_pin_low_gear, OUTPUT);
+    pinMode(gear_shift_pin_high_gear, OUTPUT);
+    // set to auto mode
+    digitalWrite(gear_shift_pin_low_gear, HIGH);
+    digitalWrite(gear_shift_pin_high_gear, HIGH);
+#endif
 
     EEPROM_readAnything(0,variable);      //read stored variables
     odo=variable.odo;                     //load overall kilometers from eeprom

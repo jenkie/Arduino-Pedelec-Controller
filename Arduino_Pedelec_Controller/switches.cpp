@@ -189,6 +189,54 @@ static void action_toggle_lights()
 }
 #endif
 
+#ifdef SUPPORT_GEAR_SHIFT
+enum gear_shift { GEAR_LOW=0, GEAR_HIGH, GEAR_AUTO, _GEAR_END };
+gear_shift current_gear = GEAR_AUTO;
+
+static void action_set_gear(const gear_shift &new_gear)
+{
+    current_gear = new_gear;
+
+    switch(current_gear)
+    {
+        case GEAR_LOW:
+            digitalWrite(gear_shift_pin_low_gear, LOW);
+            digitalWrite(gear_shift_pin_high_gear, HIGH);
+
+            display_show_important_info(FROM_FLASH(msg_gear_shift_low_gear), 0);
+            break;
+        case GEAR_HIGH:
+            digitalWrite(gear_shift_pin_low_gear, HIGH);
+            digitalWrite(gear_shift_pin_high_gear, LOW);
+
+            display_show_important_info(FROM_FLASH(msg_gear_shift_high_gear), 0);
+            break;
+        case GEAR_AUTO:
+        default:
+            digitalWrite(gear_shift_pin_low_gear, HIGH);
+            digitalWrite(gear_shift_pin_high_gear, HIGH);
+
+            display_show_important_info(FROM_FLASH(msg_gear_shift_auto_selection), 0);
+            break;
+    }
+}
+
+static void action_toggle_gear(bool include_auto)
+{
+    byte conv = static_cast<byte>(current_gear);
+    gear_shift next_gear = static_cast<gear_shift>(conv+1);
+
+    if (!include_auto && next_gear == GEAR_AUTO)
+        next_gear = GEAR_LOW;
+
+    // Safety protection and roll over in "include_auto" mode
+    if (next_gear == _GEAR_END)
+        next_gear = GEAR_LOW;
+
+    action_set_gear(next_gear);
+}
+#endif
+
 static void execute_action(const sw_action action)
 {
     switch(action)
@@ -236,6 +284,23 @@ static void execute_action(const sw_action action)
             break;
         case ACTION_DECREASE_POTI:
             action_decrease_poti();
+            break;
+#endif
+#ifdef SUPPORT_GEAR_SHIFT
+        case ACTION_GEAR_SHIFT_LOW:
+            action_set_gear(GEAR_LOW);
+            break;
+        case ACTION_GEAR_SHIFT_HIGH:
+            action_set_gear(GEAR_HIGH);
+            break;
+        case ACTION_GEAR_SHIFT_AUTO:
+            action_set_gear(GEAR_AUTO);
+            break;
+        case ACTION_GEAR_SHIFT_TOGGLE_LOW_HIGH:
+            action_toggle_gear(false);
+            break;
+        case ACTION_GEAR_SHIFT_TOGGLE_LOW_HIGH_AUTO:
+            action_toggle_gear(true);
             break;
 #endif
         default:
