@@ -168,21 +168,26 @@ static void handle_display_backlight_on(MenuItem* p_menu_item)
 #if defined(SUPPORT_LIGHTS_SWITCH) && defined(SUPPORT_LIGHTS_SWITCH_MENU)
 static void handle_lights_onoff(MenuItem* p_menu_item)
 {
-    // Toggle lights
-    digitalWrite(lights_pin, !digitalRead(lights_pin));
+    bool new_state = !digitalRead(lights_pin);
 
-    menu_active = false;
+    // Toggle lights
+    digitalWrite(lights_pin, new_state);
+
+    show_new_state(new_state);
 }
 #endif
 
 static void handle_bluetooth_onoff(MenuItem* p_menu_item)
 {
+    bool new_state = false;
+
     // Toggle bluetooth
 #if HARDWARE_REV >=2
-    digitalWrite(bluetooth_pin, !digitalRead(bluetooth_pin));   //not available in 1.1
+    new_state = !digitalRead(bluetooth_pin);
+    digitalWrite(bluetooth_pin, new_state);   //not available in 1.1
 #endif
 
-    menu_active = false;
+    show_new_state(new_state);
 }
 
 static void handle_shutdown(MenuItem* p_menu_item)
