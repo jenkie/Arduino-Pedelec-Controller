@@ -27,6 +27,9 @@ void enable_custom_backlight(unsigned int duration_ms);
 void blink_backlight();
 void blink_backlight_stay_on();
 void handle_backlight();
+
+bool toggle_force_backlight_on();
+
 #endif
 
 #endif

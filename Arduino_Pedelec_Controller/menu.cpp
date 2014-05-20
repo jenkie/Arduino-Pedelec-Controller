@@ -21,6 +21,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "globals.h"
 #include "menu.h"
 #include "display.h"
+#include "display_backlight.h"
 #include "MenuSystem.h"
 #include "switches.h"
 
@@ -34,7 +35,8 @@ Layout:
     ├── Anzeige
     │   ├── Reset Wh
     │   ├── Reset KM
-    │   ├── Graf. an/aus
+    │   ├── Graf. an/              (only for Nokia displays)
+    |   ├── Beleuchtung an         (only with SUPPORT_DISPLAY_BACKLIGHT)
     │   └── Zurück
     ├── Licht an/aus
     ├── BT an/aus
@@ -66,8 +68,15 @@ static MenuItem m_display_reset_wh(desc_display_reset_wh);
 static const char desc_display_reset_km[] PROGMEM = "Reset KM";
 static MenuItem m_display_reset_km(desc_display_reset_km);
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 static const char desc_display_graphical_onoff[] PROGMEM = "Graf. an/aus";
 static MenuItem m_display_graphical_onoff(desc_display_graphical_onoff);
+#endif
+
+#ifdef SUPPORT_DISPLAY_BACKLIGHT
+static const char desc_display_backlight_on[] PROGMEM = "Beleuchtung an";
+static MenuItem m_display_backlight_on(desc_display_backlight_on);
+#endif
 
 static const char desc_main_lights_onoff[] PROGMEM = "Licht an/aus";
 static MenuItem m_main_lights_onoff(desc_main_lights_onoff);
@@ -129,14 +138,32 @@ static void handle_reset_km(MenuItem* p_menu_item)
     menu_active = false;
 }
 
-static void handle_graphical_onoff(MenuItem* p_menu_item)
+static void show_new_state(const boolean is_on)
 {
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
-    display_force_text = !display_force_text;
-#endif
+    if (is_on)
+        display_show_important_info(FROM_FLASH(msg_activated), 1);
+    else
+        display_show_important_info(FROM_FLASH(msg_deactivated), 1);
 
     menu_active = false;
 }
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+static void handle_graphical_onoff(MenuItem* p_menu_item)
+{
+    display_force_text = !display_force_text;
+    menu_active = false;
+}
+#endif
+
+#ifdef SUPPORT_DISPLAY_BACKLIGHT
+static void handle_display_backlight_on(MenuItem* p_menu_item)
+{
+    bool enabled = toggle_force_backlight_on();
+
+    show_new_state(enabled);
+}
+#endif
 
 #if defined(SUPPORT_LIGHTS_SWITCH) && defined(SUPPORT_LIGHTS_SWITCH_MENU)
 static void handle_lights_onoff(MenuItem* p_menu_item)
@@ -185,16 +212,6 @@ static void handle_profile(MenuItem* p_menu_item)
 }
 
 #ifdef SUPPORT_FIRST_AID_MENU
-static void show_new_state(const boolean is_on)
-{
-    if (is_on)
-        display_show_important_info(FROM_FLASH(msg_activated), 1);
-    else
-        display_show_important_info(FROM_FLASH(msg_deactivated), 1);
-
-    menu_active = false;
-}
-
 static void handle_ignore_break(MenuItem* p_menu_item)
 {
     first_aid_ignore_break = !first_aid_ignore_break;
@@ -301,6 +318,9 @@ void init_menu()
     menu_display.add_item(&m_display_reset_km, &handle_reset_km);
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     menu_display.add_item(&m_display_graphical_onoff, &handle_graphical_onoff);
+#endif
+#ifdef SUPPORT_DISPLAY_BACKLIGHT
+    menu_display.add_item(&m_display_backlight_on, &handle_display_backlight_on);
 #endif
     menu_display.add_item(&m_go_back, &handle_go_back);
 

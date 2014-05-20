@@ -25,6 +25,8 @@ const unsigned int backlight_default_show_ms = 5 * 1000;   // Time backlight sta
 const unsigned int backlight_blink_pause = 500;     // Blink mode: Number of milliseconds between blink switch
 const unsigned int backlight_blink_goal = 4;          // Number of blinks to do
 
+bool force_backlight_on = false;
+
 enum backlight_states
 {
     BacklightOff,                // backlight is off
@@ -54,6 +56,13 @@ static void turn_backlight_on()
 
 static void turn_backlight_off()
 {
+    // User wants the backlight to be temporarily "always on"
+    if (force_backlight_on)
+    {
+        turn_backlight_on();
+        return;
+    }
+
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
     display_16x_serial_disable_backlight();
 #else
@@ -147,4 +156,11 @@ void handle_backlight()
     // Enter next backlight state
     enter_backlight_state(backlight_state);
 }
+
+bool toggle_force_backlight_on()
+{
+    force_backlight_on = !force_backlight_on;
+    return force_backlight_on;
+}
+
 #endif
