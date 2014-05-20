@@ -32,6 +32,11 @@ void display_show_welcome_msg_temp();
 void display_prev_view();
 void display_next_view();
 
+#if defined(SUPPORT_DISPLAY_BACKLIGHT) && (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
+void display_16x_serial_enable_backlight();
+void display_16x_serial_disable_backlight();
+#endif
+
 //definitions for different screen mode
 typedef enum {DISPLAY_MODE_TEXT,
               DISPLAY_MODE_GRAPHIC,               // Note: Same as _TEXT on 16x2 displays

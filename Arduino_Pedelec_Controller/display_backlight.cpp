@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 #include "display_backlight.h"
+#include "display.h"
 #include "config.h"
 
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
@@ -42,6 +43,24 @@ bool backlight_blink_currently_enabled = false;  // Blink mode: True if backligh
 bool backlight_blink_done_stay_on = false;       // If true we stay on after blinking
 unsigned int backlight_blink_count = 0;                   // Number of blinks done
 
+static void turn_backlight_on()
+{
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
+    display_16x_serial_enable_backlight();
+#else
+    digitalWrite(display_backlight_pin, HIGH);
+#endif
+}
+
+static void turn_backlight_off()
+{
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
+    display_16x_serial_disable_backlight();
+#else
+    digitalWrite(display_backlight_pin, LOW);
+#endif
+}
+
 static void enter_backlight_state(const backlight_states new_state)
 {
     // We reached the next backlight event. Process it
@@ -50,7 +69,7 @@ static void enter_backlight_state(const backlight_states new_state)
         case BacklightTriggerOn:
             backlight_state = BacklightOn;
             backlight_next_event_ms = millis() + backlight_show_ms;
-            digitalWrite(display_backlight_pin, HIGH);
+            turn_backlight_on();
             break;
         case BacklightTriggerBlink:
             backlight_blink_count = 0;
@@ -74,9 +93,9 @@ static void enter_backlight_state(const backlight_states new_state)
 
             backlight_blink_currently_enabled = !backlight_blink_currently_enabled;
             if (backlight_blink_currently_enabled)
-                digitalWrite(display_backlight_pin, HIGH);
+                turn_backlight_on();
             else
-                digitalWrite(display_backlight_pin, LOW);
+                turn_backlight_off();
             break;
         case BacklightTriggerOff:
         case BacklightOn:
@@ -88,7 +107,7 @@ static void enter_backlight_state(const backlight_states new_state)
             backlight_blink_count = 0;
             backlight_blink_currently_enabled = false;
             backlight_blink_done_stay_on = false;
-            digitalWrite(display_backlight_pin, LOW);
+            turn_backlight_off();
             break;
     }
 }

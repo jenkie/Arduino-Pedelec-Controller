@@ -295,7 +295,7 @@ void setup()
     digitalWrite(switch_disp, HIGH);      // turn on pullup resistors on display-switch
     digitalWrite(wheel_in, HIGH);         // turn on pullup resistors on wheel-sensor
     digitalWrite(pas_in, HIGH);           // turn on pullup resistors on pas-sensor
-#ifdef SUPPORT_DISPLAY_BACKLIGHT
+#if defined(SUPPORT_DISPLAY_BACKLIGHT) && !(DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
     pinMode(display_backlight_pin, OUTPUT);
 #endif
 

@@ -190,6 +190,18 @@ void display_next_view()
         display_view = DISPLAY_VIEW_MAIN;
 }
 
+#if defined(SUPPORT_DISPLAY_BACKLIGHT) && (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
+void display_16x_serial_enable_backlight()
+{
+    lcd.setBacklight(8);
+}
+
+void display_16x_serial_disable_backlight()
+{
+    lcd.setBacklight(1);
+}
+#endif
+
 static void display_nokia_setup()    //first time setup of nokia display
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
