@@ -54,6 +54,10 @@ const switch_name MENU_BUTTON_DOWN = SWITCH_DISPLAY1;
 //              ACTION_ENTER_MENU, ACTION_PROFILE_1, ACTION_PROFILE_2, ACTION_PROFILE
 //              ACTION_TOGGLE_LIGHTS, ACTION_INCREASE_POTI, ACTION_DECREASE_POTI
 //
+//              "Double speed" motor gear shift:
+//              ACTION_GEAR_SHIFT_LOW, ACTION_GEAR_SHIFT_HIGH, ACTION_GEAR_SHIFT_AUTO
+//              ACTION_GEAR_SHIFT_TOGGLE_LOW_HIGH, ACTION_GEAR_SHIFT_TOGGLE_LOW_HIGH_AUTO
+//
 // The file "switches_action.h" contains a list with descriptions.
 //
 const sw_action SW_THROTTLE_SHORT_PRESS = ACTION_SET_SOFT_POTI;
