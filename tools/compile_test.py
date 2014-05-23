@@ -264,6 +264,14 @@ class CompileTest(unittest.TestCase):
         for disp_type in ['NONE', 'NOKIA_5PIN', 'NOKIA_4PIN', '16X2_LCD_4BIT', '16X2_SERIAL', 'KINGMETER', 'BMS']:
             self.build_firmware(disp_type, display_type=disp_type)
 
+    def test_16x2_serial_with_dynamic_backlight(self):
+        my_features = DEFAULT_FEATURES
+        my_features.append('SUPPORT_DISPLAY_BACKLIGHT')
+
+        self.build_firmware(hardware_rev = 5,
+                    display_type='16X2_SERIAL',
+                    features=my_features)
+
     def test_serial_modes(self):
         for serial_mode in ['NONE', 'DEBUG', 'ANDROID', 'MMC', 'LOGVIEW']:
             self.build_firmware(serial_mode, serial_mode=serial_mode)
