@@ -178,6 +178,10 @@ void display_prev_view()
 
     byte prev_view = static_cast<byte>(display_view) - 1;
     display_view = static_cast<display_view_type>(prev_view);
+
+#ifdef SUPPORT_DISPLAY_BACKLIGHT
+    enable_backlight();
+#endif
 }
 
 void display_next_view()
@@ -188,6 +192,10 @@ void display_next_view()
 
     if (display_view == _DISPLAY_VIEW_END)
         display_view = DISPLAY_VIEW_MAIN;
+
+#ifdef SUPPORT_DISPLAY_BACKLIGHT
+    enable_backlight();
+#endif
 }
 
 #if defined(SUPPORT_DISPLAY_BACKLIGHT) && (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
