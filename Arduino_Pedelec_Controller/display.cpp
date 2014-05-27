@@ -198,7 +198,7 @@ void display_next_view()
 #endif
 }
 
-#if defined(SUPPORT_DISPLAY_BACKLIGHT) && (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
 void display_16x_serial_enable_backlight()
 {
     lcd.setBacklight(8);

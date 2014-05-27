@@ -37,6 +37,7 @@ Layout:
     │   ├── Reset KM
     │   ├── Graf. an/              (only for Nokia displays)
     |   ├── Beleuchtung an         (only with SUPPORT_DISPLAY_BACKLIGHT)
+    |   ├── [Beleucht. aus]        (only without SUPPORT_DISPLAY_BACKLIGHT and DISPLAY_TYPE_16X2_SERIAL)
     │   └── Zurück
     ├── Licht an/aus
     ├── BT an/aus
@@ -76,6 +77,9 @@ static MenuItem m_display_graphical_onoff(desc_display_graphical_onoff);
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
 static const char desc_display_backlight_on[] PROGMEM = "Beleuchtung an";
 static MenuItem m_display_backlight_on(desc_display_backlight_on);
+#elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
+static const char desc_display_backlight_off[] PROGMEM = "Beleucht. aus";
+static MenuItem m_display_backlight_off(desc_display_backlight_off);
 #endif
 
 static const char desc_main_lights_onoff[] PROGMEM = "Licht an/aus";
@@ -162,6 +166,21 @@ static void handle_display_backlight_on(MenuItem* p_menu_item)
     bool enabled = toggle_force_backlight_on();
 
     show_new_state(enabled);
+}
+#elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
+static void handle_display_backlight_toggle(MenuItem* p_menu_item)
+{
+    // Static member: Keeps it state across function calls
+    static bool backlight_enabled = true;
+
+    backlight_enabled = !backlight_enabled;
+
+    if (backlight_enabled)
+        display_16x_serial_enable_backlight();
+    else
+        display_16x_serial_disable_backlight();
+
+    show_new_state(backlight_enabled);
 }
 #endif
 
@@ -326,6 +345,8 @@ void init_menu()
 #endif
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
     menu_display.add_item(&m_display_backlight_on, &handle_display_backlight_on);
+#elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
+    menu_display.add_item(&m_display_backlight_off, &handle_display_backlight_toggle);
 #endif
     menu_display.add_item(&m_go_back, &handle_go_back);
 
