@@ -46,7 +46,7 @@ typedef enum {DISPLAY_MODE_TEXT,
 
 typedef enum {DISPLAY_VIEW_MAIN=0,
               DISPLAY_VIEW_TIME,
-              DISPLAY_VIEW_TRIP,
+              DISPLAY_VIEW_BATTERY,
 #if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
               DISPLAY_VIEW_ENVIRONMENT,
 #endif

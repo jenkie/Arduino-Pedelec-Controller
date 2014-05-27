@@ -366,20 +366,28 @@ static void display_16x2_view_time()
 #endif
 }
 
-static void display_16x2_view_trip()
+static void display_16x2_view_battery()
 {
     lcd.setCursor(0,0);
-    lcd.print(MY_F("Trip: "));
-    lcd.print(km,1);
-    lcd.print(MY_F(" km"));
+    lcd.print(voltage_display,1);
+    lcd.print(MY_F(" V - "));
+
+    if ((current_display<9.5)&&(current_display>0))
+        {lcd.print(MY_F(" "));}
+    lcd.print(current_display,1);
+    lcd.print(MY_F(" A "));
 
     lcd.setCursor(0,1);
-    lcd.print(MY_F("Power: "));
+
+    lcd.print(wh,0);
+    lcd.print(MY_F(" wh"));
+    lcd.print(MY_F("  "));
+
     if (km > 0.1)
         lcd.print(wh/km,1);
     else
         lcd.print(MY_F("---"));
-    lcd.print(MY_F(" "));
+    lcd.print(MY_F(" AVG "));
 }
 
 bool show_altitude = false;
@@ -444,8 +452,8 @@ static void display_16x2_update()
         case DISPLAY_VIEW_TIME:
             display_16x2_view_time();
             break;
-        case DISPLAY_VIEW_TRIP:
-            display_16x2_view_trip();
+        case DISPLAY_VIEW_BATTERY:
+            display_16x2_view_battery();
             break;
 #if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
         case DISPLAY_VIEW_ENVIRONMENT:
