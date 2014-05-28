@@ -374,7 +374,12 @@ void loop()
     {
         throttle_stat=0;
     }
+#elif (DISPLAY_TYPE!=DISPLAY_TYPE_KINGMETER) && (DISPLAY_TYPE!=DISPLAY_TYPE_BMS)
+    // Reset throttle_stat for non-serial communicating displays if SUPPORT_THROTTLE is disabled
+    // This is needed to switch off ACTION_FIXED_THROTTLE_VALUE.
+    throttle_stat=0;
 #endif
+
 #ifdef SUPPORT_BRAKE
 #ifdef INVERT_BRAKE
     brake_stat = !digitalRead(brake_in);
