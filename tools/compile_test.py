@@ -126,6 +126,7 @@ def write_config_h(filename=CONFIG_H,
         f.write('#endif\n')
         f.write('\n')
         f.write('const int poti_level_step_size_in_watts = 50;        //number of watts to increase / decrease poti value by switch press\n')
+        f.write('const int fixed_throttle_in_watts = 250;')
         f.write('\n')
         f.write('#ifdef SUPPORT_GEAR_SHIFT\n')
         f.write('const byte gear_shift_pin_low_gear = 5;      //pin that connect to the low gear signal ("red" cable)\n')

@@ -28,8 +28,9 @@ struct switch_state
     unsigned long first_press_time;    // time when switch was pressed down (to decide if long or short press)
     bool previous_state;               // state of the switch in the previous loop run
     bool action_enabled;               // disable switch if long-press action has been done until switch is released
-    sw_action action_short_press; // action to execute on short press
-    sw_action action_long_press; // action to execute on long press
+    bool trigger_every_time;           // should the action be triggered every loop run during long press (f.e. fake starting aid)
+    sw_action action_short_press;      // action to execute on short press
+    sw_action action_long_press;       // action to execute on long press
 } switch_states[_SWITCHES_COUNT];
 
 // Generic switch handler. Returns a 'switch_result'
@@ -57,6 +58,19 @@ void init_switches()
     switch_states[SWITCH_POTI].action_short_press = SW_POTI_SHORT_PRESS;
     switch_states[SWITCH_POTI].action_long_press = SW_POTI_LONG_PRESS;
 #endif
+
+    // Init actions that trigger immediately on long press
+    for(byte i = 0; i < _SWITCHES_COUNT; ++i)
+    {
+        switch(switch_states[i].action_long_press)
+        {
+            case ACTION_FIXED_THROTTLE_VALUE:
+                switch_states[i].trigger_every_time = true;
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 //
@@ -130,6 +144,11 @@ void action_decrease_poti()
     action_set_soft_poti(new_stat);
 }
 #endif
+
+static void action_fixed_throttle_value()
+{
+    throttle_stat = constrain(map(fixed_throttle_in_watts, 0, curr_power_max, 0, 1023), 0, 1023);
+}
 
 static void action_shutdown_system()
 {
@@ -286,6 +305,9 @@ static void execute_action(const sw_action action)
             action_decrease_poti();
             break;
 #endif
+        case ACTION_FIXED_THROTTLE_VALUE:
+            action_fixed_throttle_value();
+            break;
 #ifdef SUPPORT_GEAR_SHIFT
         case ACTION_GEAR_SHIFT_LOW:
             action_set_gear(GEAR_LOW);
@@ -360,7 +382,8 @@ static enum switch_result _read_switch(switch_state *state, boolean switch_curre
             // first press
             state->first_press_time=now;
         }
-        else if ((now - state->first_press_time)>1000 && state->action_enabled)
+        else if ((now - state->first_press_time)>1000 &&
+                 (state->action_enabled || state->trigger_every_time))
         {
             state->action_enabled = false;
             res = PRESSED_LONG;

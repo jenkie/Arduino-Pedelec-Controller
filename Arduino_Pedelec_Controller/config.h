@@ -53,6 +53,10 @@ const switch_name MENU_BUTTON_DOWN = SWITCH_DISPLAY1;
 //              ACTION_ENABLE_BACKLIGHT_LONG, ACTION_TOGGLE_BLUETOOTH,
 //              ACTION_ENTER_MENU, ACTION_PROFILE_1, ACTION_PROFILE_2, ACTION_PROFILE
 //              ACTION_TOGGLE_LIGHTS, ACTION_INCREASE_POTI, ACTION_DECREASE_POTI
+//              ACTION_FIXED_THROTTLE_VALUE
+//
+//              16x2 serial display only (at the moment):
+//              ACTION_DISPLAY_PREV_VIEW, ACTION_DISPLAY_NEXT_VIEW
 //
 //              "Double speed" motor gear shift:
 //              ACTION_GEAR_SHIFT_LOW, ACTION_GEAR_SHIFT_HIGH, ACTION_GEAR_SHIFT_AUTO
@@ -89,7 +93,8 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 // #define SUPPORT_SOFT_POTI //uncomment if Poti is emulated: The switch_disp button will store the current throttle value as poti value
 
 // #define SUPPORT_POTI_SWITCHES     //uncomment to increase/decrease the poti via switch action ACTION_INCREASE_POTI / ACTION_DECREASE_POTI
-const int poti_level_step_size_in_watts = 50;        //number of watts to increase / decrease poti value by switch press
+const int poti_level_step_size_in_watts = 50;    //number of watts to increase / decrease poti value by switch press
+const int fixed_throttle_in_watts = 250;         //number of watts to set as throttle value if ACTION_FIXED_THROTTLE_VALUE is hold down (=starting aid via switch)
 
 #define SUPPORT_THROTTLE    //uncomment if Throttle connected
 #define SUPPORT_PAS         //uncomment if PAS-sensor connected
