@@ -182,6 +182,8 @@ void display_prev_view()
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
     enable_backlight();
 #endif
+
+    display_update();
 }
 
 void display_next_view()
@@ -196,6 +198,8 @@ void display_next_view()
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
     enable_backlight();
 #endif
+
+    display_update();
 }
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
