@@ -128,19 +128,25 @@ static byte calc_number_length(const unsigned long x)
 
 void display_show_welcome_msg()
 {
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
     display_show_important_info(FROM_FLASH(msg_welcome), 5);
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     lcd.setCursor(0, 5);
+    const byte max_len = 12;
+#elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+    lcd.setCursor(0, 1);
+    const byte max_len = 14;
+#endif
 
     // Show total mileage (right aligned)
     unsigned long total_km = (odo * wheel_circumference/1000);
     byte number_len = calc_number_length(total_km);
     // Safety check
-    if (number_len >= 12)
+    if (number_len >= max_len)
         return;
 
-    number_len = 12 - number_len;
+    number_len = max_len - number_len;
     while(number_len > 1)
     {
         lcd.print(MY_F(" "));
