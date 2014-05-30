@@ -669,6 +669,7 @@ static void jlcd_update(byte battery, unsigned int wheeltime, byte error, int po
         throttle_stat=0;
         poti_stat=0;
 #if HARDWARE_REV >=2
+        save_eeprom();
         digitalWrite(fet_out,HIGH);              //J-LCD turned off
 #endif
     }
@@ -717,6 +718,7 @@ static void slcd_update(byte battery, unsigned int wheeltime, byte error)
         throttle_stat=0;
         poti_stat=0;
 #if HARDWARE_REV >=2
+        save_eeprom();
         digitalWrite(fet_out,HIGH);              //S-LCD turned off
 #endif
     }
