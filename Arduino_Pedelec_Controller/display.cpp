@@ -646,6 +646,9 @@ static void jlcd_update(byte battery, unsigned int wheeltime, byte error, int po
             {
                 jlcd_zerocounter=0;
                 jlcd_lighton=(jlcd_received[1]&(byte)128)>>7;
+                #ifdef SUPPORT_LIGHTS_SWITCH
+                digitalWrite(lights_pin, jlcd_lighton);
+                #endif
                 jlcd_received[1]=jlcd_received[1]&(byte)127;
                 if (jlcd_received[1]<6)                      //set the assist-level (via poti-stat)
                     poti_stat=map(jlcd_received[1],1,5,0,1023);
@@ -703,6 +706,9 @@ static void slcd_update(byte battery, unsigned int wheeltime, byte error)
         {
             slcd_zerocounter=0;
             slcd_lighton=(slcd_received[1]&(byte)128)>>7;
+            #ifdef SUPPORT_LIGHTS_SWITCH
+            digitalWrite(lights_pin, slcd_lighton);
+            #endif
             slcd_received[1]=slcd_received[1]&(byte)127;
             if (slcd_received[1]<6)                      //set the assist-level (via poti-stat)
                 poti_stat=map(slcd_received[1],0,5,0,1023);
