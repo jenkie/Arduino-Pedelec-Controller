@@ -336,6 +336,10 @@ void setup()
     pedaling=true;
 #endif
 
+#if defined(SUPPORT_SOFT_POTI) || defined(SUPPORT_POTI_SWITCHES)
+    poti_stat = map(poti_value_on_startup_in_watts, 0, curr_power_poti_max, 0, 1023);
+#endif
+
 #ifdef SUPPORT_XCELL_RT
     torque_zero=analogRead(option_pin);
 #endif

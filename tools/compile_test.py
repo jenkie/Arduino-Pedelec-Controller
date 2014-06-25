@@ -125,6 +125,7 @@ def write_config_h(filename=CONFIG_H,
         f.write('const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f.e. instead of display switch #2 (12, default).\n')
         f.write('#endif\n')
         f.write('\n')
+        f.write('const int poti_value_on_startup_in_watts = 0;        //poti startup value in watts\n')
         f.write('const int poti_level_step_size_in_watts = 50;        //number of watts to increase / decrease poti value by switch press\n')
         f.write('const int fixed_throttle_in_watts = 250;')
         f.write('\n')
