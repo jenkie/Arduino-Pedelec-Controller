@@ -173,6 +173,8 @@ def write_config_h(filename=CONFIG_H,
         f.write('const double cfg_pid_i_throttle=2.5;     //pid i-value for throttle mode\n')
         f.write('const byte pulse_min=150;                //lowest value of desired pulse range in bpm\n')
         f.write('const byte pulse_range=20;               //width of desired pulse range in bpm\n')
+        f.write('const byte battery_charged_min_voltage = 20;\n')
+
         f.write('\n')
         f.write('//Config Options for profile 2-----------------------------------------------------------------------------------------------------\n')
         f.write('const int startingaid_speed_2 = 6;\n')

@@ -119,6 +119,7 @@ const int fixed_throttle_in_watts = 250;         //number of watts to set as thr
 
 //#define SUPPORT_MOTOR_GUESS   //enable guess of motor drive depending on current speed. Usefull for motor controllers with speed-throttle to optimize response behaviour
 #define SUPPORT_BATTERY_CHARGE_DETECTION //support detection if the battery was charged -> reset wh / trip km / mah counters if detected.
+const byte battery_charged_min_voltage = 20;  //minimum battery voltage to consider it charged. Useful to prevent "false positives".
 
 //#define SUPPORT_GEAR_SHIFT                 //support shifting gears on the "double speed" motor
 const byte gear_shift_pin_low_gear = 5;      //pin that connect to the low gear signal ("red" cable)

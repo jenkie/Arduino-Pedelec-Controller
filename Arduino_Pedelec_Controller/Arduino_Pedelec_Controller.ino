@@ -450,7 +450,8 @@ void loop()
     if (firstrun==true)
     {
 #ifdef SUPPORT_BATTERY_CHARGE_DETECTION
-        if (variable.voltage>(voltage - 2))                //charging detected if voltage is 2V higher than last stored voltage
+        if (variable.voltage>(voltage - 2) ||                      //charging detected if voltage is 2V higher than last stored voltage
+            voltage < battery_charged_min_voltage)                 //and higher than min. charged voltage
         {
             wh=variable.wh;
             km=variable.kilometers;
