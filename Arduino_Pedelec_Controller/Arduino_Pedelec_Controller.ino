@@ -84,7 +84,9 @@ Time now;
 #endif
 
 #if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS))
+#if HARDWARE_REV < 20
 #include <SoftwareSerial.h>      //for Kingmeter J-LCD and BMS S-LCD
+#endif
 #endif
 
 
@@ -112,13 +114,14 @@ const int voltage_in = A1;           //Voltage read-Pin
 const int option_pin = A2;           //Analog option
 const int current_in = A3;           //Current read-Pin
 #endif
-#if HARDWARE_REV >= 3
+#if ((HARDWARE_REV >= 3)&&(HARDWARE_REV <= 5))
 const int voltage_in = A0;           //Voltage read-Pin
 const int fet_out = A1;              //FET: Pull high to switch off
 const int current_in = A2;           //Current read-Pin
 const int option_pin = A3;           //Analog option
 const int lights_pin = A3;           //Software controlled lights switch
 #endif
+#if HARDWARE_REV <= 5
 const int poti_in = A6;              //PAS Speed-Poti-Pin
 const int throttle_in = A7;          //Throttle read-Pin
 const int pas_in = 2;                //PAS Sensor read-Pin
@@ -130,6 +133,26 @@ const int bluetooth_pin = 7;         //Bluetooth-Supply, do not use in Rev. 1.1!
 const int switch_disp = 8;           //Display switch
 #if (DISPLAY_TYPE & (DISPLAY_TYPE_NOKIA_4PIN|DISPLAY_TYPE_16X2_SERIAL))
 const int switch_disp_2 = 12;        //second Display switch with Nokia-Display in 4-pin-mode
+#endif
+#endif
+#if HARDWARE_REV == 20
+const int voltage_in = A14;           //Voltage read-Pin
+const int fet_out = 38;              //FET: Pull high to switch off
+const int current_in = A15;           //Current read-Pin
+const int option_pin = A2;            //Analog option
+const int lights_pin = 44;           //Software controlled lights switch
+
+const int poti_in = A4;              //PAS Speed-Poti-Pin
+const int throttle_in = A3;          //Throttle read-Pin
+const int pas_in = 3;                //PAS Sensor read-Pin
+const int wheel_in = 21;              //Speed read-Pin
+const int brake_in = 2;              //Brake-In-Pin
+const int switch_thr = 5;            //Throttle-Switch read-Pin
+const int throttle_out = 8;          //Throttle out-Pin
+const int bluetooth_pin = 13;         //Bluetooth-Supply
+const int switch_disp = 37;           //Display switch
+const int switch_disp_2 = 48;        //second Display switch with Nokia-Display in 4-pin-mode
+const int buzzer=11;
 #endif
 
 
@@ -238,6 +261,14 @@ int memFree()
 //Setup---------------------------------------------------------------------------------------------------------------------
 void setup()
 {
+    #if HARDWARE_REV == 20
+    pinMode(buzzer, OUTPUT);
+    tone(buzzer, 261, 50);
+    delay(50);
+    tone(buzzer,329, 50); 
+    delay(50);
+    tone(buzzer,440, 50); 
+    #endif
     Serial.begin(115200);     //bluetooth-module requires 115200
 
 #ifdef DEBUG_MEMORY_USAGE
@@ -267,7 +298,6 @@ void setup()
 #endif
 
 #ifdef SUPPORT_LIGHTS_SWITCH
-    // Note: lights_pin is normally also the options_pin
     pinMode(lights_pin,OUTPUT);
 #ifdef SUPPORT_LIGHTS_ENABLE_ON_STARTUP
     digitalWrite(lights_pin, HIGH);     // turn lights on during startup
@@ -286,7 +316,7 @@ void setup()
     digitalWrite(bluetooth_pin, LOW);     // turn bluetooth off
 #endif
 
-    digitalWrite(fet_out, LOW);           // turn on whole system on (write high to fet_out if you want to power off)
+    digitalWrite(fet_out, FET_ON);           // turn on whole system on 
 #endif
 #ifdef SUPPORT_BRAKE
     digitalWrite(brake_in, HIGH);         // turn on pullup resistors on brake
@@ -310,10 +340,38 @@ void setup()
     odo=variable.odo;                     //load overall kilometers from eeprom
     display_show_welcome_msg();
 
+//setup interrupt handling
+#if HARDWARE_REV < 20
 #ifdef SUPPORT_PAS
     attachInterrupt(0, pas_change, CHANGE); //attach interrupt for PAS-Sensor
 #endif
     attachInterrupt(1, speed_change, RISING); //attach interrupt for Wheel-Sensor
+#else
+    bitClear(DDRE,7);      //configure PE7 as input 
+    bitSet(PORTE,7);       //enable pull-up on wheel sensor
+    bitSet(EICRB,6);      //trigger on rising edge INT7 for wheel sensor
+    bitSet(EICRB,7);      //trigger on rising edge INT7 for wheel sensor
+    EIMSK  |= (1<<INT7);  //turn on interrupt for wheel sensor
+#ifdef SUPPORT_PAS
+    //attachInterrupt(1, pas_change, CHANGE); //attach interrupt for PAS-Sensor
+    bitClear(DDRE,5);      //configure PE5 as input 
+    bitSet(PORTE,5);       //enable pull-up on PAS sensor
+    bitSet(EICRB,2);      //trigger on any edge INT5 for PAS sensor
+    EIMSK  |= (1<<INT5);  //turn on interrupt INT5 for PAS sensor
+#ifdef SUPPORT_XCELL_RT
+    bitClear(DDRE,6);      //configure PE6 as input 
+    bitSet(PORTE,6);       //enable pull-up on PAS 2 sensor
+    bitSet(EICRA,3);//trigger on rising edge INT1 for Thun sensor
+    bitSet(EICRB,4);//trigger on rising edge INT6 for Thun sensor
+    bitSet(EICRB,5);//trigger on rising edge INT6 for Thun sensor
+    EIMSK  |= (1<<INT6);  //turn on interrupt for Thun sensor
+#endif
+#endif
+#endif
+
+
+    
+    
     myPID.SetMode(AUTOMATIC);             //initialize pid
     myPID.SetOutputLimits(0,1023);        //initialize pid
     myPID.SetSampleTime(10);              //compute pid every 10 ms
@@ -670,7 +728,7 @@ void loop()
                 {
                     display_show_important_info(FROM_FLASH(msg_idle_shutdown), 60);
                     save_eeprom();
-                    digitalWrite(fet_out,HIGH);
+                    digitalWrite(fet_out,FET_OFF);
                 }
             }
 
@@ -683,7 +741,7 @@ void loop()
                 display_show_important_info(FROM_FLASH(msg_emergency_shutdown), 60);
                 delay(1000);
                 save_eeprom();
-                digitalWrite(fet_out,HIGH);
+                digitalWrite(fet_out,FET_OFF);
             }
         }
 #endif
@@ -705,6 +763,22 @@ void loop()
 //slow loop end------------------------------------------------------------------------------------------------------
     }
 }
+
+#if HARDWARE_REV == 20 //attach interrupts manually
+    ISR(INT7_vect) {
+      speed_change();
+    }
+#ifdef SUPPORT_PAS
+    ISR(INT5_vect) {
+      pas_change();     
+    }
+#ifdef SUPPORT_XCELL_RT
+      ISR(INT6_vect) {
+      pas_change();      
+    }
+#endif
+#endif
+#endif
 
 #ifdef SUPPORT_PAS
 void pas_change()       //Are we pedaling? PAS Sensor Change------------------------------------------------------------------------------------------------------------------

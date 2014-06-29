@@ -46,8 +46,13 @@ static SerialLCD lcd(serial_display_16x2_pin);                      //16x2 New H
 #endif
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
+#if HARDWARE_REV < 20
 #include <SoftwareSerial.h>                //for Kingmeter J-LCD
 static SoftwareSerial mySerial(10, 11);           // RX (YELLOW cable of J-LCD), TX (GREEN-Cable)
+SoftwareSerial* displaySerial=&mySerial;
+#else
+HardwareSerial* displaySerial=&Serial2;
+#endif
 byte jlcd_received[]= {0,0,0,0,0,0};
 byte jlcd_receivecounter=0;
 byte jlcd_maxspeed=0;                      //max speed set on display
@@ -58,8 +63,13 @@ unsigned long jlcd_last_transmission=millis(); //last time jlcd sent data--> sti
 #endif
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)
-#include <SoftwareSerial.h>                //for BMS Battery S-LCD
-static SoftwareSerial mySerial(10, 11);           // RX (YELLOW cable of S-LCD), TX (GREEN-Cable)
+#if HARDWARE_REV < 20
+#include <SoftwareSerial.h>                //for Kingmeter J-LCD
+static SoftwareSerial mySerial(10, 11);           // RX (YELLOW cable of J-LCD), TX (GREEN-Cable)
+SoftwareSerial* displaySerial=&mySerial;
+#else
+HardwareSerial* displaySerial=&Serial2;
+#endif
 byte slcd_received[]= {0,0,0,0,0,0};
 byte slcd_receivecounter=0;
 boolean slcd_lighton=false;                //backlight switched on?
@@ -635,11 +645,11 @@ static void display_nokia_update()
 static void jlcd_update(byte battery, unsigned int wheeltime, byte error, int power)
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
-    if (mySerial.available())
+    if (displaySerial->available())
     {
         jlcd_last_transmission=millis();
         jlcd_receivecounter++;
-        byte receivedbyte=mySerial.read();
+        byte receivedbyte=displaySerial->read();
         if (receivedbyte == 0x46)                         //start of new transmission frame detected-->last one is complete?
         {
             if (jlcd_receivecounter==6)                  //--> yes it is
@@ -661,14 +671,14 @@ static void jlcd_update(byte battery, unsigned int wheeltime, byte error, int po
             }
             jlcd_receivecounter=0;
             //-------------------------------------------Output to J-LCD start
-            mySerial.write(0X46);
-            mySerial.write(battery);
-            mySerial.write((byte)(power/12.7));
-            mySerial.write(highByte(wheeltime));
-            mySerial.write(lowByte(wheeltime));
-            mySerial.write(0X7D);
-            mySerial.write(error);
-            mySerial.write(battery^(byte)(power/12.7)^highByte(wheeltime)^lowByte(wheeltime)^0X7D^error); //this is XOR-checksum
+            displaySerial->write(0X46);
+            displaySerial->write(battery);
+            displaySerial->write((byte)(power/12.7));
+            displaySerial->write(highByte(wheeltime));
+            displaySerial->write(lowByte(wheeltime));
+            displaySerial->write(0X7D);
+            displaySerial->write(error);
+            displaySerial->write(battery^(byte)(power/12.7)^highByte(wheeltime)^lowByte(wheeltime)^0X7D^error); //this is XOR-checksum
             //-------------------------------------------Output to J-LCD end
         }
         else
@@ -683,7 +693,7 @@ static void jlcd_update(byte battery, unsigned int wheeltime, byte error, int po
         poti_stat=0;
 #if HARDWARE_REV >=2
         save_eeprom();
-        digitalWrite(fet_out,HIGH);              //J-LCD turned off
+        digitalWrite(fet_out,FET_OFF);              //J-LCD turned off
 #endif
     }
 #endif //(DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
@@ -693,11 +703,11 @@ static void jlcd_update(byte battery, unsigned int wheeltime, byte error, int po
 static void slcd_update(byte battery, unsigned int wheeltime, byte error)
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)
-    if (mySerial.available())
+    if (displaySerial->available())
     {
         slcd_last_transmission=millis();
         slcd_receivecounter++;
-        byte receivedbyte=mySerial.read();
+        byte receivedbyte=displaySerial->read();
         if (receivedbyte==0xE) //end of transmission frame detected
           {slcd_receivecounter=6;}
         if(slcd_receivecounter>6) //transmission buffer overflow
@@ -717,13 +727,13 @@ static void slcd_update(byte battery, unsigned int wheeltime, byte error)
             else
                 throttle_stat=0;
             //-------------------------------------------Output to S-LCD start
-            mySerial.write((byte)0x41);
-            mySerial.write((byte)battery);
-            mySerial.write((byte)0xFF);
-            mySerial.write(highByte(wheeltime));
-            mySerial.write(lowByte(wheeltime));
-            mySerial.write(error);
-            mySerial.write((byte)battery^(byte)0xFF^highByte(wheeltime)^lowByte(wheeltime)^error); //this is XOR-checksum
+            displaySerial->write((byte)0x41);
+            displaySerial->write((byte)battery);
+            displaySerial->write((byte)0xFF);
+            displaySerial->write(highByte(wheeltime));
+            displaySerial->write(lowByte(wheeltime));
+            displaySerial->write(error);
+            displaySerial->write((byte)battery^(byte)0xFF^highByte(wheeltime)^lowByte(wheeltime)^error); //this is XOR-checksum
             //-------------------------------------------Output to S-LCD end
         }
         else
@@ -735,7 +745,7 @@ static void slcd_update(byte battery, unsigned int wheeltime, byte error)
         poti_stat=0;
 #if HARDWARE_REV >=2
         save_eeprom();
-        digitalWrite(fet_out,HIGH);              //S-LCD turned off
+        digitalWrite(fet_out,FET_OFF);              //S-LCD turned off
 #endif
     }
 #endif //(DISPLAY_TYPE & DISPLAY_TYPE_BMS)
@@ -758,7 +768,7 @@ void display_init()
 #endif
 
 #if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS))
-    mySerial.begin(9600);
+    displaySerial->begin(9600);
 #endif
 }
 

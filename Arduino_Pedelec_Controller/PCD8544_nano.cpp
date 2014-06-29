@@ -71,19 +71,17 @@ void PCD8544::begin(unsigned char width, unsigned char height, unsigned char mod
     memset(this->custom, 0, sizeof(this->custom));
 
     // All pins are outputs (these displays cannot be read)...
-    pinMode(this->pin_sclk, OUTPUT);
-    pinMode(this->pin_sdin, OUTPUT);
-    pinMode(this->pin_dc, OUTPUT);
-    pinMode(this->pin_reset, OUTPUT);
-    //pinMode(this->pin_sce, OUTPUT);
+    bitSet(DISPLAYPORT_DIR,pin_sclk);
+    bitSet(DISPLAYPORT_DIR,pin_sdin);
+    bitSet(DISPLAYPORT_DIR,pin_dc);
+    bitSet(DISPLAYPORT_DIR,pin_reset);
 
     // Reset the controller state...
-    digitalWrite(this->pin_reset, HIGH);
+    bitSet(DISPLAYPORT,pin_reset);
     //digitalWrite(this->pin_sce, HIGH);
-    digitalWrite(this->pin_reset, LOW);
+    bitClear(DISPLAYPORT,pin_reset);
     delay(100);
-    digitalWrite(this->pin_reset, HIGH);
-
+    bitSet(DISPLAYPORT,pin_reset);
     // Set the LCD parameters...
     this->send(PCD8544_CMD, 0x21);  // extended instruction set control (H=1)
     this->send(PCD8544_CMD, 0x13);  // bias system (1:48)
@@ -342,19 +340,16 @@ void PCD8544::drawColumn(unsigned char lines, unsigned char value)
 
 void PCD8544::send(unsigned char type, unsigned char data)
 {
-
-    //
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
     if (type)
-        bitSet(PORTB,this->pin_dc - 8);
+        bitSet(DISPLAYPORT,this->pin_dc);
     else
-        bitClear(PORTB,this->pin_dc -8);
+        bitClear(DISPLAYPORT,this->pin_dc);
     this->shiftOutFast(this->pin_sdin, this->pin_sclk, data);  //modified, see https://github.com/jenkie/Arduino-Pedelec-Controller/issues/22 Many thanks to pillepalle
 #else
     digitalWrite(this->pin_dc, type);
     shiftOut(this->pin_sdin, this->pin_sclk, MSBFIRST, data);
 #endif
-
 }
 
 //--- shiftOutFast - Shiftout method done in a faster way .. needed for tighter timer process
@@ -362,28 +357,28 @@ void PCD8544::shiftOutFast(unsigned char myDataPin, unsigned char myClockPin, un
 {
 //=== This function shifts 8 bits out MSB first much faster than the normal shiftOut function by writing directly to the memory address for port
 //--- clear data pin
-    bitClear(PORTB,myDataPin);
+    bitClear(DISPLAYPORT,myDataPin);
 
 //Send each bit of the myDataOut byte MSBFIRST
     for (int i=7; i>=0; i--)
     {
-        bitClear(PORTB,myClockPin-8);
+        bitClear(DISPLAYPORT,myClockPin);
 //--- Turn data on or off based on value of bit
         if ( bitRead(myDataOut,i) == 1)
         {
-            bitSet(PORTB,myDataPin-8);
+            bitSet(DISPLAYPORT,myDataPin);
         }
         else
         {
-            bitClear(PORTB,myDataPin-8);
+            bitClear(DISPLAYPORT,myDataPin);
         }
 //register shifts bits on upstroke of clock pin
-        bitSet(PORTB,myClockPin-8);
+        bitSet(DISPLAYPORT,myClockPin);
 //zero the data pin after shift to prevent bleed through
-        bitClear(PORTB,myDataPin-8);
+        bitClear(DISPLAYPORT,myDataPin);
     }
 //stop shifting
-    bitClear(PORTB,myClockPin-8);
+    bitClear(DISPLAYPORT,myClockPin);
 }
 
 //Draws a vertical bargraph with an outer and inner frame. One pixel line at the bottom is left free. It is not used because of 1 pixel necessary distance to the next line of text below the bar.

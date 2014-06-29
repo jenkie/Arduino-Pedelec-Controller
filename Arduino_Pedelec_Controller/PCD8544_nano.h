@@ -48,18 +48,37 @@ class PCD8544: public Print
 
 public:
 // All the pins can be changed from the default values...
-
-    PCD8544(unsigned char sclk  = 9,   /* clock       (display pin 2) */
-            unsigned char sdin  = 10,   /* data-in     (display pin 3) */
-            unsigned char dc    = 11,   /* data select (display pin 4) */
+#if HARDWARE_REV <= 5
+#define DISPLAYPORT PORTB
+#define DISPLAYPORT_DIR DDRB
+    PCD8544(unsigned char sclk  = 1,   /* clock       (display pin 2) */
+            unsigned char sdin  = 2,   /* data-in     (display pin 3) */
+            unsigned char dc    = 3,   /* data select (display pin 4) */
 #if (DISPLAY_TYPE==DISPLAY_TYPE_NOKIA_4PIN)
-            unsigned char reset = 13,   /* reset       (display pin 8) */
-            unsigned char sce   = 12);  /* enable      (display pin 5) */
+            unsigned char reset = 5,   /* reset       (display pin 8) */
+            unsigned char sce   = 4);  /* enable      (display pin 5) */
 #endif
 #if (DISPLAY_TYPE==DISPLAY_TYPE_NOKIA_5PIN)
-            unsigned char reset = 12,   /* reset       (display pin 8) */
-            unsigned char sce   = 13);  /* enable      (display pin 5) */
+            unsigned char reset = 4,   /* reset       (display pin 8) */
+            unsigned char sce   = 5);  /* enable      (display pin 5) */
 #endif 
+#endif
+
+#if HARDWARE_REV == 20
+#define DISPLAYPORT PORTH
+#define DISPLAYPORT_DIR DDRH
+    PCD8544(unsigned char sclk  = 4,   /* clock       (display pin 2) */
+            unsigned char sdin  = 0,   /* data-in     (display pin 3) */
+            unsigned char dc    = 1,   /* data select (display pin 4) */
+#if (DISPLAY_TYPE==DISPLAY_TYPE_NOKIA_4PIN)
+            unsigned char reset = 3,   /* reset       (display pin 8) */
+            unsigned char sce   = 2);  /* enable      (display pin 5) */
+#endif
+#if (DISPLAY_TYPE==DISPLAY_TYPE_NOKIA_5PIN)
+            unsigned char reset = 2,   /* reset       (display pin 8) */
+            unsigned char sce   = 3);  /* enable      (display pin 5) */
+#endif 
+#endif
 
 
     // Display initialization (dimensions in pixels)...

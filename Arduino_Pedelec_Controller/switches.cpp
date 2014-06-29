@@ -156,7 +156,8 @@ static void action_shutdown_system()
 #if HARDWARE_REV >=2
     display_show_important_info(FROM_FLASH(msg_shutdown), 60);
     save_eeprom();
-    digitalWrite(fet_out,HIGH);
+    delay(1000);
+    digitalWrite(fet_out, FET_OFF);
 #endif
 }
 
