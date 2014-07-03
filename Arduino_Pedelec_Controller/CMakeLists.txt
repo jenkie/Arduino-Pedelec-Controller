@@ -10,7 +10,7 @@ include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR}
 
 set(FIRMWARE_NAME pcontroller)
 
-set(${FIRMWARE_NAME}_BOARD atmega328)              # Target board: Arduino nano
+set(${FIRMWARE_NAME}_BOARD ${FC_PROCESSOR})
 set(${FIRMWARE_NAME}_PORT /dev/ttyUSB0)            # Serial upload port
 
 # Hack until we replace the .ino file with a stub

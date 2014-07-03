@@ -12,9 +12,10 @@ configure_file(Hardware_Test.ino testprogram.cpp COPYONLY)
 
 # Hardware test program
 set(TESTPROGRAM_NAME testprogram)
-set(${TESTPROGRAM_NAME}_BOARD atmega328)              # Target board: Arduino nano
-set(${TESTPROGRAM_NAME}_PORT /dev/ttyUSB0)            # Serial upload port
-set(${TESTPROGRAM_NAME}_SRCS                          # Source code
+set(${TESTPROGRAM_NAME}_BOARD ${FC_PROCESSOR})
+set(${TESTPROGRAM_NAME}_PORT /dev/ttyUSB0)
+
+set(${TESTPROGRAM_NAME}_SRCS
     ${CMAKE_CURRENT_BINARY_DIR}/testprogram.cpp
     PCD8544_charset.cpp
     PCD8544_nano.cpp

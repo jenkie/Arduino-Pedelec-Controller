@@ -13,6 +13,9 @@ project(Pedelec_Controller C CXX)
 # Documentation
 option(DOCUMENTATION "Generate API documentation with Doxygen" OFF)
 
+# Processor type. Default to Arduino nano
+set(FC_PROCESSOR atmega328)
+
 find_package(Doxygen)
 if(DOCUMENTATION AND DOXYGEN_FOUND)
 
