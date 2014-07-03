@@ -290,11 +290,35 @@ class CompileTest(unittest.TestCase):
             self.build_firmware(control_mode, control_mode=control_mode, features=my_features)
 
     def test_hw_revisions(self):
-        for hw_revision in [1, 2, 3, 4, 5]:
+        for hw_revision in [1, 2, 3, 4, 5, 20]:
             self.build_firmware(str(hw_revision), hardware_rev = hw_revision)
 
     def test_max_config(self):
         self.build_firmware(hardware_rev = 5,
+                    display_type='NOKIA_4PIN',
+                    serial_mode='DEBUG',
+                    control_mode='TORQUE',
+                    features=[
+                            'SUPPORT_DISPLAY_BACKLIGHT',
+                            'SUPPORT_BMP085',
+                            'SUPPORT_RTC',
+                            'SUPPORT_SOFT_POTI',
+                            'SUPPORT_POTI_SWITCHES',
+                            'SUPPORT_THROTTLE',
+                            'SUPPORT_PAS',
+                            'SUPPORT_XCELL_RT',
+                            'SUPPORT_HRMI',
+                            'SUPPORT_BRAKE',
+                            'SUPPORT_PROFILE_SWITCH_MENU',
+                            'SUPPORT_FIRST_AID_MENU',
+                            'SUPPORT_MOTOR_GUESS',
+                            'SUPPORT_BATTERY_CHARGE_DETECTION',
+                            'SUPPORT_GEAR_SHIFT'
+                        ]
+                    )
+
+    def test_max_config_fc20(self):
+        self.build_firmware(hardware_rev = 20,
                     display_type='NOKIA_4PIN',
                     serial_mode='DEBUG',
                     control_mode='TORQUE',
