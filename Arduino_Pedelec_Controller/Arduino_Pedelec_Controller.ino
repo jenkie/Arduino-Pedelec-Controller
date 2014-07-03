@@ -1007,7 +1007,12 @@ void save_eeprom() //saves variables to eeprom
 {
     if (!variables_saved)
     {
-        variable.voltage=voltage_2s;   //save the voltage value 2 seconds before switch-off-detection
+        //save the voltage value 2 seconds before switch-off-detection
+        if (voltage_2s)
+            variable.voltage=voltage_2s;
+        else
+            variable.voltage=voltage;
+
         variable.wh=wh;          //save watthours drawn from battery
         variable.kilometers=km;        //save trip kilometers
         variable.mah=mah;        //save milliamperehours drawn from battery
