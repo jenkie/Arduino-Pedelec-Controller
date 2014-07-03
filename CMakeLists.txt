@@ -10,11 +10,18 @@ set(CMAKE_TOOLCHAIN_FILE cmake/ArduinoToolchain.cmake) # Arduino Toolchain
 cmake_minimum_required(VERSION 2.8)
 project(Pedelec_Controller C CXX)
 
+
+# "grep" for FC 2.0 hardware in config.h
+file(STRINGS Arduino_Pedelec_Controller/config.h config_h_lines REGEX "^#define HARDWARE_REV 2[0-9]")
+if (config_h_lines)
+    message("Building firmware for FC 2.0 or higher")
+    set(FC_PROCESSOR mega2560)
+else(config_h_lines)
+    set(FC_PROCESSOR atmega328)
+endif(config_h_lines)
+
 # Documentation
 option(DOCUMENTATION "Generate API documentation with Doxygen" OFF)
-
-# Processor type. Default to Arduino nano
-set(FC_PROCESSOR atmega328)
 
 find_package(Doxygen)
 if(DOCUMENTATION AND DOXYGEN_FOUND)
