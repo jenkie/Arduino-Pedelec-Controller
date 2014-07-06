@@ -213,8 +213,13 @@ double power_human=0.0;      //cyclist's power
 double wh_human=0;
 #ifdef SUPPORT_XCELL_RT
 int torque_zero=533;             //Offset of X-Cell RT torque sensor. Adjusted at startup
+#if HARDWARE_REV<20
 const int torquevalues_count=8;
 volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0}; //stores the 8 torque values per pedal roundtrip
+#else
+const int torquevalues_count=16;
+volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; //stores the 16 torque values per pedal roundtrip
+#endif
 volatile byte torqueindex=0;        //index to write next torque value
 volatile boolean readtorque=false;  //true if pas-interrupt received -> read torque in main loop. unfortunately analogRead gives wrong values inside the PAS-interrupt-routine
 #endif
@@ -243,6 +248,7 @@ boolean first_aid_ignore_throttle = false;
 
 // Forward declarations for compatibility with new gcc versions
 void pas_change();
+void pas_change_thun(boolean signal);
 void speed_change();
 void send_serial_data();
 void handle_dspc();
@@ -353,25 +359,24 @@ void setup()
     bitSet(EICRB,7);      //trigger on rising edge INT7 for wheel sensor
     EIMSK  |= (1<<INT7);  //turn on interrupt for wheel sensor
 #ifdef SUPPORT_PAS
-    //attachInterrupt(1, pas_change, CHANGE); //attach interrupt for PAS-Sensor
     bitClear(DDRE,5);      //configure PE5 as input 
     bitSet(PORTE,5);       //enable pull-up on PAS sensor
+#ifndef SUPPORT_XCELL_RT
     bitSet(EICRB,2);      //trigger on any edge INT5 for PAS sensor
     EIMSK  |= (1<<INT5);  //turn on interrupt INT5 for PAS sensor
-#ifdef SUPPORT_XCELL_RT
+#else
     bitClear(DDRE,6);      //configure PE6 as input 
     bitSet(PORTE,6);       //enable pull-up on PAS 2 sensor
-    bitSet(EICRA,3);//trigger on rising edge INT1 for Thun sensor
-    bitSet(EICRB,4);//trigger on rising edge INT6 for Thun sensor
-    bitSet(EICRB,5);//trigger on rising edge INT6 for Thun sensor
+    bitSet(EICRB,2);      //trigger on rising edge INT5 for Thun sensor
+    bitSet(EICRB,3);      //trigger on rising edge INT5 for Thun sensor
+    bitSet(EICRB,4);      //trigger on rising edge INT6 for Thun sensor
+    bitSet(EICRB,5);      //trigger on rising edge INT6 for Thun sensor
+    EIMSK  |= (1<<INT5);  //turn on interrupt INT5 for PAS sensor
     EIMSK  |= (1<<INT6);  //turn on interrupt for Thun sensor
 #endif
 #endif
 #endif
-
-
-    
-    
+     
     myPID.SetMode(AUTOMATIC);             //initialize pid
     myPID.SetOutputLimits(0,1023);        //initialize pid
     myPID.SetSampleTime(10);              //compute pid every 10 ms
@@ -478,18 +483,17 @@ void loop()
 #ifdef SUPPORT_XCELL_RT
     if (readtorque==true)
     {
-        torquevalues[torqueindex]=analogRead(option_pin)-torque_zero;
-        torqueindex++;
         torque=0.0;
         for (int i = 0; i < torquevalues_count; i++)
         {
             torque+=torquevalues[i];
         }
-        if (torqueindex==torquevalues_count)
-            torqueindex=0;
-
         readtorque=false;
+#if HARDWARE_REV<20
         torque=abs((torque)*0.061);
+#else
+        torque=abs((torque)*0.03054740957);
+#endif
         power_human=0.20943951*cad*torque;   //power=2*pi*cadence*torque/60s*2 (*2 because only left side torque is measured by x-cell rt)
     }
 #endif
@@ -764,19 +768,44 @@ void loop()
     }
 }
 
-#if HARDWARE_REV == 20 //attach interrupts manually
+#if HARDWARE_REV >= 20 //attach interrupts manually
     ISR(INT7_vect) {
       speed_change();
     }
 #ifdef SUPPORT_PAS
+#ifdef SUPPORT_XCELL_RT
+    ISR(INT5_vect) {
+      pas_change_thun(false);     
+    }
+      ISR(INT6_vect) {
+      pas_change_thun(true);      
+    }
+#else //no thun bracket
     ISR(INT5_vect) {
       pas_change();     
     }
-#ifdef SUPPORT_XCELL_RT
-      ISR(INT6_vect) {
-      pas_change();      
-    }
 #endif
+#endif
+#endif
+
+#if HARDWARE_REV >= 20
+#ifdef SUPPORT_XCELL_RT
+void pas_change_thun(boolean signal)
+{
+  if (signal)
+    pedaling=bitRead(PINE,5);
+  else
+  {
+    pedaling=!bitRead(PINE,6);
+    cad=7500/(millis()-last_pas_event);
+    last_pas_event = millis();
+  }
+  torquevalues[torqueindex]=analogRead(option_pin)-torque_zero;
+  torqueindex++; 
+  if (torqueindex==torquevalues_count)
+    torqueindex=0; 
+  readtorque=true;
+}
 #endif
 #endif
 
@@ -789,6 +818,10 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
     {
         pas_off_time=millis()-last_pas_event;
 #ifdef SUPPORT_XCELL_RT
+        torquevalues[torqueindex]=analogRead(option_pin)-torque_zero;
+        torqueindex++; 
+        if (torqueindex==torquevalues_count)
+          torqueindex=0; 
         readtorque=true;
 #endif
     }
