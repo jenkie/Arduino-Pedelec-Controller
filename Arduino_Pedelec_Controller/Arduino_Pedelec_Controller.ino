@@ -800,6 +800,9 @@ void pas_change_thun(boolean signal)
     cad=7500/(millis()-last_pas_event);
     last_pas_event = millis();
   }
+  bitClear(ADCSRB,3); //select ADC0-7, we want ADC2
+  ADMUX = B01000010; //select ADC2
+  delayMicroseconds(125); //wait 125 µs to settle at new channel. simple analogread is not working in interrupt
   torquevalues[torqueindex]=analogRead(option_pin)-torque_zero;
   torqueindex++; 
   if (torqueindex==torquevalues_count)
@@ -818,6 +821,8 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
     {
         pas_off_time=millis()-last_pas_event;
 #ifdef SUPPORT_XCELL_RT
+        ADMUX = (DEFAULT << 6) | ((option_pin-14) & 0x07); //select ADC input channel
+        delayMicroseconds(125); //wait 125 µs to settle at new channel. simple analogread is not working in interrupt
         torquevalues[torqueindex]=analogRead(option_pin)-torque_zero;
         torqueindex++; 
         if (torqueindex==torquevalues_count)
