@@ -511,9 +511,14 @@ void loop()
 //Check if Battery was charged since last power down-----------------------------------------------------------------------
     if (firstrun==true)
     {
-#ifdef SUPPORT_BATTERY_CHARGE_DETECTION
+        bool force_eeprom_load = false;
+#ifndef SUPPORT_BATTERY_CHARGE_DETECTION
+        force_eeprom_load = true;
+#endif
+
         if (variable.voltage>(voltage - 2) ||                      //charging detected if voltage is 2V higher than last stored voltage
-            voltage < battery_charged_min_voltage)                 //and higher than min. charged voltage
+            voltage < battery_charged_min_voltage ||               //and higher than min. charged voltage
+            force_eeprom_load)
         {
             wh=variable.wh;
             km=variable.kilometers;
@@ -521,7 +526,7 @@ void loop()
         }
         else
             display_show_important_info(FROM_FLASH(msg_battery_charged), 5);
-#endif
+
         if (voltage<6.0)                                   //do not write new data to eeprom when on USB Power
         {variables_saved=true;}
     }
