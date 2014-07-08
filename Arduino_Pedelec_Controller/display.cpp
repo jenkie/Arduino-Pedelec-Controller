@@ -62,7 +62,7 @@ byte jlcd_zerocounter=0;
 unsigned long jlcd_last_transmission=millis(); //last time jlcd sent data--> still on?
 #endif
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)||(DISPLAY_TYPE & DISPLAY_TYPE_BMS3)
 #if HARDWARE_REV < 20
 #include <SoftwareSerial.h>                //for Kingmeter J-LCD
 static SoftwareSerial mySerial(10, 11);           // RX (YELLOW cable of J-LCD), TX (GREEN-Cable)
@@ -70,7 +70,11 @@ SoftwareSerial* displaySerial=&mySerial;
 #else
 HardwareSerial* displaySerial=&Serial2;
 #endif
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)
 byte slcd_received[]= {0,0,0,0,0,0};
+#else
+byte slcd_received[]={0,0,0,0,0,0,0,0,0,0,0,0,0};
+#endif
 byte slcd_receivecounter=0;
 boolean slcd_lighton=false;                //backlight switched on?
 byte slcd_zerocounter=0;
@@ -752,6 +756,63 @@ static void slcd_update(byte battery, unsigned int wheeltime, byte error)
 
 }
 
+static void slcd3_update(byte battery, unsigned int wheeltime, byte error, byte power, byte symbols)
+{
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BMS3)
+    if (displaySerial->available())
+    {
+        slcd_last_transmission=millis();
+        slcd_receivecounter++;
+        byte receivedbyte=displaySerial->read();
+        if (receivedbyte==0xE) //end of transmission frame detected
+          {slcd_receivecounter=12;}
+        if(slcd_receivecounter>12) //transmission buffer overflow
+          {slcd_receivecounter=0;}
+        if (slcd_receivecounter == 12)            //start of new transmission frame detected
+        {
+            slcd_zerocounter=0;
+            slcd_lighton=(slcd_received[1]&(byte)128)>>7;
+            #ifdef SUPPORT_LIGHTS_SWITCH
+            digitalWrite(lights_pin, slcd_lighton);
+            #endif
+            slcd_received[1]=slcd_received[1]&(byte)127;
+            if (slcd_received[1]<6)                      //set the assist-level (via poti-stat)
+                poti_stat=map(slcd_received[1],0,5,0,1023);
+            if (slcd_received[1]==6)                    //6 means walk-mode
+                throttle_stat=200;
+            else
+                throttle_stat=0;
+            //-------------------------------------------Output to S-LCD start
+            displaySerial->write((byte)0x41);
+            displaySerial->write((byte)battery);
+            displaySerial->write((byte)0x24);
+            displaySerial->write(highByte(wheeltime));
+            displaySerial->write(lowByte(wheeltime));
+            displaySerial->write(error);
+            displaySerial->write((byte)battery^(byte)0x24^highByte(wheeltime)^lowByte(wheeltime)^error^power^symbols); //this is XOR-checksum
+            displaySerial->write(symbols); 
+            displaySerial->write(power); 
+            displaySerial->write((byte)0x00); 
+            displaySerial->write((byte)0x00); 
+            displaySerial->write((byte)0x00); 
+            //-------------------------------------------Output to S-LCD end
+        }
+        else
+            slcd_received[slcd_receivecounter]=receivedbyte;
+    }
+    if ((millis()-slcd_last_transmission)>3000)
+    {
+        throttle_stat=0;
+        poti_stat=0;
+#if HARDWARE_REV >=2
+        save_eeprom();
+        digitalWrite(fet_out,FET_OFF);              //S-LCD turned off
+#endif
+    }
+#endif //(DISPLAY_TYPE & DISPLAY_TYPE_BMS3)
+
+}
+
 
 void display_init()
 {
@@ -767,7 +828,7 @@ void display_init()
     display_16x2_setup();
 #endif
 
-#if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS))
+#if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS3))
     displaySerial->begin(9600);
 #endif
 }
@@ -948,6 +1009,9 @@ void display_update()
 #endif
 #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)
     slcd_update(map(battery_percent_fromcapacity,0,100,0,16),wheel_time,0);
+#endif
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BMS3)
+    slcd3_update(map(battery_percent_fromcapacity,0,100,0,16),wheel_time, 0, max(power/9.75,0), (byte)0x20*(!brake_stat));
 #endif
 
 }

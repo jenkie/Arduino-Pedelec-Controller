@@ -83,7 +83,7 @@ Time now;
 #error Lights switch is only possible on FC hardware rev 3 or newer
 #endif
 
-#if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS))
+#if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS3))
 #if HARDWARE_REV < 20
 #include <SoftwareSerial.h>      //for Kingmeter J-LCD and BMS S-LCD
 #endif
@@ -426,7 +426,7 @@ void loop()
         poti_stat = constrain(map(analogRead(poti_in),poti_offset,poti_max,0,1023),0,1023);   // 0...1023
 #endif
 
-#if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS))
+#if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS3))
     display_update();
 #endif
 
@@ -441,7 +441,7 @@ void loop()
     {
         throttle_stat=0;
     }
-#elif (DISPLAY_TYPE!=DISPLAY_TYPE_KINGMETER) && (DISPLAY_TYPE!=DISPLAY_TYPE_BMS)
+#elif (DISPLAY_TYPE!=DISPLAY_TYPE_KINGMETER) && (DISPLAY_TYPE!=DISPLAY_TYPE_BMS)&& (DISPLAY_TYPE!=DISPLAY_TYPE_BMS3)
     // Reset throttle_stat for non-serial communicating displays if SUPPORT_THROTTLE is disabled
     // This is needed to switch off ACTION_FIXED_THROTTLE_VALUE.
     throttle_stat=0;
@@ -708,7 +708,7 @@ void loop()
         wh_human+=(millis()-last_writetime)/3600000.0*power_human;  //human watthours calculation
         mah+=current*(millis()-last_writetime)/3600.0;  //mah calculation
 
-#if !((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS))
+#if !((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS3))
 #if !(DISPLAY_TYPE & DISPLAY_TYPE_NONE)
         display_update();
 #endif

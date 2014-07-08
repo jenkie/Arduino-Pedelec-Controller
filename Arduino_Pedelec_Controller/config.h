@@ -20,6 +20,7 @@
 #define DISPLAY_TYPE_BMS (1<<5)              //BMS Battery S-LCD
 #define DISPLAY_TYPE_16X2_SERIAL (1<<6)    //16x2 LCD via serial connection (New Haven display)
 #define DISPLAY_TYPE_16X2 (DISPLAY_TYPE_16X2_LCD_4BIT|DISPLAY_TYPE_16X2_SERIAL)
+#define DISPLAY_TYPE_BMS3 (1<<7)              //BMS Battery S-LCD3
 
 #define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_4PIN //Set your display type here. CHANGES ONLY HERE!<-----------------------------
 
