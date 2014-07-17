@@ -331,9 +331,16 @@ void setup()
     digitalWrite(switch_disp, HIGH);      // turn on pullup resistors on display-switch
     digitalWrite(wheel_in, HIGH);         // turn on pullup resistors on wheel-sensor
     digitalWrite(pas_in, HIGH);           // turn on pullup resistors on pas-sensor
+
 #if defined(SUPPORT_DISPLAY_BACKLIGHT) && !(DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
+#if HARDWARE_REV >= 20
+    bitSet(DDRH, 2);
+    bitClear(PORTH, 2);
+#else
     pinMode(display_backlight_pin, OUTPUT);
 #endif
+#endif
+
 #ifdef SUPPORT_GEAR_SHIFT
     pinMode(gear_shift_pin_low_gear, OUTPUT);
     pinMode(gear_shift_pin_high_gear, OUTPUT);

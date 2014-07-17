@@ -49,6 +49,9 @@ static void turn_backlight_on()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
     display_16x_serial_enable_backlight();
+#elif HARDWARE_REV >= 20
+    // TODO: Make configurable
+    bitSet(PORTH, 2);
 #else
     digitalWrite(display_backlight_pin, HIGH);
 #endif
@@ -65,6 +68,9 @@ static void turn_backlight_off()
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
     display_16x_serial_disable_backlight();
+#elif HARDWARE_REV >= 20
+    // TODO: Make configurable
+    bitClear(PORTH, 2);
 #else
     digitalWrite(display_backlight_pin, LOW);
 #endif
