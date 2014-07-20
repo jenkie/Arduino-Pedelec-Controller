@@ -75,10 +75,15 @@ void PCD8544::begin(unsigned char width, unsigned char height, unsigned char mod
     bitSet(DISPLAYPORT_DIR,pin_sdin);
     bitSet(DISPLAYPORT_DIR,pin_dc);
     bitSet(DISPLAYPORT_DIR,pin_reset);
+    #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_5PIN)
+    bitSet(DISPLAYPORT_DIR,pin_sce);
+    bitClear(DISPLAYPORT,pin_sce);
+    #endif
+    bitSet(DISPLAYPORT_DIR,pin_reset);
+    
 
     // Reset the controller state...
     bitSet(DISPLAYPORT,pin_reset);
-    //digitalWrite(this->pin_sce, HIGH);
     bitClear(DISPLAYPORT,pin_reset);
     delay(100);
     bitSet(DISPLAYPORT,pin_reset);
@@ -340,16 +345,12 @@ void PCD8544::drawColumn(unsigned char lines, unsigned char value)
 
 void PCD8544::send(unsigned char type, unsigned char data)
 {
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_4PIN)
     if (type)
         bitSet(DISPLAYPORT,this->pin_dc);
     else
         bitClear(DISPLAYPORT,this->pin_dc);
     this->shiftOutFast(this->pin_sdin, this->pin_sclk, data);  //modified, see https://github.com/jenkie/Arduino-Pedelec-Controller/issues/22 Many thanks to pillepalle
-#else
-    digitalWrite(this->pin_dc, type);
-    shiftOut(this->pin_sdin, this->pin_sclk, MSBFIRST, data);
-#endif
+
 }
 
 //--- shiftOutFast - Shiftout method done in a faster way .. needed for tighter timer process
