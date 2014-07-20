@@ -79,9 +79,7 @@ void PCD8544::begin(unsigned char width, unsigned char height, unsigned char mod
     bitSet(DISPLAYPORT_DIR,pin_sce);
     bitClear(DISPLAYPORT,pin_sce);
     #endif
-    bitSet(DISPLAYPORT_DIR,pin_reset);
-    
-
+  
     // Reset the controller state...
     bitSet(DISPLAYPORT,pin_reset);
     bitClear(DISPLAYPORT,pin_reset);

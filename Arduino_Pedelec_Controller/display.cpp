@@ -816,12 +816,6 @@ static void slcd3_update(byte battery, unsigned int wheeltime, byte error, byte 
 
 void display_init()
 {
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_5PIN)
-    // Note: Pin 13 is currently the SCE line, see PCD8544_nano.h
-    pinMode(13,OUTPUT);
-    digitalWrite(13,LOW);
-#endif
-
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     display_nokia_setup();
 #elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
