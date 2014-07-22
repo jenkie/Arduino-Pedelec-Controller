@@ -61,7 +61,7 @@ public:
 #if (DISPLAY_TYPE==DISPLAY_TYPE_NOKIA_5PIN)
             unsigned char reset = 4,   /* reset       (display pin 8) */
             unsigned char sce   = 5);  /* enable      (display pin 5) */
-#endif 
+#endif
 #endif
 
 #if HARDWARE_REV == 20
@@ -77,7 +77,7 @@ public:
 #if (DISPLAY_TYPE==DISPLAY_TYPE_NOKIA_5PIN)
             unsigned char reset = 2,   /* reset       (display pin 8) */
             unsigned char sce   = 3);  /* enable      (display pin 5) */
-#endif 
+#endif
 #endif
 
 

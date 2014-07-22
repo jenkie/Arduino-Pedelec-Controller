@@ -75,11 +75,11 @@ void PCD8544::begin(unsigned char width, unsigned char height, unsigned char mod
     bitSet(DISPLAYPORT_DIR,pin_sdin);
     bitSet(DISPLAYPORT_DIR,pin_dc);
     bitSet(DISPLAYPORT_DIR,pin_reset);
-    #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_5PIN)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA_5PIN)
     bitSet(DISPLAYPORT_DIR,pin_sce);
     bitClear(DISPLAYPORT,pin_sce);
-    #endif
-  
+#endif
+
     // Reset the controller state...
     bitSet(DISPLAYPORT,pin_reset);
     bitClear(DISPLAYPORT,pin_reset);

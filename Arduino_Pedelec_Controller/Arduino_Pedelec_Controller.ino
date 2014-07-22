@@ -268,14 +268,14 @@ int memFree()
 //Setup---------------------------------------------------------------------------------------------------------------------
 void setup()
 {
-    #if HARDWARE_REV == 20
+#if HARDWARE_REV == 20
     pinMode(buzzer, OUTPUT);
     tone(buzzer, 261, 50);
     delay(50);
-    tone(buzzer,329, 50); 
+    tone(buzzer,329, 50);
     delay(50);
-    tone(buzzer,440, 50); 
-    #endif
+    tone(buzzer,440, 50);
+#endif
     Serial.begin(115200);     //bluetooth-module requires 115200
 
 #ifdef DEBUG_MEMORY_USAGE
@@ -330,7 +330,7 @@ void setup()
     digitalWrite(bluetooth_pin, LOW);     // turn bluetooth off
 #endif
 
-    digitalWrite(fet_out, FET_ON);           // turn on whole system on 
+    digitalWrite(fet_out, FET_ON);           // turn on whole system on
 #endif
 #ifdef SUPPORT_BRAKE
     digitalWrite(brake_in, HIGH);         // turn on pullup resistors on brake
@@ -368,19 +368,19 @@ void setup()
 #endif
     attachInterrupt(1, speed_change, RISING); //attach interrupt for Wheel-Sensor
 #else
-    bitClear(DDRE,7);      //configure PE7 as input 
+    bitClear(DDRE,7);      //configure PE7 as input
     bitSet(PORTE,7);       //enable pull-up on wheel sensor
     bitSet(EICRB,6);      //trigger on rising edge INT7 for wheel sensor
     bitSet(EICRB,7);      //trigger on rising edge INT7 for wheel sensor
     EIMSK  |= (1<<INT7);  //turn on interrupt for wheel sensor
 #ifdef SUPPORT_PAS
-    bitClear(DDRE,5);      //configure PE5 as input 
+    bitClear(DDRE,5);      //configure PE5 as input
     bitSet(PORTE,5);       //enable pull-up on PAS sensor
 #ifndef SUPPORT_XCELL_RT
     bitSet(EICRB,2);      //trigger on any edge INT5 for PAS sensor
     EIMSK  |= (1<<INT5);  //turn on interrupt INT5 for PAS sensor
 #else
-    bitClear(DDRE,6);      //configure PE6 as input 
+    bitClear(DDRE,6);      //configure PE6 as input
     bitSet(PORTE,6);       //enable pull-up on PAS 2 sensor
     bitSet(EICRB,2);      //trigger on rising edge INT5 for Thun sensor
     bitSet(EICRB,3);      //trigger on rising edge INT5 for Thun sensor
@@ -391,7 +391,7 @@ void setup()
 #endif
 #endif
 #endif
-     
+
     myPID.SetMode(AUTOMATIC);             //initialize pid
     myPID.SetOutputLimits(0,1023);        //initialize pid
     myPID.SetSampleTime(10);              //compute pid every 10 ms
@@ -537,8 +537,8 @@ void loop()
 #endif
 
         if (variable.voltage>(voltage - 2) ||                      //charging detected if voltage is 2V higher than last stored voltage
-            voltage < battery_charged_min_voltage ||               //and higher than min. charged voltage
-            force_eeprom_load)
+                voltage < battery_charged_min_voltage ||               //and higher than min. charged voltage
+                force_eeprom_load)
         {
             wh=variable.wh;
             km=variable.kilometers;
@@ -794,21 +794,25 @@ void loop()
 }
 
 #if HARDWARE_REV >= 20 //attach interrupts manually
-    ISR(INT7_vect) {
-      speed_change();
-    }
+ISR(INT7_vect)
+{
+    speed_change();
+}
 #ifdef SUPPORT_PAS
 #ifdef SUPPORT_XCELL_RT
-    ISR(INT5_vect) {
-      pas_change_thun(false);     
-    }
-      ISR(INT6_vect) {
-      pas_change_thun(true);      
-    }
+ISR(INT5_vect)
+{
+    pas_change_thun(false);
+}
+ISR(INT6_vect)
+{
+    pas_change_thun(true);
+}
 #else //no thun bracket
-    ISR(INT5_vect) {
-      pas_change();     
-    }
+ISR(INT5_vect)
+{
+    pas_change();
+}
 #endif
 #endif
 #endif
@@ -817,22 +821,22 @@ void loop()
 #ifdef SUPPORT_XCELL_RT
 void pas_change_thun(boolean signal)
 {
-  if (signal)
-    pedaling=bitRead(PINE,5);
-  else
-  {
-    pedaling=!bitRead(PINE,6);
-    cad=7500/(millis()-last_pas_event);
-    last_pas_event = millis();
-  }
-  bitClear(ADCSRB,3); //select ADC0-7, we want ADC2
-  ADMUX = B01000010; //select ADC2
-  delayMicroseconds(125); //wait 125 µs to settle at new channel. simple analogread is not working in interrupt
-  torquevalues[torqueindex]=analogRead(option_pin)-torque_zero;
-  torqueindex++; 
-  if (torqueindex==torquevalues_count)
-    torqueindex=0; 
-  readtorque=true;
+    if (signal)
+        pedaling=bitRead(PINE,5);
+    else
+    {
+        pedaling=!bitRead(PINE,6);
+        cad=7500/(millis()-last_pas_event);
+        last_pas_event = millis();
+    }
+    bitClear(ADCSRB,3); //select ADC0-7, we want ADC2
+    ADMUX = B01000010; //select ADC2
+    delayMicroseconds(125); //wait 125 µs to settle at new channel. simple analogread is not working in interrupt
+    torquevalues[torqueindex]=analogRead(option_pin)-torque_zero;
+    torqueindex++;
+    if (torqueindex==torquevalues_count)
+        torqueindex=0;
+    readtorque=true;
 }
 #endif
 #endif
@@ -849,9 +853,9 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
         ADMUX = (DEFAULT << 6) | ((option_pin-14) & 0x07); //select ADC input channel
         delayMicroseconds(125); //wait 125 µs to settle at new channel. simple analogread is not working in interrupt
         torquevalues[torqueindex]=analogRead(option_pin)-torque_zero;
-        torqueindex++; 
+        torqueindex++;
         if (torqueindex==torquevalues_count)
-          torqueindex=0; 
+            torqueindex=0;
         readtorque=true;
 #endif
     }

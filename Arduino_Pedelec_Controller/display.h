@@ -42,7 +42,7 @@ typedef enum {DISPLAY_MODE_TEXT,
               DISPLAY_MODE_GRAPHIC,               // Note: Same as _TEXT on 16x2 displays
               DISPLAY_MODE_MENU,
               DISPLAY_MODE_IMPORTANT_INFO
-} display_mode_type;
+             } display_mode_type;
 
 typedef enum {DISPLAY_VIEW_MAIN=0,
               DISPLAY_VIEW_TIME,
@@ -52,7 +52,7 @@ typedef enum {DISPLAY_VIEW_MAIN=0,
 #endif
               DISPLAY_VIEW_HUMAN,
               _DISPLAY_VIEW_END
-} display_view_type;
+             } display_view_type;
 
 extern display_view_type display_view;
 

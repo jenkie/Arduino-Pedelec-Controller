@@ -73,7 +73,7 @@ HardwareSerial* displaySerial=&Serial2;
 #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)
 byte slcd_received[]= {0,0,0,0,0,0};
 #else
-byte slcd_received[]={0,0,0,0,0,0,0,0,0,0,0,0,0};
+byte slcd_received[]= {0,0,0,0,0,0,0,0,0,0,0,0,0};
 #endif
 byte slcd_receivecounter=0;
 boolean slcd_lighton=false;                //backlight switched on?
@@ -258,9 +258,9 @@ static void display_nokia_setup()    //first time setup of nokia display
 }
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
-    // TODO: Add PROGMEM support
-    static const byte serial_break_symbol[8] = { 0x0,0xa,0x11,0x15,0x11,0xa,0x0,0x0 }; //Symbol for showing that the bikes brake is active
-    static const byte serial_batt_symbol[8] = { 0xe,0x1f,0x1f,0x1f,0x1f,0x1f,0x1f,0x0 };  //Symbol for the battery
+// TODO: Add PROGMEM support
+static const byte serial_break_symbol[8] = { 0x0,0xa,0x11,0x15,0x11,0xa,0x0,0x0 }; //Symbol for showing that the bikes brake is active
+static const byte serial_batt_symbol[8] = { 0xe,0x1f,0x1f,0x1f,0x1f,0x1f,0x1f,0x0 };  //Symbol for the battery
 #endif
 
 static void display_16x2_setup()
@@ -323,16 +323,16 @@ static void printTime(unsigned long sec)  //print time in exactly 5 characters: 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
 static void display_16x2_view_main()
 {
-/*
-    // DEBUG code
-    spd = 25;
-    power = 198;
-    battery_percent_fromcapacity = 21;
-    km = 137.8;
-*/
+    /*
+        // DEBUG code
+        spd = 25;
+        power = 198;
+        battery_percent_fromcapacity = 21;
+        km = 137.8;
+    */
     lcd.setCursor(0,0);
     if (spd<10)
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     lcd.print(round(spd),0);
     lcd.print(MY_F(" km/h  "));
 
@@ -343,9 +343,9 @@ static void display_16x2_view_main()
         power_display = 0;
 
     if (power_display<10)
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     if (power_display<100)
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     if (power_display < 0)
         lcd.print(MY_F("0"));
     else
@@ -381,11 +381,11 @@ static void display_16x2_view_time()
     lcd.print("Clock: ");
 
     if (now.hh<10)
-      lcd.print(MY_F("0"));
+        lcd.print(MY_F("0"));
     lcd.print(now.hh);
     lcd.print(MY_F(":"));
     if (now.mm<10)
-      lcd.print(MY_F("0"));
+        lcd.print(MY_F("0"));
     lcd.print(now.mm);
 #endif
 }
@@ -397,7 +397,7 @@ static void display_16x2_view_battery()
     lcd.print(MY_F(" V - "));
 
     if ((current_display<9.5)&&(current_display>0))
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     lcd.print(current_display,1);
     lcd.print(MY_F(" A "));
 
@@ -435,7 +435,8 @@ static void display_16x2_view_environment()
         lcd.print((int)altitude);
         lcd.print(MY_F("m"));
         lcd.print(MY_F(" "));
-    } else
+    }
+    else
     {
         lcd.print(MY_F("Slope: "));
         lcd.print(slope,0);
@@ -449,9 +450,9 @@ static void display_16x2_view_human()
     lcd.setCursor(0,0);
     lcd.print(MY_F("CAD: "));
     if (cad<100)
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     if (cad<10)
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     lcd.print(cad,10);
 
 #ifdef SUPPORT_HRMI
@@ -564,47 +565,47 @@ static void display_nokia_update()
 
     lcd.setCursor(6,0);
     if ((current_display<9.5)&&(current_display>0))
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     lcd.print(current_display,1);
 
     lcd.setCursor(10,0);
     if (battery_percent_fromcapacity<100)
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     if (battery_percent_fromcapacity<9.5)
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     lcd.print(battery_percent_fromcapacity);
 
     lcd.setCursor(0,1);
     if (power<99.5)
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     if (power<9.5)
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     lcd.print(power,0);
 
     lcd.setCursor(9,1);
     if (wh<99.5)
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     if (wh<9.5)
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     lcd.print(wh,0);
 
     lcd.setCursor(0,3);
     if (spd<9.5)
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     lcd.print(spd,1);
 
     lcd.setCursor(5,3);
     if (km<99.5)
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     if (km<9.5)
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     lcd.print(km,1);
 
     lcd.setCursor(11,3);
     if (cad<100)
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     if (cad<10)
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
     lcd.print(cad,10);
 
     lcd.setCursor(0,4);
@@ -639,9 +640,9 @@ static void display_nokia_update()
 #if HARDWARE_REV >=2
     lcd.setCursor(13,5);
     if (digitalRead(bluetooth_pin)==1)
-        {lcd.write(2);}
+    {lcd.write(2);}
     else
-        {lcd.print(MY_F(" "));}
+    {lcd.print(MY_F(" "));}
 #endif
 #endif // (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 }
@@ -660,9 +661,9 @@ static void jlcd_update(byte battery, unsigned int wheeltime, byte error, int po
             {
                 jlcd_zerocounter=0;
                 jlcd_lighton=(jlcd_received[1]&(byte)128)>>7;
-                #ifdef SUPPORT_LIGHTS_SWITCH
+#ifdef SUPPORT_LIGHTS_SWITCH
                 digitalWrite(lights_pin, jlcd_lighton);
-                #endif
+#endif
                 jlcd_received[1]=jlcd_received[1]&(byte)127;
                 if (jlcd_received[1]<6)                      //set the assist-level (via poti-stat)
                     poti_stat=map(jlcd_received[1],1,5,0,1023);
@@ -713,16 +714,16 @@ static void slcd_update(byte battery, unsigned int wheeltime, byte error)
         slcd_receivecounter++;
         byte receivedbyte=displaySerial->read();
         if (receivedbyte==0xE) //end of transmission frame detected
-          {slcd_receivecounter=6;}
+        {slcd_receivecounter=6;}
         if(slcd_receivecounter>6) //transmission buffer overflow
-          {slcd_receivecounter=0;}
+        {slcd_receivecounter=0;}
         if (slcd_receivecounter == 6)            //start of new transmission frame detected
         {
             slcd_zerocounter=0;
             slcd_lighton=(slcd_received[1]&(byte)128)>>7;
-            #ifdef SUPPORT_LIGHTS_SWITCH
+#ifdef SUPPORT_LIGHTS_SWITCH
             digitalWrite(lights_pin, slcd_lighton);
-            #endif
+#endif
             slcd_received[1]=slcd_received[1]&(byte)127;
             if (slcd_received[1]<6)                      //set the assist-level (via poti-stat)
                 poti_stat=map(slcd_received[1],0,5,0,1023);
@@ -765,16 +766,16 @@ static void slcd3_update(byte battery, unsigned int wheeltime, byte error, byte 
         slcd_receivecounter++;
         byte receivedbyte=displaySerial->read();
         if (receivedbyte==0xE) //end of transmission frame detected
-          {slcd_receivecounter=12;}
+        {slcd_receivecounter=12;}
         if(slcd_receivecounter>12) //transmission buffer overflow
-          {slcd_receivecounter=0;}
+        {slcd_receivecounter=0;}
         if (slcd_receivecounter == 12)            //start of new transmission frame detected
         {
             slcd_zerocounter=0;
             slcd_lighton=(slcd_received[1]&(byte)128)>>7;
-            #ifdef SUPPORT_LIGHTS_SWITCH
+#ifdef SUPPORT_LIGHTS_SWITCH
             digitalWrite(lights_pin, slcd_lighton);
-            #endif
+#endif
             slcd_received[1]=slcd_received[1]&(byte)127;
             if (slcd_received[1]<6)                      //set the assist-level (via poti-stat)
                 poti_stat=map(slcd_received[1],0,5,0,1023);
@@ -790,11 +791,11 @@ static void slcd3_update(byte battery, unsigned int wheeltime, byte error, byte 
             displaySerial->write(lowByte(wheeltime));
             displaySerial->write(error);
             displaySerial->write((byte)battery^(byte)0x24^highByte(wheeltime)^lowByte(wheeltime)^error^power^symbols); //this is XOR-checksum
-            displaySerial->write(symbols); 
-            displaySerial->write(power); 
-            displaySerial->write((byte)0x00); 
-            displaySerial->write((byte)0x00); 
-            displaySerial->write((byte)0x00); 
+            displaySerial->write(symbols);
+            displaySerial->write(power);
+            displaySerial->write((byte)0x00);
+            displaySerial->write((byte)0x00);
+            displaySerial->write((byte)0x00);
             //-------------------------------------------Output to S-LCD end
         }
         else
@@ -833,7 +834,8 @@ void display_init()
 //all bitmaps are created using this great bitmap generator http://www.introtoarduino.com/utils/pcd8544.html
 //big characters 0-9 for displaying speed in 9x16 pixel format.
 //big characters for the numbers 0..9  in 9x15 pixel size, used for displaying the speed
-static const byte bitmapBigNumber[10][2 * 9] PROGMEM = {
+static const byte bitmapBigNumber[10][2 * 9] PROGMEM =
+{
     {   0xFC, 0xFE, 0x07, 0x03, 0x03, 0x03, 0x07, 0xFE, 0xFC,   0x1F, 0x3F, 0x70, 0x60, 0x60, 0x60, 0x70, 0x3F, 0x1F},
     {   0x00, 0x18, 0x1C, 0x0E, 0xFF, 0xFF, 0x00, 0x00, 0x00,   0x00, 0x00, 0x60, 0x60, 0x7F, 0x7F, 0x60, 0x60, 0x00},
     {   0x0C, 0x0E, 0x07, 0x03, 0x03, 0x83, 0xC7, 0xFE, 0x7C,   0x70, 0x78, 0x7C, 0x6E, 0x67, 0x63, 0x61, 0x60, 0x60},
@@ -943,13 +945,13 @@ static void display_nokia_update_graphic()
     //todo: implement real trip time measurement, including timeouts. Currently it is only the time after the last reset
 #ifdef SUPPORT_RTC
     if (now.hh<10)
-      lcd.print(MY_F("0"));
+        lcd.print(MY_F("0"));
     lcd.print(now.hh);
     lcd.print(MY_F(":"));
     if (now.mm<10)
-      lcd.print(MY_F("0"));
+        lcd.print(MY_F("0"));
     lcd.print(now.mm);
-#else  
+#else
     printTime(millis() / 1000UL);  //millis can be used, because they roll over only after 50 days
 #endif
 }
