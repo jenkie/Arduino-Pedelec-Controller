@@ -214,8 +214,7 @@ static void handle_shutdown(MenuItem* p_menu_item)
     // Shut down system
 #if HARDWARE_REV >=2
     display_show_important_info(FROM_FLASH(msg_shutdown), 60);
-    save_eeprom();
-    digitalWrite(fet_out,HIGH);
+    save_shutdown();
 #endif
 
     menu_active = false;

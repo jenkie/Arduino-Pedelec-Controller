@@ -32,7 +32,6 @@ Features:
 #include "display.h"         //display output functions
 #include "display_backlight.h"  // LCD display backlight support
 #include "EEPROM.h"
-#include "EEPROMAnything.h"  //to enable data storage when powered off
 #include "PID_v1_nano.h"
 #include "switches.h"        //contains switch handling functions
 #include "menu.h"            //on the go menu
@@ -101,6 +100,7 @@ struct savings   //add variables if you want to store additional values to the e
     unsigned long odo; //overall kilometers in units of wheel roundtrips
 };
 savings variable = {0.0, 0.0, 0.0, 0.0, 0}; //variable stores last voltage and capacity read from EEPROM
+savings variable_new = {0.0, 0.0, 0.0, 0.0, 0}; //variable_new stores new EEPROM values
 
 //Pin Assignments-----------------------------------------------------------------------------------------------------
 #if HARDWARE_REV == 1
@@ -202,7 +202,6 @@ volatile unsigned long last_pas_event = millis();  //last change-time of PAS sen
 #define pas_time 60000/pas_magnets //conversion factor for pas_time to rpm (cadence)
 volatile boolean pedaling = false;  //pedaling? (in forward direction!)
 boolean firstrun = true;  //first run of loop?
-boolean variables_saved = false; //has everything been saved after Switch-Off detected?
 boolean brake_stat = true; //brake activated?
 PID myPID(&power, &pid_out,&pid_set,pid_p,pid_i,0, DIRECT);
 unsigned int idle_shutdown_count = 0;
@@ -252,7 +251,10 @@ void pas_change_thun(boolean signal);
 void speed_change();
 void send_serial_data();
 void handle_dspc();
+void read_eeprom();
 void save_eeprom();
+void save_shutdown();
+void handle_unused_pins();
 
 #ifdef DEBUG_MEMORY_USAGE
 int memFree()
@@ -274,6 +276,7 @@ void setup()
     tone(buzzer,329, 50);
     delay(50);
     tone(buzzer,440, 50);
+    handle_unused_pins(); //for current saving
 #endif
     Serial.begin(115200);     //bluetooth-module requires 115200
 
@@ -362,8 +365,8 @@ void setup()
     digitalWrite(gear_shift_pin_high_gear, HIGH);
 #endif
 
-    EEPROM_readAnything(0,variable);      //read stored variables
-    odo=variable.odo;                     //load overall kilometers from eeprom
+    read_eeprom();      //read stored variables
+    odo=variable.odo;   //load overall kilometers from eeprom
     display_show_welcome_msg();
 
 //setup interrupt handling
@@ -551,16 +554,13 @@ void loop()
         }
         else
             display_show_important_info(FROM_FLASH(msg_battery_charged), 5);
-
-        if (voltage<6.0)                                   //do not write new data to eeprom when on USB Power
-        {variables_saved=true;}
     }
     firstrun=false;                                     //first loop run done (ok, up to this line :))
 
 //Check power-off condition ---------------------------------------------------------------------------------------------
-    if ((voltage<20.0)&&(variables_saved==false)) //save to EEPROM when Switch-Off detected
+    if ((voltage<20.0)&&(voltage_2s>6.0)) //save to EEPROM when battery disconnect detected. Do this only if not running on usb power
     {
-        save_eeprom();
+        save_shutdown();
     }
 
 //Are we pedaling?---------------------------------------------------------------------------------------------------------
@@ -747,8 +747,6 @@ void loop()
         send_serial_data();                                        //sends data over serial port depending on SERIAL_MODE
 
 #if HARDWARE_REV >= 2
-        if (!variables_saved) //this is only necessary if not already switched off!
-        {
 // Idle shutdown
             if (last_wheel_time != idle_shutdown_last_wheel_time)
             {
@@ -761,8 +759,7 @@ void loop()
                 if (idle_shutdown_count > idle_shutdown_secs)
                 {
                     display_show_important_info(FROM_FLASH(msg_idle_shutdown), 60);
-                    save_eeprom();
-                    digitalWrite(fet_out,FET_OFF);
+                    save_shutdown();
                 }
             }
 
@@ -774,10 +771,8 @@ void loop()
             {
                 display_show_important_info(FROM_FLASH(msg_emergency_shutdown), 60);
                 delay(1000);
-                save_eeprom();
-                digitalWrite(fet_out,FET_OFF);
+                save_shutdown();
             }
-        }
 #endif
 #ifdef SUPPORT_HRMI
         pulse_human=getHeartRate();
@@ -1075,21 +1070,76 @@ void handle_dspc()
 #endif
 }
 
-void save_eeprom() //saves variables to eeprom
+void save_eeprom()
 {
-    if (!variables_saved)
-    {
-        //save the voltage value 2 seconds before switch-off-detection
-        if (voltage_2s)
-            variable.voltage=voltage_2s;
-        else
-            variable.voltage=voltage;
+  //save the voltage value 2 seconds before switch-off-detection    
+  if (voltage_2s)
+      variable_new.voltage=voltage_2s;
+  else
+      variable_new.voltage=voltage;
 
-        variable.wh=wh;          //save watthours drawn from battery
-        variable.kilometers=km;        //save trip kilometers
-        variable.mah=mah;        //save milliamperehours drawn from battery
-        variable.odo=odo;
-        EEPROM_writeAnything(0,variable);
-        variables_saved=true;
-    }
+  variable_new.wh=wh;          //save watthours drawn from battery
+  variable_new.kilometers=km;  //save trip kilometers
+  variable_new.mah=mah;        //save milliamperehours drawn from battery
+  variable_new.odo=odo;        //save total kilometers
+  const byte* p_new = (const byte*)(const void*)&variable_new; //pointer to new variables to save
+  const byte* p_old = (const byte*)(const void*)&variable; //pointer to current EEPROM content
+  int i;
+  for (i = 0; i < sizeof(variable_new); i++)
+  {
+    if (*p_new==*p_old) //this byte has not changed --> ignore
+      *p_new++;
+    else
+      EEPROM.write(i, *p_new++); //this byte has changed --> write     
+    p_old++;
+  }  
+}
+
+void read_eeprom()
+{
+  byte* p = (byte*)(void*)&variable;
+  int i;
+  cli();
+  for (i = 0; i < sizeof(variable); i++)
+    *p++ = EEPROM.read(i);
+  sei();
+}
+
+void save_shutdown()
+{
+  //power saving stuff. This is critical if battery is disconnected.
+  EIMSK=0; //disable interrupts
+  cli(); //disable interrupts
+  ADCSRA = 0; //disable ADC 
+#if HARDWARE_REV < 20
+  PRR=B11101111;
+#else
+  PRR0=B11101111; //shut down I2C, Timers, ADCs, UARTS
+  PRR1=B00111111; //shut down I2C, Timers, ADCs, UARTS   
+#endif  
+  digitalWrite(throttle_out,0); //turn motor off
+  
+  save_eeprom(); //save variables now
+  
+  digitalWrite(fet_out,FET_OFF); //turn off
+  while(true); //there is nothing more to do -> stay in endless loop until turned off
+}
+
+void handle_unused_pins()
+{
+#if HARDWARE_REV >= 20
+  //this saves 10-20 mA!
+  DDRA=0; //set all Ports to input
+  PORTA = B11111111;
+  PORTB|= B01010001;
+  PORTC = B11111111;
+  PORTD|= B01110000;
+  PORTE|= B00000100;
+  PORTF|= B11000011;
+  PORTG|= B00011111;
+  PORTH|= B10000000;
+  PORTJ|= B11111100;
+  PORTK|= B00111111;
+  PORTL|= B11000111;
+#endif
 }

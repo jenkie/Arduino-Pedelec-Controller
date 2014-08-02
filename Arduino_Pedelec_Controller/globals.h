@@ -68,6 +68,7 @@ extern boolean first_aid_ignore_poti;
 extern boolean first_aid_ignore_throttle;
 
 extern void save_eeprom();
+extern void save_shutdown();
 extern void activate_new_profile();
 
 extern RTC_DS1307 rtc;

@@ -124,7 +124,6 @@ static void handle_command()
             break;
         case 1:              //total kilometers
             odo = atoi(numberstring)*1000.0/wheel_circumference;
-            variables_saved=false;
             save_eeprom();
             break;
         case 2:              //short button press

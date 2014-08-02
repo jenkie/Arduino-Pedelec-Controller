@@ -697,8 +697,7 @@ static void jlcd_update(byte battery, unsigned int wheeltime, byte error, int po
         throttle_stat=0;
         poti_stat=0;
 #if HARDWARE_REV >=2
-        save_eeprom();
-        digitalWrite(fet_out,FET_OFF);              //J-LCD turned off
+        save_shutdown();
 #endif
     }
 #endif //(DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
@@ -749,8 +748,7 @@ static void slcd_update(byte battery, unsigned int wheeltime, byte error)
         throttle_stat=0;
         poti_stat=0;
 #if HARDWARE_REV >=2
-        save_eeprom();
-        digitalWrite(fet_out,FET_OFF);              //S-LCD turned off
+        save_shutdown();
 #endif
     }
 #endif //(DISPLAY_TYPE & DISPLAY_TYPE_BMS)
@@ -806,8 +804,7 @@ static void slcd3_update(byte battery, unsigned int wheeltime, byte error, byte 
         throttle_stat=0;
         poti_stat=0;
 #if HARDWARE_REV >=2
-        save_eeprom();
-        digitalWrite(fet_out,FET_OFF);              //S-LCD turned off
+        save_shutdown();
 #endif
     }
 #endif //(DISPLAY_TYPE & DISPLAY_TYPE_BMS3)
