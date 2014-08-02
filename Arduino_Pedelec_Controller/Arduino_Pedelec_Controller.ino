@@ -255,6 +255,7 @@ void read_eeprom();
 void save_eeprom();
 void save_shutdown();
 void handle_unused_pins();
+void send_bluetooth_data(HardwareSerial bluetoothSerial);
 
 #ifdef DEBUG_MEMORY_USAGE
 int memFree()
@@ -746,6 +747,9 @@ void loop()
 #endif
 
         send_serial_data();                                        //sends data over serial port depending on SERIAL_MODE
+#if HARDWARE_REV >= 20        
+        send_bluetooth_data(Serial1);
+#endif
 
 #if HARDWARE_REV >= 2
 // Idle shutdown
@@ -904,7 +908,7 @@ void speed_change()    //Wheel Sensor Change------------------------------------
 void send_bluetooth_data(HardwareSerial bluetoothSerial)
 {
 #if (HARDWARE_REV >= 20)||((SERIAL_MODE & SERIAL_MODE_ANDROID)&&(HARDWARE_REV < 20))
-if digitalRead(bluetooth_pin)
+if (digitalRead(bluetooth_pin))
 {
     bluetoothSerial.print(voltage,1);
     bluetoothSerial.print(MY_F(";"));
