@@ -270,6 +270,10 @@ int memFree()
 //Setup---------------------------------------------------------------------------------------------------------------------
 void setup()
 {
+#if HARDWARE_REV >= 2
+    pinMode(fet_out,OUTPUT);
+    digitalWrite(fet_out, FET_ON);           // turn on whole system on
+#endif
 #if HARDWARE_REV == 20
     pinMode(buzzer, OUTPUT);
     tone(buzzer, 261, 50);
@@ -329,16 +333,12 @@ void setup()
 #endif
 
 #if HARDWARE_REV >= 2
-    pinMode(fet_out,OUTPUT);
-
     pinMode(bluetooth_pin,OUTPUT);
 #ifdef SUPPORT_BLUETOOTH_ENABLE_ON_STARTUP
     digitalWrite(bluetooth_pin, HIGH);    // turn bluetooth on during boot
 #else
     digitalWrite(bluetooth_pin, LOW);     // turn bluetooth off
 #endif
-
-    digitalWrite(fet_out, FET_ON);           // turn on whole system on
 #endif
 #ifdef SUPPORT_BRAKE
     digitalWrite(brake_in, HIGH);         // turn on pullup resistors on brake
