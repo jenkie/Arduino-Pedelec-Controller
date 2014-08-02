@@ -277,6 +277,7 @@ void setup()
     delay(50);
     tone(buzzer,440, 50);
     handle_unused_pins(); //for current saving
+    Serial1.begin(115200);     //this is the bluetooth serial port
 #endif
     Serial.begin(115200);     //bluetooth-module requires 115200
 
@@ -900,31 +901,40 @@ void speed_change()    //Wheel Sensor Change------------------------------------
     last_wheel_time=millis();
 }
 
+void send_bluetooth_data(HardwareSerial bluetoothSerial)
+{
+#if (HARDWARE_REV >= 20)||((SERIAL_MODE & SERIAL_MODE_ANDROID)&&(HARDWARE_REV < 20))
+if digitalRead(bluetooth_pin)
+{
+    bluetoothSerial.print(voltage,1);
+    bluetoothSerial.print(MY_F(";"));
+    bluetoothSerial.print(current,1);
+    bluetoothSerial.print(MY_F(";"));
+    bluetoothSerial.print((int)power);
+    bluetoothSerial.print(MY_F(";"));
+    bluetoothSerial.print(spd,1);
+    bluetoothSerial.print(MY_F(";"));
+    bluetoothSerial.print(km,3);
+    bluetoothSerial.print(MY_F(";"));
+    bluetoothSerial.print((int)cad);
+    bluetoothSerial.print(MY_F(";"));
+    bluetoothSerial.print((int)wh);
+    bluetoothSerial.print(MY_F(";"));
+    bluetoothSerial.print((int)power_human);
+    bluetoothSerial.print(MY_F(";"));
+    bluetoothSerial.print((int)wh_human);
+    bluetoothSerial.print(MY_F(";"));
+    bluetoothSerial.print((int)(poti_stat/1023.0*curr_power_poti_max));
+    bluetoothSerial.print(MY_F(";"));
+    bluetoothSerial.println(CONTROL_MODE);
+}
+#endif
+}
 
 void send_serial_data()  //send serial data----------------------------------------------------------
 {
-#if (SERIAL_MODE & SERIAL_MODE_ANDROID)
-    Serial.print(voltage,1);
-    Serial.print(MY_F(";"));
-    Serial.print(current,1);
-    Serial.print(MY_F(";"));
-    Serial.print((int)power);
-    Serial.print(MY_F(";"));
-    Serial.print(spd,1);
-    Serial.print(MY_F(";"));
-    Serial.print(km,3);
-    Serial.print(MY_F(";"));
-    Serial.print((int)cad);
-    Serial.print(MY_F(";"));
-    Serial.print((int)wh);
-    Serial.print(MY_F(";"));
-    Serial.print((int)power_human);
-    Serial.print(MY_F(";"));
-    Serial.print((int)wh_human);
-    Serial.print(MY_F(";"));
-    Serial.print((int)(poti_stat/1023.0*curr_power_poti_max));
-    Serial.print(MY_F(";"));
-    Serial.println(CONTROL_MODE);
+#if (SERIAL_MODE & SERIAL_MODE_ANDROID)&&(HARDWARE_REV<20)
+    send_bluetooth_data(Serial);
 #endif
 
 #if (SERIAL_MODE & SERIAL_MODE_LOGVIEW)
