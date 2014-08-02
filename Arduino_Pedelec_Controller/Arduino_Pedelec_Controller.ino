@@ -19,12 +19,13 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 Features:
 - pedaling-enabled, true-power-control throttle
-- pedaling-enabled, pid-controlled motor-power which can be set by a potentiometer
-- starting aid up to 6 km/h
-- limit maximum speed
-- limit maximum electric power to 500 W (which means "250 W Nennleistung" :P)
-- display: Nokia 5510
-- sends Amarino-compatible data over bluetooth
+- pedaling-enabled, pid-controlled motor-power which can be set by a potentiometer or buttons
+- configurable starting aid
+- configurable speed limit
+- configurable power limit
+- switchable profiles
+- several displays: BMS, Kingmeter, Nokia LCD, Serial LCD
+- optional Bluetooth module to communicate with Android app
 */
 
 #include "config.h"          //place all your personal configurations there and keep that file when updating!   
