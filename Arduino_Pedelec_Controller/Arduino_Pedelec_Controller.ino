@@ -145,7 +145,6 @@ const int lights_pin = 44;           //Software controlled lights switch
 const int poti_in = A4;              //PAS Speed-Poti-Pin
 const int throttle_in = A3;          //Throttle read-Pin
 const int pas_in = 3;                //PAS Sensor read-Pin
-const int wheel_in = 21;              //Speed read-Pin
 const int brake_in = 2;              //Brake-In-Pin
 const int switch_thr = 5;            //Throttle-Switch read-Pin
 const int throttle_out = 8;          //Throttle out-Pin
@@ -285,7 +284,11 @@ void setup()
 #endif
 
 #ifdef SUPPORT_DSPC01
+#if HARDWARE_REV < 20
     dspc.begin(A5,A4);
+#else
+    dspc.begin(21,20);
+#endif
     dspc.request_temperature();
     delay(200);
     temperature=dspc.temperature()/10.0;
@@ -337,7 +340,9 @@ void setup()
 #endif
     digitalWrite(switch_thr, HIGH);       // turn on pullup resistors on throttle-switch
     digitalWrite(switch_disp, HIGH);      // turn on pullup resistors on display-switch
+#if HARDWARE_REV < 20
     digitalWrite(wheel_in, HIGH);         // turn on pullup resistors on wheel-sensor
+#endif
     digitalWrite(pas_in, HIGH);           // turn on pullup resistors on pas-sensor
 
 #if defined(SUPPORT_DISPLAY_BACKLIGHT) && !(DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
