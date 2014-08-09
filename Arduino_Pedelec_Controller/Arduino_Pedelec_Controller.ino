@@ -256,7 +256,7 @@ void read_eeprom();
 void save_eeprom();
 void save_shutdown();
 void handle_unused_pins();
-void send_bluetooth_data(HardwareSerial bluetoothSerial);
+void send_bluetooth_data();
 int analogRead_noISR(uint8_t pin);
 
 #ifdef DEBUG_MEMORY_USAGE
@@ -750,7 +750,7 @@ void loop()
 
         send_serial_data();                                        //sends data over serial port depending on SERIAL_MODE
 #if HARDWARE_REV >= 20        
-        send_bluetooth_data(Serial1);
+        send_bluetooth_data();
 #endif
 
 #if HARDWARE_REV >= 2
@@ -854,8 +854,6 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
     {
         pas_off_time=millis()-last_pas_event;
 #ifdef SUPPORT_XCELL_RT
-        ADMUX = (DEFAULT << 6) | ((option_pin-14) & 0x07); //select ADC input channel
-        delayMicroseconds(125); //wait 125 µs to settle at new channel. simple analogread is not working in interrupt
         torquevalues[torqueindex]=analogRead_noISR(option_pin)-torque_zero;
         torqueindex++;
         if (torqueindex==torquevalues_count)
@@ -904,134 +902,214 @@ void speed_change()    //Wheel Sensor Change------------------------------------
     last_wheel_time=millis();
 }
 
-void send_bluetooth_data(HardwareSerial bluetoothSerial)
-{
-#if (HARDWARE_REV >= 20)||((SERIAL_MODE & SERIAL_MODE_ANDROID)&&(HARDWARE_REV < 20))
-if (digitalRead(bluetooth_pin))
-{
-    bluetoothSerial.print(voltage,1);
-    bluetoothSerial.print(MY_F(";"));
-    bluetoothSerial.print(current,1);
-    bluetoothSerial.print(MY_F(";"));
-    bluetoothSerial.print((int)power);
-    bluetoothSerial.print(MY_F(";"));
-    bluetoothSerial.print(spd,1);
-    bluetoothSerial.print(MY_F(";"));
-    bluetoothSerial.print(km,3);
-    bluetoothSerial.print(MY_F(";"));
-    bluetoothSerial.print((int)cad);
-    bluetoothSerial.print(MY_F(";"));
-    bluetoothSerial.print((int)wh);
-    bluetoothSerial.print(MY_F(";"));
-    bluetoothSerial.print((int)power_human);
-    bluetoothSerial.print(MY_F(";"));
-    bluetoothSerial.print((int)wh_human);
-    bluetoothSerial.print(MY_F(";"));
-    bluetoothSerial.print((int)(poti_stat/1023.0*curr_power_poti_max));
-    bluetoothSerial.print(MY_F(";"));
-    bluetoothSerial.println(CONTROL_MODE);
-}
+
+void serial_android(HardwareSerial* localSerial)
+{ 
+#if (SERIAL_MODE & SERIAL_MODE_ANDROID)||(BLUETOOTH_MODE & BLUETOOTH_MODE_ANDROID)
+    localSerial->print(voltage,1);
+    localSerial->print(MY_F(";"));
+    localSerial->print(current,1);
+    localSerial->print(MY_F(";"));
+    localSerial->print((int)power);
+    localSerial->print(MY_F(";"));
+    localSerial->print(spd,1);
+    localSerial->print(MY_F(";"));
+    localSerial->print(km,3);
+    localSerial->print(MY_F(";"));
+    localSerial->print((int)cad);
+    localSerial->print(MY_F(";"));
+    localSerial->print((int)wh);
+    localSerial->print(MY_F(";"));
+    localSerial->print((int)power_human);
+    localSerial->print(MY_F(";"));
+    localSerial->print((int)wh_human);
+    localSerial->print(MY_F(";"));
+    localSerial->print((int)(poti_stat/1023.0*curr_power_poti_max));
+    localSerial->print(MY_F(";"));
+    localSerial->println(CONTROL_MODE);
 #endif
 }
 
-void send_serial_data()  //send serial data----------------------------------------------------------
-{
-#if (SERIAL_MODE & SERIAL_MODE_ANDROID)&&(HARDWARE_REV<20)
-    send_bluetooth_data(Serial);
+void serial_logview(HardwareSerial* localSerial)
+{ 
+#if (SERIAL_MODE & SERIAL_MODE_LOGVIEW)||(BLUETOOTH_MODE & BLUETOOTH_MODE_LOGVIEW)
+    localSerial->print(MY_F("$1;1;0;"));
+    localSerial->print(voltage,2);
+    localSerial->print(MY_F(";"));
+    localSerial->print(current,2);
+    localSerial->print(MY_F(";"));
+    localSerial->print(wh,1);
+    localSerial->print(MY_F(";"));
+    localSerial->print(spd,2);
+    localSerial->print(MY_F(";"));
+    localSerial->print(km,3);
+    localSerial->print(MY_F(";"));
+    localSerial->print(cad);
+    localSerial->print(MY_F(";"));
+    localSerial->print(0);   //arbitrary user data here
+    localSerial->print(MY_F(";"));
+    localSerial->print(0);   //arbitrary user data here
+    localSerial->print(MY_F(";"));
+    localSerial->print(0);   //arbitrary user data here
+    localSerial->print(MY_F(";"));
+    localSerial->print(0);  //arbitrary user data here
+    localSerial->print(MY_F(";"));
+    localSerial->print(0);   //arbitrary user data here
+    localSerial->print(MY_F(";"));
+    localSerial->print(0);   //arbitrary user data here
+    localSerial->print(MY_F(";0"));
+    localSerial->println(13,DEC);
 #endif
+}
 
-#if (SERIAL_MODE & SERIAL_MODE_LOGVIEW)
-    Serial.print(MY_F("$1;1;0;"));
-    Serial.print(voltage,2);
-    Serial.print(MY_F(";"));
-    Serial.print(current,2);
-    Serial.print(MY_F(";"));
-    Serial.print(wh,1);
-    Serial.print(MY_F(";"));
-    Serial.print(spd,2);
-    Serial.print(MY_F(";"));
-    Serial.print(km,3);
-    Serial.print(MY_F(";"));
-    Serial.print(cad);
-    Serial.print(MY_F(";"));
-    Serial.print(0);   //arbitrary user data here
-    Serial.print(MY_F(";"));
-    Serial.print(0);   //arbitrary user data here
-    Serial.print(MY_F(";"));
-    Serial.print(0);   //arbitrary user data here
-    Serial.print(MY_F(";"));
-    Serial.print(0);  //arbitrary user data here
-    Serial.print(MY_F(";"));
-    Serial.print(0);   //arbitrary user data here
-    Serial.print(MY_F(";"));
-    Serial.print(0);   //arbitrary user data here
-    Serial.print(MY_F(";0"));
-    Serial.println(13,DEC);
-#endif
-
-#if (SERIAL_MODE & SERIAL_MODE_DEBUG)
+void serial_debug(HardwareSerial* localSerial)
+{ 
+#if (SERIAL_MODE & SERIAL_MODE_DEBUG)||(BLUETOOTH_MODE & BLUETOOTH_MODE_DEBUG)
 #ifdef DEBUG_MEMORY_USAGE
-    Serial.print(MY_F("memFree"));
-    Serial.print(memFree());
-    Serial.print(MY_F(" looptime"));
-    Serial.print(millis()-looptime);
-    Serial.print(MY_F(" "));
+    localSerial->print(MY_F("memFree"));
+    localSerial->print(memFree());
+    localSerial->print(MY_F(" looptime"));
+    localSerial->print(millis()-looptime);
+    localSerial->print(MY_F(" "));
 #endif
-    Serial.print(MY_F("Voltage"));
-    Serial.print(voltage,2);
-    Serial.print(MY_F(" Current"));
-    Serial.print(current,1);
-    Serial.print(MY_F(" Power"));
-    Serial.print(power,0);
-    Serial.print(MY_F(" PAS_On"));
-    Serial.print(pas_on_time);
-    Serial.print(MY_F(" PAS_Off"));
-    Serial.print(pas_off_time);
-    Serial.print(MY_F(" PAS_factor"));
-    Serial.print((float)pas_on_time/pas_off_time);
-    Serial.print(MY_F(" Speed"));
-    Serial.print(spd);
-    Serial.print(MY_F(" Brake"));
-    Serial.print(brake_stat);
-    Serial.print(MY_F(" Poti"));
-    Serial.print(poti_stat);
-    Serial.print(MY_F(" Throttle"));
-    Serial.print(throttle_stat);
+    localSerial->print(MY_F("Voltage"));
+    localSerial->print(voltage,2);
+    localSerial->print(MY_F(" Current"));
+    localSerial->print(current,1);
+    localSerial->print(MY_F(" Power"));
+    localSerial->print(power,0);
+    localSerial->print(MY_F(" PAS_On"));
+    localSerial->print(pas_on_time);
+    localSerial->print(MY_F(" PAS_Off"));
+    localSerial->print(pas_off_time);
+    localSerial->print(MY_F(" PAS_factor"));
+    localSerial->print((float)pas_on_time/pas_off_time);
+    localSerial->print(MY_F(" Speed"));
+    localSerial->print(spd);
+    localSerial->print(MY_F(" Brake"));
+    localSerial->print(brake_stat);
+    localSerial->print(MY_F(" Poti"));
+    localSerial->print(poti_stat);
+    localSerial->print(MY_F(" Throttle"));
+    localSerial->print(throttle_stat);
     /*
-        Serial.print(MY_F(" TEMP"));
-        Serial.print(temperature);
-        Serial.print(MY_F(" ALTI"));
-        Serial.print(altitude);
-        Serial.print(MY_F("/"));
-        Serial.print(altitude_start);
+        localSerial->print(MY_F(" TEMP"));
+        localSerial->print(temperature);
+        localSerial->print(MY_F(" ALTI"));
+        localSerial->print(altitude);
+        localSerial->print(MY_F("/"));
+        localSerial->print(altitude_start);
     */
     //now: data for Arduino Pedelec Configurator
     //0:voltage 1:current 2:pasfactor*100 3:option-pin 4:poti 5:throttle 6: brake
-    Serial.print(MY_F("---raw---"));
-    Serial.print(analogRead_noISR(voltage_in)); Serial.print(MY_F(";"));
-    Serial.print(analogRead_noISR(current_in)); Serial.print(MY_F(";"));
-    Serial.print(((int)(100*(double)pas_on_time/(double)pas_off_time))); Serial.print(MY_F(";"));
-    Serial.print(analogRead_noISR(option_pin)); Serial.print(MY_F(";"));
-    Serial.print(analogRead_noISR(poti_in)); Serial.print(MY_F(";"));
-    Serial.print(analogRead_noISR(throttle_in)); Serial.print(MY_F(";"));
-    Serial.println(digitalRead(brake_in));
-
+    localSerial->print(MY_F("---raw---"));
+    localSerial->print(analogRead_noISR(voltage_in)); Serial.print(MY_F(";"));
+    localSerial->print(analogRead_noISR(current_in)); Serial.print(MY_F(";"));
+    localSerial->print(((int)(100*(double)pas_on_time/(double)pas_off_time))); Serial.print(MY_F(";"));
+    localSerial->print(analogRead_noISR(option_pin)); Serial.print(MY_F(";"));
+    localSerial->print(analogRead_noISR(poti_in)); Serial.print(MY_F(";"));
+    localSerial->print(analogRead_noISR(throttle_in)); Serial.print(MY_F(";"));
+    localSerial->println(digitalRead(brake_in));
 #endif
+}
 
+void serial_mmc(HardwareSerial* localSerial)
+{ 
+#if (SERIAL_MODE & SERIAL_MODE_MMC)||(BLUETOOTH_MODE & BLUETOOTH_MODE_MMC)
+    localSerial->print((int)(voltage_display*10));
+    localSerial->print(MY_F("\t"));
+    localSerial->print((int)(current*1000));
+    localSerial->print(MY_F("\t"));
+    localSerial->print((int)(spd*10));
+    localSerial->print(MY_F("\t"));
+    localSerial->print((long)(mah*3600));
+    localSerial->print(MY_F("\t"));
+    localSerial->print((int)0); //naximum current
+    localSerial->print(MY_F("\t"));
+    localSerial->print((long)(km*1000/wheel_circumference)); //distance
+    localSerial->print(MY_F("\t"));
+    localSerial->println((int)0); //profile
+#endif
+}
+
+void serial_ios(HardwareSerial* localSerial)
+{ 
+#if (SERIAL_MODE & SERIAL_MODE_IOS)||(BLUETOOTH_MODE & BLUETOOTH_MODE_IOS)
+    localSerial->print(voltage,1);
+    localSerial->print(MY_F(";"));
+    localSerial->print(current,1);
+    localSerial->print(MY_F(";"));
+    localSerial->print((int)power);
+    localSerial->print(MY_F(";"));
+    localSerial->print(spd,1);
+    localSerial->print(MY_F(";"));
+    localSerial->print(km,3);
+    localSerial->print(MY_F(";"));
+    localSerial->print((int)cad);
+    localSerial->print(MY_F(";"));
+    localSerial->print((int)wh);
+    localSerial->print(MY_F(";"));
+    localSerial->print((int)power_human);
+    localSerial->print(MY_F(";"));
+    localSerial->print((int)wh_human);
+    localSerial->print(MY_F(";"));
+    localSerial->print((int)(poti_stat/1023.0*curr_power_poti_max));
+    localSerial->print(MY_F(";"));
+    localSerial->print(CONTROL_MODE);
+    localSerial->print(MY_F(";"));
+    localSerial->print((int)mah);
+    localSerial->print(MY_F(";"));
+    localSerial->print(current_profile);
+    localSerial->print(MY_F(";"));
+    localSerial->println(curr_power_poti_max);
+#endif
+}
+
+void send_bluetooth_data() //send bluetooth data
+{
+#if HARDWARE_REV >=20
+#if (BLUETOOTH_MODE & BLUETOOTH_MODE_ANDROID)
+    serial_android(&Serial1);
+#endif     
+  
+#if (BLUETOOTH_MODE & BLUETOOTH_MODE_LOGVIEW)
+    serial_logview(&Serial1);
+#endif    
+
+#if (BLUETOOTH_MODE & BLUETOOTH_MODE_DEBUG)
+    serial_debug(&Serial1);
+#endif   
+  
+#if (BLUETOOTH_MODE & BLUETOOTH_MODE_MMC)
+    serial_mmc(&Serial1);
+#endif 
+
+#if (BLUETOOTH_MODE & BLUETOOTH_MODE_IOS)
+    serial_ios(&Serial1);
+#endif
+#endif // HARDWARE_REV>=20
+}
+
+void send_serial_data()  //send serial data
+{
+#if (SERIAL_MODE & SERIAL_MODE_ANDROID)
+    serial_android(&Serial);
+#endif     
+  
+#if (SERIAL_MODE & SERIAL_MODE_LOGVIEW)
+    serial_logview(&Serial);
+#endif    
+
+#if (SERIAL_MODE & SERIAL_MODE_DEBUG)
+    serial_debug(&Serial);
+#endif   
+  
 #if (SERIAL_MODE & SERIAL_MODE_MMC)
-    Serial.print((int)(voltage_display*10));
-    Serial.print(MY_F("\t"));
-    Serial.print((int)(current*1000));
-    Serial.print(MY_F("\t"));
-    Serial.print((int)(spd*10));
-    Serial.print(MY_F("\t"));
-    Serial.print((long)(mah*3600));
-    Serial.print(MY_F("\t"));
-    Serial.print((int)0); //naximum current
-    Serial.print(MY_F("\t"));
-    Serial.print((long)(km*1000/wheel_circumference)); //distance
-    Serial.print(MY_F("\t"));
-    Serial.println((int)0); //profile
+    serial_mmc(&Serial);
+#endif 
+
+#if (SERIAL_MODE & SERIAL_MODE_IOS)
+    serial_ios(&Serial);
 #endif
 }
 
@@ -1160,7 +1238,7 @@ void handle_unused_pins()
 int analogRead_noISR(uint8_t pin) //this function disables globals interrupt before analogRead because analogRead does not like interrupts
 {
 cli();
-int temp=analogRead_noISR(pin);
+int temp=analogRead(pin);
 sei();
 return temp;
 }

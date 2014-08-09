@@ -38,9 +38,19 @@ const int serial_display_16x2_second_unused_pin = 16;               // SoftSeria
 #define SERIAL_MODE_NONE (1<<0)              //don't send serial data at all
 #define SERIAL_MODE_DEBUG (1<<1)             //send debug data over Serial Monitor
 #define SERIAL_MODE_ANDROID (1<<2)           //send Arduino Pedelec HMI compatible data over serial/bluetooth
-#define SERIAL_MODE_MMC (1<<3)               //send MMC-App compatible data over serial/bluetooth (for future use, not implemented yet)
-#define SERIAL_MODE_LOGVIEW (1<<4)           //send logview-compatible data over serial (for future use, not implemented yet)
-#define SERIAL_MODE SERIAL_MODE_DEBUG        //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------
+#define SERIAL_MODE_MMC (1<<3)               //send MMC-App compatible data over serial/bluetooth 
+#define SERIAL_MODE_LOGVIEW (1<<4)           //send logview-compatible data over serial 
+#define SERIAL_MODE_IOS (1<<5)           //send IOS-compatible data over serial
+#define SERIAL_MODE SERIAL_MODE_DEBUG      //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------
+
+//since hardware revision 2.0 the bluetooth port has a separate serial interface, select data here:
+#define BLUETOOTH_MODE_NONE (1<<0)              //don't send bluetooth data at all
+#define BLUETOOTH_MODE_DEBUG (1<<1)             //send debug data over bluetooth
+#define BLUETOOTH_MODE_ANDROID (1<<2)           //send Arduino Pedelec HMI compatible data over bluetooth
+#define BLUETOOTH_MODE_MMC (1<<3)               //send MMC-App compatible data over bluetooth
+#define BLUETOOTH_MODE_LOGVIEW (1<<4)           //send logview-compatible data over bluetooth 
+#define BLUETOOTH_MODE_IOS (1<<5)           //send IOS-compatible data over bluetooth
+#define BLUETOOTH_MODE BLUETOOTH_MODE_NONE        //Set your bluetooth mode here. CHANGES ONLY HERE!<-----------------------------
 
 
 // #define SUPPORT_BLUETOOTH_ENABLE_ON_STARTUP    //uncomment to enable bluetooth during startup
