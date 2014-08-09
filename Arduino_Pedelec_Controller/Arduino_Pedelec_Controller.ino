@@ -284,7 +284,11 @@ void setup()
     delay(50);
     tone(buzzer,440, 50);
     handle_unused_pins(); //for current saving
+#if (BLUETOOTH_MODE & BLUETOOTH_MODE_IOS)
+    Serial1.begin(57600);     //IOS app requires 57600
+#else
     Serial1.begin(115200);     //this is the bluetooth serial port
+#endif
 #endif
     Serial.begin(115200);     //bluetooth-module requires 115200
 
