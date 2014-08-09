@@ -290,7 +290,11 @@ void setup()
     Serial1.begin(115200);     //this is the bluetooth serial port
 #endif
 #endif
-    Serial.begin(115200);     //bluetooth-module requires 115200
+#if (SERIAL_MODE & SERIAL_MODE_IOS)
+    Serial.begin(57600);     //IOS app requires 57600
+#else
+    Serial.begin(115200);
+#endif
 
 #ifdef DEBUG_MEMORY_USAGE
     Serial.print(MY_F("memFree before setup:"));
