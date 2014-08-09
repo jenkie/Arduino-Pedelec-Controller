@@ -257,6 +257,7 @@ void save_eeprom();
 void save_shutdown();
 void handle_unused_pins();
 void send_bluetooth_data(HardwareSerial bluetoothSerial);
+int analogRead_noISR(uint8_t pin);
 
 #ifdef DEBUG_MEMORY_USAGE
 int memFree()
@@ -430,7 +431,7 @@ void setup()
 #endif
 
 #ifdef SUPPORT_XCELL_RT
-    torque_zero=analogRead(option_pin);
+    torque_zero=analogRead_noISR(option_pin);
 #endif
 
 #ifdef DEBUG_MEMORY_USAGE
@@ -449,7 +450,7 @@ void loop()
 #endif
 #ifdef SUPPORT_POTI
     if (first_aid_ignore_poti == false)
-        poti_stat = constrain(map(analogRead(poti_in),poti_offset,poti_max,0,1023),0,1023);   // 0...1023
+        poti_stat = constrain(map(analogRead_noISR(poti_in),poti_offset,poti_max,0,1023),0,1023);   // 0...1023
 #endif
 
 #if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS3))
@@ -462,7 +463,7 @@ void loop()
     }
 
 #ifdef SUPPORT_THROTTLE
-    throttle_stat = constrain(map(analogRead(throttle_in),throttle_offset,throttle_max,0,1023),0,1023);   // 0...1023
+    throttle_stat = constrain(map(analogRead_noISR(throttle_in),throttle_offset,throttle_max,0,1023),0,1023);   // 0...1023
     if (throttle_stat<5 || first_aid_ignore_throttle) //avoid noisy throttle readout
     {
         throttle_stat=0;
@@ -485,20 +486,20 @@ void loop()
         brake_stat = true;
 #endif
 //voltage, current, power
-    voltage = analogRead(voltage_in)*voltage_amplitude+voltage_offset; //check with multimeter, change in config.h if needed!
+    voltage = analogRead_noISR(voltage_in)*voltage_amplitude+voltage_offset; //check with multimeter, change in config.h if needed!
 #if HARDWARE_REV <= 2
     // Read in current and auto-calibrate the shift offset:
     // There is a constant offset depending on the
     // Arduino / resistor value, so we automatically
     // shift it to zero on the scale.
-    int raw_current = analogRead(current_in);
+    int raw_current = analogRead_noISR(current_in);
     if (raw_current < lowest_raw_current)
         lowest_raw_current = raw_current;
     current = (raw_current-lowest_raw_current)*current_amplitude_R11; //check with multimeter, change in config.h if needed!
     current = constrain(current,0,30);
 #endif
 #if HARDWARE_REV >= 3
-    current = (analogRead(current_in)-512)*current_amplitude_R13+current_offset;    //check with multimeter, change in config.h if needed!
+    current = (analogRead_noISR(current_in)-512)*current_amplitude_R13+current_offset;    //check with multimeter, change in config.h if needed!
     current = constrain(current,-30,30);
 #endif
 
@@ -536,7 +537,7 @@ void loop()
 #endif
 
 #ifdef SUPPORT_SWITCH_ON_POTI_PIN
-    handle_switch(SWITCH_POTI, (analogRead(poti_in)>512));
+    handle_switch(SWITCH_POTI, (analogRead_noISR(poti_in)>512));
 #endif
 
 //Check if Battery was charged since last power down-----------------------------------------------------------------------
@@ -835,10 +836,7 @@ void pas_change_thun(boolean signal)
         cad=7500/(millis()-last_pas_event);
         last_pas_event = millis();
     }
-    bitClear(ADCSRB,3); //select ADC0-7, we want ADC2
-    ADMUX = B01000010; //select ADC2
-    delayMicroseconds(125); //wait 125 µs to settle at new channel. simple analogread is not working in interrupt
-    torquevalues[torqueindex]=analogRead(option_pin)-torque_zero;
+    torquevalues[torqueindex]=analogRead_noISR(option_pin)-torque_zero;
     torqueindex++;
     if (torqueindex==torquevalues_count)
         torqueindex=0;
@@ -858,7 +856,7 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
 #ifdef SUPPORT_XCELL_RT
         ADMUX = (DEFAULT << 6) | ((option_pin-14) & 0x07); //select ADC input channel
         delayMicroseconds(125); //wait 125 µs to settle at new channel. simple analogread is not working in interrupt
-        torquevalues[torqueindex]=analogRead(option_pin)-torque_zero;
+        torquevalues[torqueindex]=analogRead_noISR(option_pin)-torque_zero;
         torqueindex++;
         if (torqueindex==torquevalues_count)
             torqueindex=0;
@@ -1010,12 +1008,12 @@ void send_serial_data()  //send serial data-------------------------------------
     //now: data for Arduino Pedelec Configurator
     //0:voltage 1:current 2:pasfactor*100 3:option-pin 4:poti 5:throttle 6: brake
     Serial.print(MY_F("---raw---"));
-    Serial.print(analogRead(voltage_in)); Serial.print(MY_F(";"));
-    Serial.print(analogRead(current_in)); Serial.print(MY_F(";"));
+    Serial.print(analogRead_noISR(voltage_in)); Serial.print(MY_F(";"));
+    Serial.print(analogRead_noISR(current_in)); Serial.print(MY_F(";"));
     Serial.print(((int)(100*(double)pas_on_time/(double)pas_off_time))); Serial.print(MY_F(";"));
-    Serial.print(analogRead(option_pin)); Serial.print(MY_F(";"));
-    Serial.print(analogRead(poti_in)); Serial.print(MY_F(";"));
-    Serial.print(analogRead(throttle_in)); Serial.print(MY_F(";"));
+    Serial.print(analogRead_noISR(option_pin)); Serial.print(MY_F(";"));
+    Serial.print(analogRead_noISR(poti_in)); Serial.print(MY_F(";"));
+    Serial.print(analogRead_noISR(throttle_in)); Serial.print(MY_F(";"));
     Serial.println(digitalRead(brake_in));
 
 #endif
@@ -1157,4 +1155,12 @@ void handle_unused_pins()
   PORTK|= B00111111;
   PORTL|= B11000111;
 #endif
+}
+
+int analogRead_noISR(uint8_t pin) //this function disables globals interrupt before analogRead because analogRead does not like interrupts
+{
+cli();
+int temp=analogRead_noISR(pin);
+sei();
+return temp;
 }
