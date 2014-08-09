@@ -669,7 +669,7 @@ void loop()
 #else
     if (throttle_stat<5||spd>curr_spd_max2)
 #endif
-    {throttle_write=0;}
+    {throttle_write=motor_offset;}
     analogWrite(throttle_out,throttle_write);
 
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
