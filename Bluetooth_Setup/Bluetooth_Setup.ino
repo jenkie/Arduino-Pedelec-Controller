@@ -37,6 +37,11 @@ int btPin=13;
 
 void setup()
 {
+#if HARDWARE_REV>=20
+    pinMode(38,OUTPUT);
+    digitalWrite(38, 1);           // turn on whole system on
+    delay(5000);
+#endif
     btSerial.begin(SerialSpeed);   
     delay(1000);
     pinMode(btPin, OUTPUT);
@@ -55,6 +60,10 @@ void setup()
     digitalWrite(btPin,LOW);
     delay(10000);
     digitalWrite(btPin,HIGH);
+#if HARDWARE_REV>=20
+    digitalWrite(38, 0);           // turn on whole system off
+#endif
+
 }
 
 void loop()
