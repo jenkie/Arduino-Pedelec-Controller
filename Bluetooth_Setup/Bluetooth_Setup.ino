@@ -24,28 +24,37 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
 
+#define HARDWARE_REV 20  //place your hardware revision here: 1-5 means hardware-revision 1.x, 2x means 2.x
+int SerialSpeed=9600;    //set the current speed of your bluetooth module here, usually 9600    
+
+#if HARDWARE_REV<20
+HardwareSerial btSerial=Serial;
+int btPin=7;
+#else
+HardwareSerial btSerial=Serial1;
+int btPin=13;
+#endif
 
 void setup()
 {
-    Serial.begin(9600); //set the current speed of your bluetooth module here, usually 9600
-
+    btSerial.begin(SerialSpeed);   
     delay(1000);
-    pinMode(7, OUTPUT);
-    digitalWrite(7,HIGH);
+    pinMode(btPin, OUTPUT);
+    digitalWrite(btPin,HIGH);
     delay(5000);
-    Serial.print("AT");
+    btSerial.print("AT");
     delay(5000);
-    Serial.print("AT+VERSION");
+    btSerial.print("AT+VERSION");
     delay(5000);
-    Serial.print("AT+PIN1234"); // Set pin to 1234 or anything of your choice
+    btSerial.print("AT+PIN1234"); // Set pin to 1234 or anything of your choice
     delay(5000);
-    Serial.print("AT+NAMEArduinoPedelec"); //use your own name if you want
+    btSerial.print("AT+NAMEArduinoPedelec"); //use your own name if you want
     delay(5000);
-    Serial.print("AT+BAUD8"); // Set baudrate to 115200, do not change
+    btSerial.print("AT+BAUD8"); // Set baudrate to 115200, do not change
     delay(5000);
-    digitalWrite(7,LOW);
+    digitalWrite(btPin,LOW);
     delay(10000);
-    digitalWrite(7,HIGH);
+    digitalWrite(btPin,HIGH);
 }
 
 void loop()
