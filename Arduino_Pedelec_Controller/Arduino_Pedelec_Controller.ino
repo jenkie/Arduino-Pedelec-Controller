@@ -213,6 +213,8 @@ double power_human=0.0;      //cyclist's power
 double wh_human=0;
 #ifdef SUPPORT_XCELL_RT
 int torque_zero=533;             //Offset of X-Cell RT torque sensor. Adjusted at startup
+static volatile boolean analogRead_in_use = false; //read torque values in interrupt only if no analogRead in process
+static volatile boolean thun_want_calculation = false; //read torque values in interrupt only if no analogRead in process
 #if HARDWARE_REV<20
 const int torquevalues_count=8;
 volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0}; //stores the 8 torque values per pedal roundtrip
@@ -221,7 +223,7 @@ const int torquevalues_count=16;
 volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; //stores the 16 torque values per pedal roundtrip
 #endif
 volatile byte torqueindex=0;        //index to write next torque value
-volatile boolean readtorque=false;  //true if pas-interrupt received -> read torque in main loop. unfortunately analogRead gives wrong values inside the PAS-interrupt-routine
+volatile boolean readtorque=false;  //true if torque array has been updated -> recalculate in main loop
 #endif
 
 #if (SERIAL_MODE & SERIAL_MODE_MMC)           //communicate with mmc-app
@@ -257,6 +259,7 @@ void save_eeprom();
 void save_shutdown();
 void handle_unused_pins();
 void send_bluetooth_data();
+void read_current_torque();
 int analogRead_noISR(uint8_t pin);
 
 #ifdef DEBUG_MEMORY_USAGE
@@ -844,13 +847,25 @@ void pas_change_thun(boolean signal)
         cad=7500/(millis()-last_pas_event);
         last_pas_event = millis();
     }
-    torquevalues[torqueindex]=analogRead_noISR(option_pin)-torque_zero;
+    if (analogRead_in_use)
+    {
+      thun_want_calculation = true;
+      return;
+    }
+    read_current_torque();
+}
+#endif
+#endif
+
+#ifdef SUPPORT_XCELL_RT
+void read_current_torque() //this reads the current torque value
+{
+    torquevalues[torqueindex]=analogRead(option_pin)-torque_zero;
     torqueindex++;
     if (torqueindex==torquevalues_count)
         torqueindex=0;
-    readtorque=true;
+    readtorque=true;  
 }
-#endif
 #endif
 
 #ifdef SUPPORT_PAS
@@ -862,11 +877,10 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
     {
         pas_off_time=millis()-last_pas_event;
 #ifdef SUPPORT_XCELL_RT
-        torquevalues[torqueindex]=analogRead_noISR(option_pin)-torque_zero;
-        torqueindex++;
-        if (torqueindex==torquevalues_count)
-            torqueindex=0;
-        readtorque=true;
+        if (analogRead_in_use)
+          thun_want_calculation = true;
+        else
+          read_current_torque();
 #endif
     }
     else
@@ -1243,10 +1257,19 @@ void handle_unused_pins()
 #endif
 }
 
-int analogRead_noISR(uint8_t pin) //this function disables globals interrupt before analogRead because analogRead does not like interrupts
+int analogRead_noISR(uint8_t pin) //this function makes sure that analogRead is never used in interrupt. only important for X-Cell RT bottom brackets
 {
-cli();
-int temp=analogRead(pin);
-sei();
-return temp;
+#ifdef SUPPORT_XCELL_RT
+    analogRead_in_use = true; //this prevents analogReads in Interrupt from Thun bracket
+    if (thun_want_calculation)
+    {
+      thun_want_calculation=false;
+      read_current_torque();
+    }
+#endif
+    int temp=analogRead(pin);
+#ifdef SUPPORT_XCELL_RT
+    analogRead_in_use = false;
+#endif
+    return temp;
 }
