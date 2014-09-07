@@ -470,8 +470,14 @@ void loop()
 
     if (Serial.available() > 0)
     {
-        parse_serial(Serial.read());
+        parse_serial(Serial.read(),0);
     }
+#if HARDWARE_REV>=20    
+    if (Serial1.available() > 0)
+    {
+        parse_serial(Serial1.read(),1);
+    }
+#endif
 
 #ifdef SUPPORT_THROTTLE
     throttle_stat = constrain(map(analogRead_noISR(throttle_in),throttle_offset,throttle_max,0,1023),0,1023);   // 0...1023

@@ -48,12 +48,23 @@ enum parse_states
     ErrorWaitReturn,
 };
 
-parse_states parse_state = Reset;
-char cmdbuf[2];
-byte cmd_index;
 
-char numberstring[6];
-static byte number_pos;
+struct serial_struct
+{
+  parse_states parse_state;
+  char cmdbuf[2];
+  byte cmd_index;
+  char numberstring[6];
+  byte number_pos;
+};
+
+serial_struct serial_port1={Reset,{0},0,{0},0};
+#if HARDWARE_REV>=20
+serial_struct serial_port2={Reset,{0},0,{0},0};
+#endif
+
+serial_struct* active_serial;
+HardwareSerial* active_serial_port;
 
 /**
  * @brief Look for valid commands in command input buffer
@@ -65,9 +76,9 @@ static bool find_commands()
 {
     for (byte i=0; i < n_commands; ++i)
     {
-        if (serial_commands[i].mnemonic[0] == cmdbuf[0] && serial_commands[i].mnemonic[1] == cmdbuf[1])
+        if (serial_commands[i].mnemonic[0] == active_serial->cmdbuf[0] && serial_commands[i].mnemonic[1] == active_serial->cmdbuf[1])
         {
-            cmd_index = i;
+            active_serial->cmd_index = i;
             return true;
         }
     }
@@ -78,37 +89,37 @@ static bool find_commands()
 static void handle_command()
 {
     // sanity check
-    if (number_pos == 0 || cmd_index == -1)
+    if (active_serial->number_pos == 0 || active_serial->cmd_index == -1)
     {
-        Serial.println(MY_F("ERROR"));
+        active_serial_port->println(MY_F("ERROR"));
         return;
     }
 
-    Serial.print(serial_commands[cmd_index].mnemonic);
+    active_serial_port->print(serial_commands[active_serial->cmd_index].mnemonic);
     // Info command?
-    if (numberstring[0] == '?')
+    if (active_serial->numberstring[0] == '?')
     {
-        switch(cmd_index)
+        switch(active_serial->cmd_index)
         {
             case 0:             //poti_stat
-                Serial.println(poti_stat);
+                active_serial_port->println(poti_stat);
                 break;
             case 1:             //total kilometers
-                Serial.println(odo/1000.0*wheel_circumference,0);
+                active_serial_port->println(odo/1000.0*wheel_circumference,0);
                 break;
             case 4:              //hours read
 #ifdef SUPPORT_RTC
-                Serial.println(now.hh);
+                active_serial_port->println(now.hh);
 #endif
                 break;
             case 5:              //minutes read
 #ifdef SUPPORT_RTC
-                Serial.println(now.mm);
+                active_serial_port->println(now.mm);
 #endif
                 break;
             case 6:              //seconds read
 #ifdef SUPPORT_RTC
-                Serial.println(now.ss);
+                active_serial_port->println(now.ss);
 #endif
                 break;
         }
@@ -117,77 +128,89 @@ static void handle_command()
     }
 
     // Write command?
-    switch(cmd_index)
+    switch(active_serial->cmd_index)
     {
         case 0:              //poti_stat
-            poti_stat = min(atoi(numberstring)*1023.0/power_poti_max,1023);
+            poti_stat = min(atoi(active_serial->numberstring)*1023.0/power_poti_max,1023);
             break;
         case 1:              //total kilometers
-            odo = atoi(numberstring)*1000.0/wheel_circumference;
+            odo = atoi(active_serial->numberstring)*1000.0/wheel_circumference;
             save_eeprom();
             break;
         case 2:              //short button press
-            handle_switch(static_cast<switch_name>(atoi(numberstring)), 0, PRESSED_SHORT);
+            handle_switch(static_cast<switch_name>(atoi(active_serial->numberstring)), 0, PRESSED_SHORT);
             break;
         case 3:              //long button press
-            handle_switch(static_cast<switch_name>(atoi(numberstring)), 0, PRESSED_LONG);
+            handle_switch(static_cast<switch_name>(atoi(active_serial->numberstring)), 0, PRESSED_LONG);
             break;
         case 4:              //hours write
 #ifdef SUPPORT_RTC
-            rtc.adjust_time(atoi(numberstring),now.mm,now.ss);
+            rtc.adjust_time(atoi(active_serial->numberstring),now.mm,now.ss);
 #endif
             break;
         case 5:              //minutes write
 #ifdef SUPPORT_RTC
-            rtc.adjust_time(now.hh,atoi(numberstring),now.ss);
+            rtc.adjust_time(now.hh,atoi(active_serial->numberstring),now.ss);
 #endif
             break;
         case 6:              //seconds write
 #ifdef SUPPORT_RTC
-            rtc.adjust_time(now.hh,now.mm,atoi(numberstring));
+            rtc.adjust_time(now.hh,now.mm,atoi(active_serial->numberstring));
 #endif
             break;
     }
-    Serial.println(MY_F("OK"));
+    active_serial_port->println(MY_F("OK"));
 }
 
-void parse_serial(const char &read_c)
+void parse_serial(const char &read_c, const byte port)
 {
+    if (port==0)
+    {
+      active_serial=&serial_port1;
+      active_serial_port=&Serial;
+    }
+#if HARDWARE_REV>=20
+    else
+    {
+      active_serial=&serial_port2;
+      active_serial_port=&Serial1;
+    }
+#endif    
     byte i;
 
-    switch(parse_state)
+    switch(active_serial->parse_state)
     {
         case Reset:
-            memset(cmdbuf, 0, sizeof(cmdbuf));
-            memset(numberstring, 0, sizeof(numberstring));
-            cmd_index = -1;
-            number_pos = 0;
+            memset(active_serial->cmdbuf, 0, sizeof(active_serial->cmdbuf));
+            memset(active_serial->numberstring, 0, sizeof(active_serial->numberstring));
+            active_serial->cmd_index = -1;
+            active_serial->number_pos = 0;
 
-            parse_state = SearchCommand;
+            active_serial->parse_state = SearchCommand;
             // fall through to "search command"
 
         case SearchCommand:
             // skip return chars
             if (read_c == 10 || read_c == 13)
             {
-                parse_state = Reset;
+                active_serial->parse_state = Reset;
                 break;
             }
 
-            if (cmdbuf[0] == 0)
+            if (active_serial->cmdbuf[0] == 0)
             {
                 // store first character
-                cmdbuf[0] = read_c;
+                active_serial->cmdbuf[0] = read_c;
             }
             else
             {
-                cmdbuf[1] = read_c;
+                active_serial->cmdbuf[1] = read_c;
 
                 // Look for valid commands
                 if (find_commands() == true)
-                    parse_state = StoreNumber;
+                    active_serial->parse_state = StoreNumber;
                 else
-                    parse_state = ErrorWaitReturn;
+                    active_serial->parse_state = ErrorWaitReturn;
             }
             break;
 
@@ -196,23 +219,23 @@ void parse_serial(const char &read_c)
             {
                 // User input is done
                 handle_command();
-                parse_state = Reset;
+                active_serial->parse_state = Reset;
             }
             else
             {
                 // Store character
-                if (number_pos < sizeof(numberstring)-1)        // reserve one byte for the terminating zero (atoi())
+                if (active_serial->number_pos < sizeof(active_serial->numberstring)-1)        // reserve one byte for the terminating zero (atoi())
                 {
-                    numberstring[number_pos] = read_c;
-                    ++number_pos;
+                    active_serial->numberstring[active_serial->number_pos] = read_c;
+                    ++active_serial->number_pos;
                 }
             }
             break;
         case ErrorWaitReturn:
             if (read_c == 10 || read_c == 13)
             {
-                Serial.println(MY_F("ERROR"));
-                parse_state = Reset;
+                active_serial_port->println(MY_F("ERROR"));
+                active_serial->parse_state = Reset;
             }
             break;
     }

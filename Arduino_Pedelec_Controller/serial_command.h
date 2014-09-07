@@ -21,6 +21,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #include "Arduino.h"
 
-void parse_serial(const char &read_c);
+void parse_serial(const char &read_c, const byte port);
 
 #endif
