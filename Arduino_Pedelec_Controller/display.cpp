@@ -169,6 +169,11 @@ void display_show_welcome_msg()
 
     lcd.print(total_km);
     lcd.print(MY_F(" km"));
+#ifdef SUPPORT_BATTERY_CHARGE_COUNTER    
+    lcd.setCursor(0, 4);
+    lcd.print(charge_count);
+    lcd.print(MY_F(" bat cycl"));
+#endif
 #endif
 }
 

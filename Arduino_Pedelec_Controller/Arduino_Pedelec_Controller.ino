@@ -99,6 +99,9 @@ struct savings   //add variables if you want to store additional values to the e
     float kilometers; //trip kilometers
     float mah; //milliamphours
     unsigned long odo; //overall kilometers in units of wheel roundtrips
+#ifdef SUPPORT_BATTERY_CHARGE_COUNTER
+    unsigned int charge_count;//battery charge count
+#endif
 };
 savings variable = {0.0, 0.0, 0.0, 0.0, 0}; //variable stores last voltage and capacity read from EEPROM
 savings variable_new = {0.0, 0.0, 0.0, 0.0, 0}; //variable_new stores new EEPROM values
@@ -187,6 +190,7 @@ double power_throttle=0.0; //set power, calculated with current throttle setting
 float factor_speed=1.0;        //factor controling the speed
 float factor_volt=1.0;         //factor controling voltage cutoff
 float wh,mah=0.0;              //watthours, mah drawn from battery
+unsigned int charge_count=0;     //battery charge count
 float temperature = 0.0;       //temperature
 float altitude = 0.0;          //altitude
 float altitude_start=0.0;      //altitude at start
@@ -382,6 +386,9 @@ void setup()
 
     read_eeprom();      //read stored variables
     odo=variable.odo;   //load overall kilometers from eeprom
+#ifdef SUPPORT_BATTERY_CHARGE_COUNTER
+    charge_count=variable.charge_count; //load charge count from eeprom
+#endif
     display_show_welcome_msg();
 
 //setup interrupt handling
@@ -574,7 +581,12 @@ void loop()
             mah=variable.mah;
         }
         else
+        {
             display_show_important_info(FROM_FLASH(msg_battery_charged), 5);
+#ifdef SUPPORT_BATTERY_CHARGE_COUNTER
+            charge_count++; //increase charge counter
+#endif
+        }
     }
     firstrun=false;                                     //first loop run done (ok, up to this line :))
 
@@ -1201,6 +1213,9 @@ void save_eeprom()
   variable_new.kilometers=km;  //save trip kilometers
   variable_new.mah=mah;        //save milliamperehours drawn from battery
   variable_new.odo=odo;        //save total kilometers
+#ifdef SUPPORT_BATTERY_CHARGE_COUNTER
+  variable_new.charge_count=charge_count; //save charge counter
+#endif
   const byte* p_new = (const byte*)(const void*)&variable_new; //pointer to new variables to save
   const byte* p_old = (const byte*)(const void*)&variable; //pointer to current EEPROM content
   int i;

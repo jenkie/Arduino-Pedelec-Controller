@@ -36,6 +36,7 @@ serial_command serial_commands[] =
     {{"hh"}},     //4: set/get hours
     {{"mm"}},     //5: set/get minutes
     {{"ss"}},     //6: set/get seconds
+    {{"cc"}},     //7: set/get charge count
 
 };
 const byte n_commands = sizeof(serial_commands)/sizeof(serial_command); //number of commands that we have
@@ -122,6 +123,11 @@ static void handle_command()
                 active_serial_port->println(now.ss);
 #endif
                 break;
+            case 7:              //charge count read
+#ifdef SUPPORT_BATTERY_CHARGE_COUNTER
+                active_serial_port->println(charge_count);
+#endif
+                break;
         }
 
         return;
@@ -158,6 +164,11 @@ static void handle_command()
             rtc.adjust_time(now.hh,now.mm,atoi(active_serial->numberstring));
 #endif
             break;
+        case 7:              //charge count write
+#ifdef SUPPORT_BATTERY_CHARGE_COUNTER
+                charge_count=atoi(active_serial->numberstring);
+#endif
+                break;
     }
     active_serial_port->println(MY_F("OK"));
 }
