@@ -38,6 +38,7 @@ ALL_FEATURES = [
                   'SUPPORT_LIGHTS_SWITCH_MENU',
                   'SUPPORT_MOTOR_GUESS',
                   'SUPPORT_BATTERY_CHARGE_DETECTION',
+                  'SUPPORT_BATTERY_CHARGE_COUNTER',
                   'SUPPORT_GEAR_SHIFT',
                  ]
 
@@ -50,6 +51,7 @@ DEFAULT_FEATURES = [
                   'SUPPORT_PROFILE_SWITCH_MENU',
                   'SUPPORT_FIRST_AID_MENU',
                   'SUPPORT_BATTERY_CHARGE_DETECTION',
+                  'SUPPORT_BATTERY_CHARGE_COUNTER',
                  ]
 
 def write_config_h(filename=CONFIG_H,
@@ -313,6 +315,7 @@ class CompileTest(unittest.TestCase):
                             'SUPPORT_FIRST_AID_MENU',
                             'SUPPORT_MOTOR_GUESS',
                             'SUPPORT_BATTERY_CHARGE_DETECTION',
+                            'SUPPORT_BATTERY_CHARGE_COUNTER',
                             'SUPPORT_GEAR_SHIFT'
                         ]
                     )
@@ -337,6 +340,7 @@ class CompileTest(unittest.TestCase):
                             'SUPPORT_FIRST_AID_MENU',
                             'SUPPORT_MOTOR_GUESS',
                             'SUPPORT_BATTERY_CHARGE_DETECTION',
+                            'SUPPORT_BATTERY_CHARGE_COUNTER',
                             'SUPPORT_GEAR_SHIFT'
                         ]
                     )
