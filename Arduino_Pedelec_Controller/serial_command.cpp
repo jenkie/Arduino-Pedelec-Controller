@@ -64,8 +64,8 @@ serial_struct serial_port1={Reset,{0},0,{0},0};
 serial_struct serial_port2={Reset,{0},0,{0},0};
 #endif
 
-serial_struct* active_serial;
-HardwareSerial* active_serial_port;
+serial_struct* active_serial = &serial_port1;
+HardwareSerial* active_serial_port = &Serial;
 
 /**
  * @brief Look for valid commands in command input buffer
@@ -186,7 +186,7 @@ void parse_serial(const char &read_c, const byte port)
       active_serial=&serial_port2;
       active_serial_port=&Serial1;
     }
-#endif    
+#endif
     byte i;
 
     switch(active_serial->parse_state)
