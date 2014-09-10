@@ -1255,8 +1255,10 @@ void save_shutdown()
   
   save_eeprom(); //save variables now
   
+#if HARDWARE_REV >= 2
   digitalWrite(fet_out,FET_OFF); //turn off
   while(true); //there is nothing more to do -> stay in endless loop until turned off
+#endif
 }
 
 void handle_unused_pins()
