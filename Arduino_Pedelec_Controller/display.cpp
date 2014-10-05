@@ -266,6 +266,7 @@ static void display_nokia_setup()    //first time setup of nokia display
 // TODO: Add PROGMEM support
 static const byte serial_break_symbol[8] = { 0x0,0xa,0x11,0x15,0x11,0xa,0x0,0x0 }; //Symbol for showing that the bikes brake is active
 static const byte serial_batt_symbol[8] = { 0xe,0x1f,0x1f,0x1f,0x1f,0x1f,0x1f,0x0 };  //Symbol for the battery
+static const byte serial_profile2_symbol[8] = { 0x1f,0x11,0x1d,0x19,0x17,0x11,0x1f,0x0 }; //Symbol for showing that the second profile is active
 #endif
 
 static void display_16x2_setup()
@@ -278,10 +279,11 @@ static void display_16x2_setup()
 #endif
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
-    // Online editor for custom chars:
+    // Online editor for custom chars (5x8 pixels):
     // http://www.quinapalus.com/hd44780udg.html
     lcd.createChar(0x01, serial_break_symbol);
     lcd.createChar(0x02, serial_batt_symbol);
+    lcd.createChar(0x03, serial_profile2_symbol);
 #endif
 }
 
@@ -360,6 +362,8 @@ static void display_16x2_view_main()
     // Break status
     if(brake_stat==0)
         lcd.write(0x01);
+    else if (current_profile)           // second profile active?
+        lcd.write(0x03);
     else
         lcd.print(MY_F(" "));
 
