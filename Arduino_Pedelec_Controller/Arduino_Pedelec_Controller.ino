@@ -1241,6 +1241,7 @@ void read_eeprom()
 
 void save_shutdown()
 {
+  digitalWrite(throttle_out,0); //turn motor off
   //power saving stuff. This is critical if battery is disconnected.
   EIMSK=0; //disable interrupts
   cli(); //disable interrupts
@@ -1251,7 +1252,6 @@ void save_shutdown()
   PRR0=B11101111; //shut down I2C, Timers, ADCs, UARTS
   PRR1=B00111111; //shut down I2C, Timers, ADCs, UARTS   
 #endif  
-  digitalWrite(throttle_out,0); //turn motor off
   
   save_eeprom(); //save variables now
   
