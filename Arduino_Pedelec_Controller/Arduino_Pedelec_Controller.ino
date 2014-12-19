@@ -1222,11 +1222,11 @@ void save_eeprom()
   for (i = 0; i < sizeof(variable_new); i++)
   {
     if (*p_new==*p_old) //this byte has not changed --> ignore
-      *p_new++;
+      ++p_new;
     else
-      EEPROM.write(i, *p_new++); //this byte has changed --> write     
-    p_old++;
-  }  
+      EEPROM.write(i, *(p_new++)); //this byte has changed --> write
+    ++p_old;
+  }
 }
 
 void read_eeprom()
