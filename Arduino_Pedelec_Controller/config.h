@@ -133,6 +133,7 @@ const int fixed_throttle_in_watts = 250;         //number of watts to set as thr
 #define CONTROL_MODE_TORQUE 2            //power = x*power of the biker, see also description of power_poti_max!
 #define CONTROL_MODE CONTROL_MODE_NORMAL //Set your control mode here
 
+//#define SUPPORT_MOTOR_SERVO      //RC Motor controller with PWM input is used. Do not forget to remove capacitor from the low pass filter of the output to the motor controller.
 //#define SUPPORT_MOTOR_GUESS   //enable guess of motor drive depending on current speed. Usefull for motor controllers with speed-throttle to optimize response behaviour
 #define SUPPORT_BATTERY_CHARGE_DETECTION //support detection if the battery was charged -> reset wh / trip km / mah counters if detected.
 const byte battery_charged_min_voltage = 20;  //minimum battery voltage to consider it charged. Useful to prevent "false positives".
@@ -148,8 +149,8 @@ const int throttle_offset=196;           //Offset voltage of throttle control wh
 const int throttle_max=832;              //Offset voltage of throttle control when in "MAX" position (0..1023 = 0..5V)
 const int poti_offset=0;                 //Offset voltage of poti when in "0" position (0..1023 = 0..5V)
 const int poti_max=1023;                 //Offset voltage of poti when in "MAX" position (0..1023 = 0..5V)
-const int motor_offset=50;               //Offset for throttle output where Motor starts to spin (0..255 = 0..5V)
-const int motor_max=200;                 //Maximum input value for motor driver (0..255 = 0..5V)
+const int motor_offset=50;               //Offset for throttle output where Motor starts to spin (0..255 = 0..5V). Default: 50. In Servo mode this value is about 1000
+const int motor_max=200;                 //Maximum input value for motor driver (0..255 = 0..5V). Default: 200. In Servo mode this value is about 2000
 const int spd_idle=55;                   //idle speed of motor in km/h - may be much higher than real idle speed (depending on controller)
 const boolean startingaidenable = true;  //enable starting aid?
 const int startingaid_speed = 6;         //starting aid up to this speed. 6km/h is the limit for legal operation of a Pedelec by EU-wide laws

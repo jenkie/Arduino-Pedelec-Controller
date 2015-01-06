@@ -38,6 +38,11 @@ Features:
 #include "menu.h"            //on the go menu
 #include "serial_command.h"       //serial (bluetooth) communication stuff
 
+#ifdef SUPPORT_MOTOR_SERVO   //RC motor controller connected to motor output
+#include <Servo.h>
+Servo motorservo;
+#endif
+
 #ifdef SUPPORT_BMP085
 #include <Wire.h>
 #include "BMP085.h"          //library for altitude and temperature measurement using http://www.watterott.com/de/Breakout-Board-mit-dem-BMP085-absoluten-Drucksensor     
@@ -452,6 +457,10 @@ void setup()
     torque_zero=analogRead_noISR(option_pin);
 #endif
 
+#ifdef SUPPORT_MOTOR_SERVO
+motorservo.attach(throttle_out);
+#endif
+
 #ifdef DEBUG_MEMORY_USAGE
     Serial.print(MY_F("memFree after setup:"));
     Serial.print(memFree());
@@ -590,12 +599,6 @@ void loop()
     }
     firstrun=false;                                     //first loop run done (ok, up to this line :))
 
-//Check power-off condition ---------------------------------------------------------------------------------------------
-    if ((voltage<20.0)&&(voltage_2s>6.0)) //save to EEPROM when battery disconnect detected. Do this only if not running on usb power
-    {
-        save_shutdown();
-    }
-
 //Are we pedaling?---------------------------------------------------------------------------------------------------------
 #ifdef SUPPORT_PAS
     if (((millis()-last_pas_event)>500)||(pas_failtime>pas_tolerance))
@@ -699,7 +702,11 @@ void loop()
     if (throttle_stat<5||spd>curr_spd_max2)
 #endif
     {throttle_write=motor_offset;}
+#ifdef SUPPORT_MOTOR_SERVO
+    motorservo.writeMicroseconds(throttle_write);
+#else
     analogWrite(throttle_out,throttle_write);
+#endif
 
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
     handle_backlight();
@@ -1241,6 +1248,7 @@ void read_eeprom()
 
 void save_shutdown()
 {
+  Serial.println("stop");
   digitalWrite(throttle_out,0); //turn motor off
   //power saving stuff. This is critical if battery is disconnected.
   EIMSK=0; //disable interrupts
