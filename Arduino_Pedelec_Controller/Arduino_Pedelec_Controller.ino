@@ -171,9 +171,13 @@ double pid_p=cfg_pid_p;
 double pid_i=cfg_pid_i;
 double pid_p_throttle=cfg_pid_p_throttle;
 double pid_i_throttle=cfg_pid_i_throttle;
-
 double pid_out,pid_set;        //pid output, pid set value
 int throttle_stat = 0;         //Throttle reading
+#if defined(THROTTLE_AUTO_CRUISE) && defined(SUPPORT_SOFT_POTI)
+int throttle_pre = 0;          //Previous throttle reading (auto-cruise)
+byte throttle_zero_count = 0;  //Counter for zero-throttle readings (auto-cruise)
+byte throttle_up_count = 0;    //Counter for throttle-readings (auto-cruise)
+#endif
 int throttle_write=0;          //Throttle write value
 int poti_stat = 0;         //Poti reading
 volatile int pas_on_time = 0;  //High-Time of PAS-Sensor-Signal (needed to determine pedaling direction)
@@ -206,6 +210,10 @@ volatile float spd=0.0;        //speed
 float range = 0.0;             //expected range
 unsigned long odo=0;           //overall kilometers in units of wheel roundtrips
 unsigned long last_writetime = millis();  //last time display has been refreshed
+#if defined(THROTTLE_AUTO_CRUISE) && defined(SUPPORT_SOFT_POTI)
+unsigned long last_writetime_short = millis(); //used for fast loop (auto-cruise)
+byte short_writetime_counter = 0; //Counter for fast-loop
+#endif
 volatile unsigned long last_wheel_time = millis(); //last time of wheel sensor change 0->1
 volatile unsigned long wheel_time = 65535;  //time for one revolution of the wheel
 volatile unsigned long last_pas_event = millis();  //last change-time of PAS sensor status
@@ -760,7 +768,40 @@ void loop()
     // Super-fast menu system (no delay)
     if (menu_active)
         display_update();
+        
+#if defined(THROTTLE_AUTO_CRUISE) && defined(SUPPORT_SOFT_POTI)
+//Throttle-auto-cruise reset detection ----------------------------
+  if (millis()-last_writetime_short > 50) {
+    short_writetime_counter++;
+    if (throttle_stat > 0) {
+      throttle_up_count++;
+      throttle_zero_count = 0;
+    }
+    else {
+      throttle_zero_count++;
+      if (throttle_up_count > 7 || throttle_zero_count > 10) {
+        throttle_up_count = 0;
+      }
+    }
+    //short tip
+    if (throttle_up_count > 2 && throttle_up_count < 8 && throttle_zero_count > 0) { 
+      action_set_soft_poti(0);
+      throttle_up_count = 0;
+    }
+    last_writetime_short = millis();
+  }
 
+  if (short_writetime_counter > 9) {
+    short_writetime_counter = 0;
+    if (throttle_pre < throttle_stat + 20 && throttle_pre > throttle_stat - 20 && throttle_stat > 5) {
+      action_set_soft_poti(throttle_stat);
+      throttle_pre = 0;
+    }
+    else {
+      throttle_pre = throttle_stat;
+    }
+  }
+#endif    
 //slow loop start----------------------//use this subroutine to place any functions which should happen only once a second
     if (millis()-last_writetime > 1000)              //don't do this more than once a second
     {

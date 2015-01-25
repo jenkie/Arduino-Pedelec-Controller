@@ -107,6 +107,8 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 // #define SUPPORT_RTC     //uncomment if DS1307 RTC module connected to I2C
 #define SUPPORT_POTI        //uncomment if Poti connected
 // #define SUPPORT_SOFT_POTI //uncomment if Poti is emulated: The switch_disp button will store the current throttle value as poti value
+// #define THROTTLE_AUTO_CRUISE //uncomment to automatically set poti value when throttle is held constant for a while. Works only in combination with Soft-Poti!
+
 
 // #define SUPPORT_POTI_SWITCHES     //uncomment to increase/decrease the poti via switch action ACTION_INCREASE_POTI / ACTION_DECREASE_POTI
 const int poti_value_on_startup_in_watts = 0;    //poti startup value in watts
