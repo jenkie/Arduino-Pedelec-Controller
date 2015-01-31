@@ -801,7 +801,19 @@ void loop()
       throttle_pre = throttle_stat;
     }
   }
-#endif    
+#endif   
+
+#if HARDWARE_REV >= 2
+// Emergency power down to protect battery from undervoltage. Also saves to EEPROM
+// Don't shut down on USB power.
+            if (voltage < vemergency_shutdown
+                    && voltage_2s > 6.0)
+            {
+                display_show_important_info(FROM_FLASH(msg_emergency_shutdown), 60);
+                save_shutdown();
+            }
+#endif
+
 //slow loop start----------------------//use this subroutine to place any functions which should happen only once a second
     if (millis()-last_writetime > 1000)              //don't do this more than once a second
     {
@@ -847,16 +859,6 @@ void loop()
                 }
             }
 
-// Emergency power down to protect battery from undervoltage.
-// Also checks averaged voltage to prevent ADC read errors killing the system.
-// Don't shut down on USB power, too.
-            if (voltage < vemergency_shutdown && voltage_display < vemergency_shutdown
-                    && voltage > 6.0)
-            {
-                display_show_important_info(FROM_FLASH(msg_emergency_shutdown), 60);
-                delay(1000);
-                save_shutdown();
-            }
 #endif
 #ifdef SUPPORT_HRMI
         pulse_human=getHeartRate();
