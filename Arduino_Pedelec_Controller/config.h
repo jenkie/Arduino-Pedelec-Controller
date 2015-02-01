@@ -160,6 +160,7 @@ const float vmax=42.0;                   //Battery voltage when fully charged
 const float vcutoff=33.0;                //cutoff voltage in V;
 const float vemergency_shutdown = 28.0;  //emergency power off situation to save the battery from undervoltage
 const float wheel_circumference = 2.202; //wheel circumference in m
+const byte wheel_magnets=1;              //configure your number of wheel magnets here
 const int spd_max1=22;                   //speed cutoff start in Km/h
 const int spd_max2=25;                   //speed cutoff stop (0W) in Km/h
 const int power_max=500;                 //Maximum power in W (throttle mode)

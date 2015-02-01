@@ -216,6 +216,7 @@ byte short_writetime_counter = 0; //Counter for fast-loop
 #endif
 volatile unsigned long last_wheel_time = millis(); //last time of wheel sensor change 0->1
 volatile unsigned long wheel_time = 65535;  //time for one revolution of the wheel
+volatile byte wheel_counter=0; //counter for events that should happen once per wheel revolution. only needed if wheel_magnets>1
 volatile unsigned long last_pas_event = millis();  //last change-time of PAS sensor status
 #define pas_time 60000/pas_magnets //conversion factor for pas_time to rpm (cadence)
 volatile boolean pedaling = false;  //pedaling? (in forward direction!)
@@ -976,19 +977,22 @@ void speed_change()    //Wheel Sensor Change------------------------------------
 
     //Speed and Km
     if (last_wheel_time>(millis()-50)) return;                         //debouncing reed-sensor
-    ++odo;
-    wheel_time=millis()-last_wheel_time;
+    wheel_counter++;
+    wheel_time=(millis()-last_wheel_time)*wheel_magnets;
     spd = (spd+3600*wheel_circumference/wheel_time)/2;  //a bit of averaging for smoother speed-cutoff
-    if (spd<100)
-    {km=km+wheel_circumference/1000.0;}
-    else
-    {spd=0;}
+    
+    if (wheel_counter>(wheel_magnets-1)) //wheel has made one complete revolution
+    {
+      wheel_counter=0;
+      km=km+wheel_circumference/1000.0;
+      ++odo;
 #if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
 //slope-stuff start-------------------------------
-    slope=0.98*slope+2*(altitude-last_altitude)/wheel_circumference;
-    last_altitude=altitude;
+      slope=0.98*slope+2*(altitude-last_altitude)/wheel_circumference;
+      last_altitude=altitude;
 //slope-stuff end---------------------------------
-#endif
+#endif    
+    }
     last_wheel_time=millis();
 }
 
