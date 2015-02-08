@@ -77,7 +77,7 @@ void init_switches()
 // Switch actions start here.
 // Those can be executed when a button is pressed (short or long)
 //
-#if defined(THROTTLE_AUTO_CRUISE)
+#if defined(SUPPORT_THROTTLE_AUTO_CRUISE)
 void action_set_soft_poti(int new_throttle_stat)
 #else
 static void action_set_soft_poti(int new_throttle_stat)

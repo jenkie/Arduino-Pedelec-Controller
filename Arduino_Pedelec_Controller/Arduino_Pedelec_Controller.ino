@@ -173,7 +173,7 @@ double pid_p_throttle=cfg_pid_p_throttle;
 double pid_i_throttle=cfg_pid_i_throttle;
 double pid_out,pid_set;        //pid output, pid set value
 int throttle_stat = 0;         //Throttle reading
-#if defined(THROTTLE_AUTO_CRUISE) && defined(SUPPORT_SOFT_POTI)
+#if defined(SUPPORT_THROTTLE_AUTO_CRUISE) && defined(SUPPORT_SOFT_POTI)
 int throttle_pre = 0;          //Previous throttle reading (auto-cruise)
 byte throttle_zero_count = 0;  //Counter for zero-throttle readings (auto-cruise)
 byte throttle_up_count = 0;    //Counter for throttle-readings (auto-cruise)
@@ -210,7 +210,7 @@ volatile float spd=0.0;        //speed
 float range = 0.0;             //expected range
 unsigned long odo=0;           //overall kilometers in units of wheel roundtrips
 unsigned long last_writetime = millis();  //last time display has been refreshed
-#if defined(THROTTLE_AUTO_CRUISE) && defined(SUPPORT_SOFT_POTI)
+#if defined(SUPPORT_THROTTLE_AUTO_CRUISE) && defined(SUPPORT_SOFT_POTI)
 unsigned long last_writetime_short = millis(); //used for fast loop (auto-cruise)
 byte short_writetime_counter = 0; //Counter for fast-loop
 #endif
@@ -775,7 +775,7 @@ void loop()
     if (menu_active)
         display_update();
         
-#if defined(THROTTLE_AUTO_CRUISE) && defined(SUPPORT_SOFT_POTI)
+#if defined(SUPPORT_THROTTLE_AUTO_CRUISE) && defined(SUPPORT_SOFT_POTI)
 //Throttle-auto-cruise reset detection ----------------------------
   if (millis()-last_writetime_short > 50) {
     short_writetime_counter++;

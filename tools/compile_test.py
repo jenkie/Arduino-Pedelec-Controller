@@ -25,7 +25,7 @@ ALL_FEATURES = [
                   'SUPPORT_RTC',
                   'SUPPORT_POTI',
                   'SUPPORT_SOFT_POTI',
-                  'THROTTLE_AUTO_CRUISE',
+                  'SUPPORT_THROTTLE_AUTO_CRUISE',
                   'SUPPORT_POTI_SWITCHES',
                   'SUPPORT_THROTTLE',
                   'SUPPORT_PAS',
@@ -304,7 +304,7 @@ class CompileTest(unittest.TestCase):
                     serial_mode='DEBUG',
                     features=[
                             'SUPPORT_SOFT_POTI',
-                            'THROTTLE_AUTO_CRUISE',
+                            'SUPPORT_THROTTLE_AUTO_CRUISE',
                             'SUPPORT_THROTTLE',
                             'SUPPORT_PAS',
                             'SUPPORT_BRAKE',
