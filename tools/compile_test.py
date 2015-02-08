@@ -41,6 +41,7 @@ ALL_FEATURES = [
                   'SUPPORT_BATTERY_CHARGE_DETECTION',
                   'SUPPORT_BATTERY_CHARGE_COUNTER',
                   'SUPPORT_GEAR_SHIFT',
+                  'SUPPORT_MOTOR_SERVO'
                  ]
 
 # List of features that's enabled by default
