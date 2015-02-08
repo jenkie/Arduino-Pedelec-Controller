@@ -636,7 +636,7 @@ void loop()
     }
 
 //live speed update when there is no speed_change interrupt-----------------------------------------------------------------
-    long wheeltime_temp=(millis()-last_wheel_time)*wheel_magnets; //current upper limit of the speed based on last measurement
+    unsigned long wheeltime_temp=(millis()-last_wheel_time)*wheel_magnets; //current upper limit of the speed based on last measurement
     if (wheeltime_temp>wheel_time)                                //is current upper limit slower than last real measurement?
       spd = 3600*wheel_circumference/wheeltime_temp;
 
