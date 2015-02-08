@@ -101,9 +101,9 @@ def write_config_h(filename=CONFIG_H,
         f.write('\n')
         f.write('\n')
         f.write('// FEATURES begin\n')
-        for feature in ALL_FEATURES:
-            if feature not in features:
-                continue
+        for feature in features:
+            if feature not in ALL_FEATURES:
+                raise Exception('Unknown feature: ' + feature)
             f.write('#define ' + feature + '\n')
         f.write('// FEATURES end\n')
         f.write('\n')
@@ -366,6 +366,13 @@ class CompileTest(unittest.TestCase):
                     serial_mode='NONE',
                     features=[]
                     )
+
+    def test_error_on_unknown_feature(self):
+        with self.assertRaises(Exception) as context:
+            self.build_firmware(features=['SUPPORT_UNKNOWN_FEATURE_NAME']
+                        )
+
+        self.assertEqual('Unknown feature: SUPPORT_UNKNOWN_FEATURE_NAME', str(context.exception))
 
 if __name__ == '__main__':
     if not os.path.isdir(BASE_DIR):
