@@ -25,6 +25,7 @@ ALL_FEATURES = [
                   'SUPPORT_RTC',
                   'SUPPORT_POTI',
                   'SUPPORT_SOFT_POTI',
+                  'THROTTLE_AUTO_CRUISE',
                   'SUPPORT_POTI_SWITCHES',
                   'SUPPORT_THROTTLE',
                   'SUPPORT_PAS',
@@ -295,6 +296,19 @@ class CompileTest(unittest.TestCase):
     def test_hw_revisions(self):
         for hw_revision in [1, 2, 3, 4, 5, 20]:
             self.build_firmware(str(hw_revision), hardware_rev = hw_revision)
+
+    def test_throttle_auto_cruise(self):
+        self.build_firmware(hardware_rev = 20,
+                    display_type='NOKIA_4PIN',
+                    serial_mode='DEBUG',
+                    features=[
+                            'SUPPORT_SOFT_POTI',
+                            'THROTTLE_AUTO_CRUISE',
+                            'SUPPORT_THROTTLE',
+                            'SUPPORT_PAS',
+                            'SUPPORT_BRAKE',
+                        ]
+                    )
 
     def test_max_config(self):
         self.build_firmware(hardware_rev = 5,
