@@ -156,6 +156,7 @@ def write_config_h(filename=CONFIG_H,
         f.write('const float vcutoff=33.0;                //cutoff voltage in V;\n')
         f.write('const float vemergency_shutdown = 28.0;  //emergency power off situation to save the battery from undervoltage\n')
         f.write('const float wheel_circumference = 2.202; //wheel circumference in m\n')
+        f.write('const byte wheel_magnets=1;              //configure your number of wheel magnets here\n')
         f.write('const int spd_max1=22;                   //speed cutoff start in Km/h\n')
         f.write('const int spd_max2=25;                   //speed cutoff stop (0W) in Km/h\n')
         f.write('const int power_max=500;                 //Maximum power in W (throttle mode)\n')
