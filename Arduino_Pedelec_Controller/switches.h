@@ -29,8 +29,6 @@ void handle_switch(const switch_name sw_name, boolean sw_state, const switch_res
 
 void action_increase_poti();
 void action_decrease_poti();
-
-#if defined(SUPPORT_THROTTLE_AUTO_CRUISE)
 void action_set_soft_poti(int new_throttle_stat);
-#endif
+
 #endif

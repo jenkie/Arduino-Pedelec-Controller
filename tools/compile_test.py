@@ -303,7 +303,6 @@ class CompileTest(unittest.TestCase):
                     display_type='NOKIA_4PIN',
                     serial_mode='DEBUG',
                     features=[
-                            'SUPPORT_SOFT_POTI',
                             'SUPPORT_THROTTLE_AUTO_CRUISE',
                             'SUPPORT_THROTTLE',
                             'SUPPORT_PAS',
