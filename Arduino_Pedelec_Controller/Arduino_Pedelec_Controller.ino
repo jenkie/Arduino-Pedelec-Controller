@@ -102,6 +102,12 @@ Time now;
 #endif
 #endif
 
+#ifdef SUPPORT_TEMP_SENSOR
+#include "one_Wire.h"
+#include "DallasTemp.h"
+OneWire tempWire(temp_pin); 
+DallasTemperature sensors(&tempWire);
+#endif
 
 // #define DEBUG_MEMORY_USAGE               // enable this define to print memory usage in SERIAL_MODE_DEBUG
 
@@ -329,6 +335,12 @@ void setup()
     Serial.print(MY_F("memFree before setup:"));
     Serial.print(memFree());
     Serial.print(MY_F("\n"));
+#endif
+
+#ifdef SUPPORT_TEMP_SENSOR
+    sensors.begin(); //initialize Dallas library
+    sensors.setWaitForConversion(false);
+    sensors.setResolution(TEMP_12_BIT); // Set conversion resolution to 12 bit (most accurate mode). Conversion time approximately 700 ms!
 #endif
 
 #ifdef SUPPORT_DSPC01
@@ -839,6 +851,10 @@ void loop()
         altitude = bmp.readAltitude()-altitude_start;
 #endif
 
+#ifdef SUPPORT_TEMP_SENSOR
+        sensors.requestTemperatures(); // read temperature(s) from DS18x20 sensor. Readouts are in sensors.getTempCByIndex(n)
+#endif
+
         battery_percent_fromcapacity = constrain((1-wh/ curr_capacity)*100,0,100);     //battery percent calculation from battery capacity. For voltage-based calculation see above
         range=constrain(curr_capacity/wh*km-km,0.0,200.0);               //range calculation from battery capacity
         wh+=current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
@@ -1099,6 +1115,10 @@ void serial_debug(HardwareSerial* localSerial)
     localSerial->print(poti_stat);
     localSerial->print(MY_F(" Throttle"));
     localSerial->print(throttle_stat);
+#ifdef SUPPORT_TEMP_SENSOR
+    localSerial->print(MY_F(" Temp"));
+    localSerial->print(sensors.getTempCByIndex(0),2);
+#endif
     /*
         localSerial->print(MY_F(" TEMP"));
         localSerial->print(temperature);
