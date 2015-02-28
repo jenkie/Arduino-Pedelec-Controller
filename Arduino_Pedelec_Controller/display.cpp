@@ -427,11 +427,12 @@ bool show_altitude = false;
 static void display_16x2_view_environment()
 {
 #if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
+#ifndef(SUPPORT_TEMP_SENSOR)
     lcd.setCursor(0,0);
     lcd.print(MY_F("Temp: "));
     lcd.print((int)temperature);
     lcd.print(MY_F(" C"));
-
+#endif
     lcd.setCursor(0,1);
 
     // switch between altitude and slope very five seconds
@@ -451,6 +452,15 @@ static void display_16x2_view_environment()
         lcd.print(slope,0);
         lcd.print(MY_F("%    "));
     }
+#endif
+#if defined(SUPPORT_TEMP_SENSOR)
+    lcd.setCursor(0,0);
+    lcd.print(MY_F("T1: "));
+    lcd.print(sensors.getTempCByIndex(0),1);
+    lcd.print(MY_F(" C "));
+    lcd.print(MY_F("T2: "));
+    lcd.print((int)sensors.getTempCByIndex(1),1);
+    lcd.print(MY_F(" C "));
 #endif
 }
 
@@ -489,7 +499,7 @@ static void display_16x2_update()
         case DISPLAY_VIEW_BATTERY:
             display_16x2_view_battery();
             break;
-#if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
+#if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01) || defined(SUPPORT_TEMP_SENSOR)
         case DISPLAY_VIEW_ENVIRONMENT:
             display_16x2_view_environment();
             break;

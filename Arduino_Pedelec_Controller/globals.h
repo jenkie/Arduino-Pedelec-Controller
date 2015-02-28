@@ -75,6 +75,11 @@ extern void activate_new_profile();
 extern RTC_DS1307 rtc;
 extern Time now;
 
+#ifdef SUPPORT_TEMP_SENSOR
+#include "DallasTemp.h"
+extern DallasTemperature sensors;
+#endif
+
 // Define own version of F() macro since compile will
 // fail on newer gcc versions with a "const" warning.
 // This is the version as in Arduino 1.5 and newer.
