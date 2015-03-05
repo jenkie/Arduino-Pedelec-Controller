@@ -41,7 +41,8 @@ ALL_FEATURES = [
                   'SUPPORT_BATTERY_CHARGE_DETECTION',
                   'SUPPORT_BATTERY_CHARGE_COUNTER',
                   'SUPPORT_GEAR_SHIFT',
-                  'SUPPORT_MOTOR_SERVO'
+                  'SUPPORT_MOTOR_SERVO',
+                  'SUPPORT_TEMP_SENSOR'
                  ]
 
 # List of features that's enabled by default
@@ -144,6 +145,7 @@ def write_config_h(filename=CONFIG_H,
         f.write('#define CONTROL_MODE CONTROL_MODE_' + control_mode + ' //Set your control mode here\n')
         f.write('\n')
         f.write('//Config Options-----------------------------------------------------------------------------------------------------\n')
+        f.write('const byte temp_pin = A2;                //pin connected to Data pin of the DS18x20 temperature Sensor\n')
         f.write('const int pas_tolerance=1;               //0... increase to make pas sensor slower but more tolerant against speed changes\n')
         f.write('const int throttle_offset=196;           //Offset voltage of throttle control when in "0" position (0..1023 = 0..5V)\n')
         f.write('const int throttle_max=832;              //Offset voltage of throttle control when in "MAX" position (0..1023 = 0..5V)\n')
