@@ -183,6 +183,7 @@ const double cfg_pid_p_throttle=0.05;    //pid p-value for throttle mode
 const double cfg_pid_i_throttle=2.5;     //pid i-value for throttle mode
 const byte pulse_min=150;                //lowest value of desired pulse range in bpm
 const byte pulse_range=20;               //width of desired pulse range in bpm
+const int pas_timeout=500;               //time in ms after which pedaling is set to false
 
 //Config Options for profile 2-----------------------------------------------------------------------------------------------------
 const int startingaid_speed_2 = 6;

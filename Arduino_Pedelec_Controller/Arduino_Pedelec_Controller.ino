@@ -630,7 +630,7 @@ void loop()
 
 //Are we pedaling?---------------------------------------------------------------------------------------------------------
 #ifdef SUPPORT_PAS
-    if (((millis()-last_pas_event)>500)||(pas_failtime>pas_tolerance))
+    if (((millis()-last_pas_event)>pas_timeout)||(pas_failtime>pas_tolerance))
     {pedaling = false;}                               //we are not pedaling anymore, if pas did not change for > 0,5 s
 
     // First aid support: Ignore missing PAS events
