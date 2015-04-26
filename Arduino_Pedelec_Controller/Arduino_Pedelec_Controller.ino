@@ -1101,12 +1101,19 @@ void serial_debug(HardwareSerial* localSerial)
     localSerial->print(current,1);
     localSerial->print(MY_F(" Power"));
     localSerial->print(power,0);
+#ifdef SUPPORT_XCELL_RT
+    localSerial->print(MY_F(" Pedaling"));
+    localSerial->print(pedaling);
+    localSerial->print(MY_F(" Torque"));
+    localSerial->print(torque,1);
+#else
     localSerial->print(MY_F(" PAS_On"));
     localSerial->print(pas_on_time);
     localSerial->print(MY_F(" PAS_Off"));
     localSerial->print(pas_off_time);
     localSerial->print(MY_F(" PAS_factor"));
     localSerial->print((float)pas_on_time/pas_off_time);
+#endif
     localSerial->print(MY_F(" Speed"));
     localSerial->print(spd);
     localSerial->print(MY_F(" Brake"));
@@ -1132,7 +1139,11 @@ void serial_debug(HardwareSerial* localSerial)
     localSerial->print(MY_F("---raw---"));
     localSerial->print(analogRead_noISR(voltage_in)); Serial.print(MY_F(";"));
     localSerial->print(analogRead_noISR(current_in)); Serial.print(MY_F(";"));
+#ifdef SUPPORT_XCELL_RT
+    localSerial->print(pedaling); Serial.print(MY_F(";"));
+#else
     localSerial->print(((int)(100*(double)pas_on_time/(double)pas_off_time))); Serial.print(MY_F(";"));
+#endif
     localSerial->print(analogRead_noISR(option_pin)); Serial.print(MY_F(";"));
     localSerial->print(analogRead_noISR(poti_in)); Serial.print(MY_F(";"));
     localSerial->print(analogRead_noISR(throttle_in)); Serial.print(MY_F(";"));
