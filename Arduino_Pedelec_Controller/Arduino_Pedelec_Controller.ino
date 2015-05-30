@@ -230,6 +230,10 @@ byte short_writetime_counter = 0; //Counter for fast-loop
 #endif
 volatile unsigned long last_wheel_time = millis(); //last time of wheel sensor change 0->1
 volatile unsigned long wheel_time = 65535;  //time for one revolution of the wheel
+#ifdef DETECT_BROKEN_SPEEDSENSOR
+unsigned long motor_started_time = millis(); //time the motor started, needed to measure how long motor is running but no speed signal is detected
+int last_throttle_write=0;                      //last throttle write value
+#endif
 volatile byte wheel_counter=0; //counter for events that should happen once per wheel revolution. only needed if wheel_magnets>1
 volatile unsigned long last_pas_event = millis();  //last change-time of PAS sensor status
 #define pas_time 60000/pas_magnets //conversion factor for pas_time to rpm (cadence)
@@ -736,6 +740,17 @@ void loop()
     if (throttle_stat<5||spd>curr_spd_max2)
 #endif
     {throttle_write=motor_offset;}
+//Broken speed sensor detection START
+#ifdef DETECT_BROKEN_SPEEDSENSOR
+    if (last_throttle_write==motor_offset)&&(throttle_write>motor_offset)
+    {
+      motor_started_time=millis();
+    }
+    last_throttle_write=throttle_write;
+    if (((millis()-motor_started_time)>5000)&&(spd<1))  //5 seconds no speed signal although motor powered --> stop motor
+      throttle_write=motor_offset;  
+#endif
+//Broken speed sensor detection END
 #ifdef SUPPORT_MOTOR_SERVO
     motorservo.writeMicroseconds(throttle_write);
 #else

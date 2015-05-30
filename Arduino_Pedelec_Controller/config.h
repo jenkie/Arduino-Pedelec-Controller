@@ -121,6 +121,8 @@ const int fixed_throttle_in_watts = 250;         //number of watts to set as thr
 // #define SUPPORT_HRMI         //uncomment if polar heart-rate monitor interface connected to i2c port
 #define SUPPORT_BRAKE        //uncomment if brake switch connected
 // #define INVERT_BRAKE         //uncomment if brake signal is low when not braking
+#define DETECT_BROKEN_SPEEDSENSOR //detect broken speed sensor and disable motor (useful for legalisation)
+
 
 #define SUPPORT_PROFILE_SWITCH_MENU           //uncomment to disable support for profile switching in the menu
 #define SUPPORT_FIRST_AID_MENU                //uncomment if you want a on-the-go workaround menu ("Pannenhilfe")
