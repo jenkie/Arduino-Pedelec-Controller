@@ -42,7 +42,8 @@ ALL_FEATURES = [
                   'SUPPORT_BATTERY_CHARGE_COUNTER',
                   'SUPPORT_GEAR_SHIFT',
                   'SUPPORT_MOTOR_SERVO',
-                  'SUPPORT_TEMP_SENSOR'
+                  'SUPPORT_TEMP_SENSOR',
+                  'DETECT_BROKEN_SPEEDSENSOR'
                  ]
 
 # List of features that's enabled by default
@@ -55,6 +56,7 @@ DEFAULT_FEATURES = [
                   'SUPPORT_FIRST_AID_MENU',
                   'SUPPORT_BATTERY_CHARGE_DETECTION',
                   'SUPPORT_BATTERY_CHARGE_COUNTER',
+                  'DETECT_BROKEN_SPEEDSENSOR'
                  ]
 
 def write_config_h(filename=CONFIG_H,
@@ -334,7 +336,8 @@ class CompileTest(unittest.TestCase):
                             'SUPPORT_MOTOR_GUESS',
                             'SUPPORT_BATTERY_CHARGE_DETECTION',
                             'SUPPORT_BATTERY_CHARGE_COUNTER',
-                            'SUPPORT_GEAR_SHIFT'
+                            'SUPPORT_GEAR_SHIFT',
+                            'DETECT_BROKEN_SPEEDSENSOR'
                         ]
                     )
 
@@ -359,7 +362,8 @@ class CompileTest(unittest.TestCase):
                             'SUPPORT_MOTOR_GUESS',
                             'SUPPORT_BATTERY_CHARGE_DETECTION',
                             'SUPPORT_BATTERY_CHARGE_COUNTER',
-                            'SUPPORT_GEAR_SHIFT'
+                            'SUPPORT_GEAR_SHIFT',
+                            'DETECT_BROKEN_SPEEDSENSOR'
                         ]
                     )
 
