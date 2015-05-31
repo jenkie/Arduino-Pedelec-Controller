@@ -385,9 +385,15 @@ if __name__ == '__main__':
     if not os.path.isdir(BASE_DIR):
         raise Exception('Please call from base directory: tools/compile_test.py')
 
-    # Cleanup
-    print('Cleaning build directories')
+    # Prebuild cleanup
+    print('Cleaning build directories before build')
     subprocess.call('rm -rf ' + BUILD_PREFIX + '*', shell=True)
     print('')
 
-    unittest.main()
+    test_program = unittest.main(failfast=True, exit=False)
+
+    if test_program.result.wasSuccessful():
+        # Cleanup
+        print('All fine. Cleaning build directories')
+        subprocess.call('rm -rf ' + BUILD_PREFIX + '*', shell=True)
+        print('')
