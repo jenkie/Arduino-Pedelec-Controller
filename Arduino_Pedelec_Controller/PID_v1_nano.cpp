@@ -194,3 +194,11 @@ double PID::GetKd() { return  dispKd;}
 int PID::GetMode() { return  inAuto ? AUTOMATIC : MANUAL;}
 int PID::GetDirection() { return controllerDirection;}
 
+/* Reset ITerm*************************************************
+ * Reset integral part
+ ******************************************************************************/
+void PID::ResetIntegral()
+{
+        ITerm = 0;
+}
+

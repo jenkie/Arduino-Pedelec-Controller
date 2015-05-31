@@ -41,6 +41,8 @@ public:
     //   once it is set in the constructor.
     void SetSampleTime(int);              // * sets the frequency, in Milliseconds, with which
     //   the PID calculation is performed.  default is 100
+    
+    void ResetIntegral();                 //resets integral part
 
 
 

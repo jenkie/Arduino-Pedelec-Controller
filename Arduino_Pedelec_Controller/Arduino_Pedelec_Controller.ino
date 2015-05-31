@@ -742,13 +742,16 @@ void loop()
     {throttle_write=motor_offset;}
 //Broken speed sensor detection START
 #ifdef DETECT_BROKEN_SPEEDSENSOR
-    if (last_throttle_write==motor_offset)&&(throttle_write>motor_offset)
+    if ((last_throttle_write==motor_offset)&&(throttle_write>motor_offset))
     {
       motor_started_time=millis();
     }
     last_throttle_write=throttle_write;
     if (((millis()-motor_started_time)>5000)&&(spd<1))  //5 seconds no speed signal although motor powered --> stop motor
+    {
       throttle_write=motor_offset;  
+      myPID.ResetIntegral();  
+    }
 #endif
 //Broken speed sensor detection END
 #ifdef SUPPORT_MOTOR_SERVO
