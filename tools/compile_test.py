@@ -2,7 +2,7 @@
 """Try to configure different config.h settings"""
 """and see if everything still compiles"""
 """Licensed under the GPL v3, part of the pedelec controller"""
-"""Written by Thomas Jarosch, (c) 2014"""
+"""Written by Thomas Jarosch, (c) 2014-2015"""
 import os
 import subprocess
 import unittest
