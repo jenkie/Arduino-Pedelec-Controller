@@ -330,7 +330,8 @@ void init_menu()
             SW_DISPLAY1_SHORT_PRESS != ACTION_SHUTDOWN_SYSTEM &&
             SW_DISPLAY1_LONG_PRESS != ACTION_SHUTDOWN_SYSTEM &&
             SW_DISPLAY2_SHORT_PRESS != ACTION_SHUTDOWN_SYSTEM &&
-            SW_DISPLAY2_LONG_PRESS != ACTION_SHUTDOWN_SYSTEM)
+            SW_POTI_SHORT_PRESS != ACTION_SHUTDOWN_SYSTEM &&
+            SW_POTI_LONG_PRESS != ACTION_SHUTDOWN_SYSTEM)
     {
         menu_main.add_item(&m_main_shutdown, &handle_shutdown);
     }
