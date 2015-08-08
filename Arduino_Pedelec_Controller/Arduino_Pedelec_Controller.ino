@@ -494,6 +494,14 @@ void setup()
 motorservo.attach(throttle_out);
 #endif
 
+//increase PWM frequency
+#if HARDWARE_REV >= 20
+  int myEraser = 7;
+  TCCR4B &= ~myEraser;  //reset timer 4 prescaler
+  int myPrescaler = 1;
+  TCCR4B |= myPrescaler; //set timer 4 prescaler to 001 --> 32 kHz PWM frequency on motor output pin
+#endif
+
 #ifdef DEBUG_MEMORY_USAGE
     Serial.print(MY_F("memFree after setup:"));
     Serial.print(memFree());
