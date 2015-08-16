@@ -654,6 +654,11 @@ void loop()
     cad=cad*pedaling;
 #endif
 
+//live speed update when there is no speed_change interrupt-----------------------------------------------------------------
+    unsigned long wheeltime_temp=(millis()-last_wheel_time)*wheel_magnets; //current upper limit of the speed based on last measurement
+    if (wheeltime_temp>wheel_time)                                //is current upper limit slower than last real measurement?
+      spd = 3600*wheel_circumference/wheeltime_temp;
+
     if ((millis()-last_wheel_time)>3000) //wheel did not spin for 3 seconds --> speed is zero
     {
         spd=0;
@@ -667,10 +672,6 @@ void loop()
         spd=1;
     }
 
-//live speed update when there is no speed_change interrupt-----------------------------------------------------------------
-    unsigned long wheeltime_temp=(millis()-last_wheel_time)*wheel_magnets; //current upper limit of the speed based on last measurement
-    if (wheeltime_temp>wheel_time)                                //is current upper limit slower than last real measurement?
-      spd = 3600*wheel_circumference/wheeltime_temp;
 
 //Power control-------------------------------------------------------------------------------------------------------------
     power_throttle = throttle_stat / 1023.0 * curr_power_max;         //power currently set by throttle
