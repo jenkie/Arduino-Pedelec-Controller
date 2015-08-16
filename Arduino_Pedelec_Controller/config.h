@@ -204,6 +204,14 @@ const float current_offset = 0.0;             // for Rev 1.3 ONLY! set this valu
                                               // for Rev 1.1 - 1.2 the offset is corrected by software!
 const float current_amplitude_R11 = 0.0296;   // for Rev 1.1 - 1.2 set this value according to your own current-calibration. Default: 0.0296
 const float current_amplitude_R13 = 0.0741;   // for Rev 1.3 set this value according to your own current-calibration. Default: 0.0741
+// #define USE_EXTERNAL_CURRENT_SENSOR
+// #define USE_EXTERNAL_VOLTAGE_SENSOR
+const float external_voltage_offset = 0.0;  
+const float external_voltage_amplitude = 0.00488758553; //default of 0.00488758553 gives Voltage = Voltage at Pin            
+const float external_current_offset = 0.0;    
+const float external_current_amplitude = 0.00488758553; //default of 0.00488758553 gives Current = Voltage at Pin 
+const int external_current_in = A6;            //For HW Rev. 2.1: use Pin  A6
+const int external_voltage_in = A7;            //For HW Rev. 2.1: use Pin  A7
 
 const char msg_welcome[] PROGMEM = "Welcome";
 const char msg_shutdown[] PROGMEM = "Live long and prosper.";

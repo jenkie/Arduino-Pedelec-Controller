@@ -494,6 +494,16 @@ void setup()
 motorservo.attach(throttle_out);
 #endif
 
+#ifdef USE_EXTERNAL_CURRENT_SENSOR
+  pinMode(external_current_in,INPUT);   //configure as input
+  digitalWrite(external_current_in,LOW); //disable pull-ups
+#endif
+
+#ifdef USE_EXTERNAL_VOLTAGE_SENSOR
+  pinMode(external_voltage_in,INPUT);   //configure as input
+  digitalWrite(external_voltage_in,LOW); //disable pull-ups
+#endif
+
 //increase PWM frequency
 #if HARDWARE_REV >= 20
   int myEraser = 7;
@@ -560,21 +570,31 @@ void loop()
         brake_stat = true;
 #endif
 //voltage, current, power
+
+#ifndef USE_EXTERNAL_VOLTAGE_SENSOR
     voltage = analogRead_noISR(voltage_in)*voltage_amplitude+voltage_offset; //check with multimeter, change in config.h if needed!
-#if HARDWARE_REV <= 2
-    // Read in current and auto-calibrate the shift offset:
-    // There is a constant offset depending on the
-    // Arduino / resistor value, so we automatically
-    // shift it to zero on the scale.
-    int raw_current = analogRead_noISR(current_in);
-    if (raw_current < lowest_raw_current)
-        lowest_raw_current = raw_current;
-    current = (raw_current-lowest_raw_current)*current_amplitude_R11; //check with multimeter, change in config.h if needed!
-    current = constrain(current,0,30);
-#endif
-#if HARDWARE_REV >= 3
-    current = (analogRead_noISR(current_in)-512)*current_amplitude_R13+current_offset;    //check with multimeter, change in config.h if needed!
-    current = constrain(current,-30,30);
+#else
+    voltage = analogRead_noISR(external_voltage_in)*external_voltage_amplitude+external_voltage_offset; //check with multimeter, change in config.h if needed!
+#endif    
+    
+#ifndef USE_EXTERNAL_CURRENT_SENSOR
+  #if HARDWARE_REV <= 2
+      // Read in current and auto-calibrate the shift offset:
+      // There is a constant offset depending on the
+      // Arduino / resistor value, so we automatically
+      // shift it to zero on the scale.
+      int raw_current = analogRead_noISR(current_in);
+      if (raw_current < lowest_raw_current)
+          lowest_raw_current = raw_current;
+      current = (raw_current-lowest_raw_current)*current_amplitude_R11; //check with multimeter, change in config.h if needed!
+      current = constrain(current,0,30);
+  #endif
+  #if HARDWARE_REV >= 3
+      current = (analogRead_noISR(current_in)-512)*current_amplitude_R13+current_offset;    //check with multimeter, change in config.h if needed!
+      current = constrain(current,-30,30);
+  #endif
+#else //using external current sensor
+    current = analogRead_noISR(external_current_in)*external_current_amplitude+external_current_offset;
 #endif
 
     voltage_display = 0.99*voltage_display + 0.01*voltage; //averaged voltage for display
