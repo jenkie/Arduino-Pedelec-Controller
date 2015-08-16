@@ -856,7 +856,6 @@ void loop()
   }
 #endif   
 
-#if HARDWARE_REV >= 2
 // Emergency power down to protect battery from undervoltage. Also saves to EEPROM
 // Don't shut down on USB power.
             if (voltage < vemergency_shutdown
@@ -865,7 +864,6 @@ void loop()
                 display_show_important_info(FROM_FLASH(msg_emergency_shutdown), 60);
                 save_shutdown();
             }
-#endif
 
 //slow loop start----------------------//use this subroutine to place any functions which should happen only once a second
     if (millis()-last_writetime > 1000)              //don't do this more than once a second
@@ -899,7 +897,6 @@ void loop()
         send_bluetooth_data();
 #endif
 
-#if HARDWARE_REV >= 2
 // Idle shutdown
             if (last_wheel_time != idle_shutdown_last_wheel_time)
             {
@@ -916,7 +913,6 @@ void loop()
                 }
             }
 
-#endif
 #ifdef SUPPORT_HRMI
         pulse_human=getHeartRate();
 #endif
@@ -1383,8 +1379,9 @@ void save_shutdown()
   
 #if HARDWARE_REV >= 2
   digitalWrite(fet_out,FET_OFF); //turn off
-  while(true); //there is nothing more to do -> stay in endless loop until turned off
 #endif
+  while(true); //there is nothing more to do -> stay in endless loop until turned off
+
 }
 
 void handle_unused_pins()
