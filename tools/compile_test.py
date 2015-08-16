@@ -43,7 +43,9 @@ ALL_FEATURES = [
                   'SUPPORT_GEAR_SHIFT',
                   'SUPPORT_MOTOR_SERVO',
                   'SUPPORT_TEMP_SENSOR',
-                  'DETECT_BROKEN_SPEEDSENSOR'
+                  'DETECT_BROKEN_SPEEDSENSOR',
+                  'USE_EXTERNAL_CURRENT_SENSOR',
+                  'USE_EXTERNAL_VOLTAGE_SENSOR'
                  ]
 
 # List of features that's enabled by default
@@ -201,6 +203,14 @@ def write_config_h(filename=CONFIG_H,
         f.write('                                              // for Rev 1.1 - 1.2 the offset is corrected by software!\n')
         f.write('const float current_amplitude_R11 = 0.0296;   // for Rev 1.1 - 1.2 set this value according to your own current-calibration. Default: 0.0296\n')
         f.write('const float current_amplitude_R13 = 0.0741;   // for Rev 1.3 set this value according to your own current-calibration. Default: 0.0741\n')
+        f.write('// #define USE_EXTERNAL_CURRENT_SENSOR\n')
+        f.write('// #define USE_EXTERNAL_VOLTAGE_SENSOR\n')
+        f.write('const float external_voltage_offset = 0.0;\n')
+        f.write('const float external_voltage_amplitude = 0.00488758553; //default of 0.00488758553 gives Voltage = Voltage at Pin\n')
+        f.write('const float external_current_offset = 0.0;\n')
+        f.write('const float external_current_amplitude = 0.00488758553; //default of 0.00488758553 gives Current = Voltage at Pin\n')
+        f.write('const int external_current_in = A6;            //For HW Rev. 2.1: use Pin  A6\n')
+        f.write('const int external_voltage_in = A7;            //For HW Rev. 2.1: use Pin  A7\n')
         f.write('\n')
         f.write('const char msg_welcome[] PROGMEM = "Welcome";\n')
         f.write('const char msg_shutdown[] PROGMEM = "Live long and prosper.";\n')
