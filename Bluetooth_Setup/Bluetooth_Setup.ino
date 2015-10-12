@@ -24,7 +24,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
 
-#define HARDWARE_REV 20  //place your hardware revision here: 1-5 means hardware-revision 1.x, 2x means 2.x
+#define HARDWARE_REV 21  //place your hardware revision here: 1-5 means hardware-revision 1.x, 2x means 2.x
 int SerialSpeed=9600;    //set the current speed of your bluetooth module here, usually 9600    
 
 #if HARDWARE_REV<20

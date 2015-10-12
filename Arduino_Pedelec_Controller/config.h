@@ -9,7 +9,7 @@
 #endif
 #include "switches_action.h"
 
-#define HARDWARE_REV 20      //place your hardware revision here: 1-5 means hardware-revision 1.x, 2x means 2.x
+#define HARDWARE_REV 21      //place your hardware revision here: 1-5 means hardware-revision 1.x, 2x means 2.x
 
 #define DISPLAY_TYPE_NONE (1<<0)             //no display at all
 #define DISPLAY_TYPE_NOKIA_5PIN (1<<1)       //Nokia 5110 5 pin mode

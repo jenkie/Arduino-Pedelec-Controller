@@ -158,7 +158,7 @@ const int switch_disp = 8;           //Display switch
 const int switch_disp_2 = 12;        //second Display switch with Nokia-Display in 4-pin-mode
 #endif
 #endif
-#if HARDWARE_REV == 20
+#if HARDWARE_REV >= 20
 const int voltage_in = A14;           //Voltage read-Pin
 const int fet_out = 38;              //FET: Pull high to switch off
 const int current_in = A15;           //Current read-Pin
@@ -315,7 +315,7 @@ void setup()
     pinMode(fet_out,OUTPUT);
     digitalWrite(fet_out, FET_ON);           // turn on whole system on
 #endif
-#if HARDWARE_REV == 20
+#if HARDWARE_REV >= 20
     pinMode(buzzer, OUTPUT);
     tone(buzzer, 261, 50);
     delay(50);

@@ -64,7 +64,7 @@ public:
 #endif
 #endif
 
-#if HARDWARE_REV == 20
+#if HARDWARE_REV >= 20
 #define DISPLAYPORT PORTH
 #define DISPLAYPORT_DIR DDRH
     PCD8544(unsigned char sclk  = 4,   /* clock       (display pin 2) */
