@@ -11,49 +11,55 @@
 
 #define HARDWARE_REV 21      //place your hardware revision here: 1-5 means hardware-revision 1.x, 2x means 2.x
 
-#define DISPLAY_TYPE_NONE (1<<0)             //no display at all
-#define DISPLAY_TYPE_NOKIA_5PIN (1<<1)       //Nokia 5110 5 pin mode
-#define DISPLAY_TYPE_NOKIA_4PIN (1<<2)       //Nokia 5110 4 pin mode (SCE pin tied to GND)
-#define DISPLAY_TYPE_NOKIA (DISPLAY_TYPE_NOKIA_5PIN|DISPLAY_TYPE_NOKIA_4PIN)
-#define DISPLAY_TYPE_16X2_LCD_4BIT (1<<3)    //16x2 LCD 4bit-mode
-#define DISPLAY_TYPE_KINGMETER (1<<4)            //King-Meter J-LCD or SW-LCD
-#define DISPLAY_TYPE_BMS (1<<5)              //BMS Battery S-LCD
-#define DISPLAY_TYPE_16X2_SERIAL (1<<6)    //16x2 LCD via serial connection (New Haven display)
-#define DISPLAY_TYPE_16X2 (DISPLAY_TYPE_16X2_LCD_4BIT|DISPLAY_TYPE_16X2_SERIAL)
-#define DISPLAY_TYPE_BMS3 (1<<7)              //BMS Battery S-LCD3
+#define DISPLAY_TYPE_NONE           (1<<0)                  // No display at all
+#define DISPLAY_TYPE_NOKIA_5PIN     (1<<1)                  // Nokia 5110 5-pin mode
+#define DISPLAY_TYPE_NOKIA_4PIN     (1<<2)                  // Nokia 5110 4-pin mode (SCE pin tied to GND)
+#define DISPLAY_TYPE_NOKIA          (DISPLAY_TYPE_NOKIA_5PIN|DISPLAY_TYPE_NOKIA_4PIN)
+#define DISPLAY_TYPE_16X2_LCD_4BIT  (1<<3)                  // 16x2 LCD 4-bit mode
+#define DISPLAY_TYPE_16X2_SERIAL    (1<<6)                  // 16x2 LCD via serial connection (New Haven display)
+#define DISPLAY_TYPE_16X2           (DISPLAY_TYPE_16X2_LCD_4BIT|DISPLAY_TYPE_16X2_SERIAL)
+#define DISPLAY_TYPE_BMS            (1<<5)                  // BMS Battery S-LCD
+#define DISPLAY_TYPE_BMS3           (1<<7)                  // BMS Battery S-LCD3
+#define DISPLAY_TYPE_KINGMETER_618U (1<<4)                  // King-Meter 618U protocol (KM5s, EBS-LCD2, J-LCD, SW-LCD)
+#define DISPLAY_TYPE_KINGMETER_901U (1<<8)                  // King-Meter 901U protocol (KM5s)
+#define DISPLAY_TYPE_KINGMETER      (DISPLAY_TYPE_KINGMETER_618U|DISPLAY_TYPE_KINGMETER_901U)
 
-#define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_4PIN //Set your display type here. CHANGES ONLY HERE!<-----------------------------
+#define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_4PIN                // Set your display type here. CHANGES ONLY HERE!<-----------------------------
 
 // If using a New Haven serial 16x2 display: The pin the display is connected to
 #if HARDWARE_REV < 20
 const int serial_display_16x2_pin = 10;
-const int serial_display_16x2_second_unused_pin = 11;               // SoftSerial always needs an additional pin for RX
+const int serial_display_16x2_second_unused_pin = 11;       // SoftSerial always needs an additional pin for RX
 #else
 const int serial_display_16x2_pin = 17;
-const int serial_display_16x2_second_unused_pin = 16;               // SoftSerial always needs an additional pin for RX
+const int serial_display_16x2_second_unused_pin = 16;       // SoftSerial always needs an additional pin for RX
 #endif
 
-#define NOKIA_LCD_CONTRAST 190                   //set display contrast here. values around 190 should do the job
+#define NOKIA_LCD_CONTRAST 190                              // Set display contrast here. Values around 190 should do the job
 
-#define SERIAL_MODE_NONE (1<<0)              //don't send serial data at all
-#define SERIAL_MODE_DEBUG (1<<1)             //send debug data over Serial Monitor
-#define SERIAL_MODE_ANDROID (1<<2)           //send Arduino Pedelec HMI compatible data over serial/bluetooth
-#define SERIAL_MODE_MMC (1<<3)               //send MMC-App compatible data over serial/bluetooth 
-#define SERIAL_MODE_LOGVIEW (1<<4)           //send logview-compatible data over serial 
-#define SERIAL_MODE_IOS (1<<5)           //send IOS-compatible data over serial
-#define SERIAL_MODE SERIAL_MODE_DEBUG      //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------
+#define SERIAL_MODE_NONE            (1<<0)                  // Don't send serial data at all
+#define SERIAL_MODE_DEBUG           (1<<1)                  // Send debug data over Serial Monitor
+#define SERIAL_MODE_ANDROID         (1<<2)                  // Send Arduino Pedelec HMI compatible data over serial
+#define SERIAL_MODE_MMC             (1<<3)                  // Send MMC-App compatible data over serial
+#define SERIAL_MODE_LOGVIEW         (1<<4)                  // Send logview-compatible data over serial 
+#define SERIAL_MODE_IOS             (1<<5)                  // Send IOS-compatible data over serial
+#define SERIAL_MODE_DISPLAYDEBUG    (1<<6)                  // Send display-debug data over serial
 
-//since hardware revision 2.0 the bluetooth port has a separate serial interface, select data here:
-#define BLUETOOTH_MODE_NONE (1<<0)              //don't send bluetooth data at all
-#define BLUETOOTH_MODE_DEBUG (1<<1)             //send debug data over bluetooth
-#define BLUETOOTH_MODE_ANDROID (1<<2)           //send Arduino Pedelec HMI compatible data over bluetooth
-#define BLUETOOTH_MODE_MMC (1<<3)               //send MMC-App compatible data over bluetooth
-#define BLUETOOTH_MODE_LOGVIEW (1<<4)           //send logview-compatible data over bluetooth 
-#define BLUETOOTH_MODE_IOS (1<<5)           //send IOS-compatible data over bluetooth
-#define BLUETOOTH_MODE BLUETOOTH_MODE_NONE        //Set your bluetooth mode here. CHANGES ONLY HERE!<-----------------------------
+#define SERIAL_MODE SERIAL_MODE_DEBUG                       //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------
+
+//Since hardware revision 2.0 the bluetooth port uses a separate serial interface, select data here:
+#define BLUETOOTH_MODE_NONE         (1<<0)                  // Don't send bluetooth data at all
+#define BLUETOOTH_MODE_DEBUG        (1<<1)                  // Send debug data over bluetooth
+#define BLUETOOTH_MODE_ANDROID      (1<<2)                  // Send Arduino Pedelec HMI compatible data over bluetooth
+#define BLUETOOTH_MODE_MMC          (1<<3)                  // Send MMC-App compatible data over bluetooth
+#define BLUETOOTH_MODE_LOGVIEW      (1<<4)                  // Send logview-compatible data over bluetooth 
+#define BLUETOOTH_MODE_IOS          (1<<5)                  // Send IOS-compatible data over bluetooth
+#define BLUETOOTH_MODE_DISPLAYDEBUG (1<<6)                  // Send display-debug data over bluetooth
+
+#define BLUETOOTH_MODE BLUETOOTH_MODE_NONE                  // Set your bluetooth mode here. CHANGES ONLY HERE!<-----------------------------
 
 
-// #define SUPPORT_BLUETOOTH_ENABLE_ON_STARTUP    //uncomment to enable bluetooth during startup
+// #define SUPPORT_BLUETOOTH_ENABLE_ON_STARTUP              // Uncomment to enable bluetooth during startup
 
 // Customizable buttons for use with the on-the-go-menu.
 // The menu is activated by the ACTION_ENTER_MENU action (see below).
