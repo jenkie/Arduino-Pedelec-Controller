@@ -24,7 +24,7 @@ Features:
 - configurable speed limit
 - configurable power limit
 - switchable profiles
-- several displays: BMS, Kingmeter, Nokia LCD, Serial LCD
+- several displays: BMS, King-Meter, Nokia LCD, Serial LCD
 - optional Bluetooth module to communicate with Android app
 */
 
@@ -96,9 +96,9 @@ Time now;
 #error Lights switch is only possible on FC hardware rev 3 or newer
 #endif
 
-#if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS3))
+#if ((DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS3))
 #if HARDWARE_REV < 20
-#include <SoftwareSerial.h>      //for Kingmeter J-LCD and BMS S-LCD
+#include <SoftwareSerial.h>      // For King-Meter J-LCD, SW-LCD, KM5s-LCD, EBS-LCD2 and BMS S-LCD, S-LCD3
 #endif
 #endif
 
@@ -531,7 +531,7 @@ void loop()
         poti_stat = constrain(map(analogRead_noISR(poti_in),poti_offset,poti_max,0,1023),0,1023);   // 0...1023
 #endif
 
-#if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS3))
+#if ((DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS3))
     display_update();
 #endif
 
@@ -552,7 +552,7 @@ void loop()
     {
         throttle_stat=0;
     }
-#elif (DISPLAY_TYPE!=DISPLAY_TYPE_KINGMETER) && (DISPLAY_TYPE!=DISPLAY_TYPE_BMS)&& (DISPLAY_TYPE!=DISPLAY_TYPE_BMS3)
+#elif (!(DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER) && !(DISPLAY_TYPE == DISPLAY_TYPE_BMS) && !(DISPLAY_TYPE == DISPLAY_TYPE_BMS3))
     // Reset throttle_stat for non-serial communicating displays if SUPPORT_THROTTLE is disabled
     // This is needed to switch off ACTION_FIXED_THROTTLE_VALUE.
     throttle_stat=0;
@@ -906,8 +906,8 @@ void loop()
         wh_human+=(millis()-last_writetime)/3600000.0*power_human;  //human watthours calculation
         mah+=current*(millis()-last_writetime)/3600.0;  //mah calculation
 
-#if !((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS3))
-#if !(DISPLAY_TYPE & DISPLAY_TYPE_NONE)
+#if (!(DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER) && !(DISPLAY_TYPE == DISPLAY_TYPE_BMS) && !(DISPLAY_TYPE == DISPLAY_TYPE_BMS3))
+#if !(DISPLAY_TYPE == DISPLAY_TYPE_NONE)
         display_update();
 #endif
 #endif
@@ -1268,6 +1268,10 @@ void send_bluetooth_data() //send bluetooth data
 #if (BLUETOOTH_MODE & BLUETOOTH_MODE_IOS)
     serial_ios(&Serial1);
 #endif
+
+#if (BLUETOOTH_MODE & BLUETOOTH_MODE_DISPLAYDEBUG)
+    display_debug(&Serial1);
+#endif
 #endif // HARDWARE_REV>=20
 }
 
@@ -1292,7 +1296,13 @@ void send_serial_data()  //send serial data
 #if (SERIAL_MODE & SERIAL_MODE_IOS)
     serial_ios(&Serial);
 #endif
+
+#if (SERIAL_MODE & SERIAL_MODE_DISPLAYDEBUG)
+    display_debug(&Serial);
+#endif
 }
+
+
 
 void activate_new_profile()
 {

@@ -2,6 +2,7 @@
 Generic display init and update functions
 Written by jenkie and Thomas Jarosch
 Functions for the Nokia graphical screen mainly by m--k
+King-Meter library and support written by Michael Fabry
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,6 +23,11 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "display_backlight.h"
 #include "menu.h"
 #include "globals.h"
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
+#include "Display_KingMeter.h"
+#endif
+
 
 display_mode_type display_mode = DISPLAY_MODE_GRAPHIC; //startup screen
 display_mode_type display_mode_last = DISPLAY_MODE_TEXT; //last screen type
@@ -45,27 +51,21 @@ static LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   //for 4bit (e.g. EA-DOGM) Disp
 static SerialLCD lcd(serial_display_16x2_pin);                      //16x2 New Haven display connected via one serial pin
 #endif
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)         // For King-Meter J-LCD, SW-LCD, KM5s-LCD, EBS-LCD2
+KINGMETER_t KM;                                     // Context of the King-Meter object
 #if HARDWARE_REV < 20
-#include <SoftwareSerial.h>                //for Kingmeter J-LCD
-static SoftwareSerial mySerial(10, 11);           // RX (YELLOW cable of J-LCD), TX (GREEN-Cable)
-SoftwareSerial* displaySerial=&mySerial;
+#include <SoftwareSerial.h>
+static SoftwareSerial mySerial(10, 11);             // RX (YELLOW cable), TX (GREEN cable)
+SoftwareSerial* displaySerial =& mySerial;
 #else
 HardwareSerial* displaySerial=&Serial2;
 #endif
-byte jlcd_received[]= {0,0,0,0,0,0};
-byte jlcd_receivecounter=0;
-byte jlcd_maxspeed=0;                      //max speed set on display
-byte jlcd_wheelsize=0;                     //wheel size set on display
-boolean jlcd_lighton=false;                //backlight switched on?
-byte jlcd_zerocounter=0;
-unsigned long jlcd_last_transmission=millis(); //last time jlcd sent data--> still on?
 #endif
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)||(DISPLAY_TYPE & DISPLAY_TYPE_BMS3)
 #if HARDWARE_REV < 20
-#include <SoftwareSerial.h>                //for Kingmeter J-LCD
-static SoftwareSerial mySerial(10, 11);           // RX (YELLOW cable of J-LCD), TX (GREEN-Cable)
+#include <SoftwareSerial.h>                         // For BMS Battery S-LCD and S-LCD3
+static SoftwareSerial mySerial(10, 11);             // RX , TX
 SoftwareSerial* displaySerial=&mySerial;
 #else
 HardwareSerial* displaySerial=&Serial2;
@@ -666,63 +666,6 @@ static void display_nokia_update()
 #endif // (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 }
 
-static void jlcd_update(byte battery, unsigned int wheeltime, byte error, int power)
-{
-#if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
-    if (displaySerial->available())
-    {
-        jlcd_last_transmission=millis();
-        jlcd_receivecounter++;
-        byte receivedbyte=displaySerial->read();
-        if (receivedbyte == 0x46)                         //start of new transmission frame detected-->last one is complete?
-        {
-            if (jlcd_receivecounter==6)                  //--> yes it is
-            {
-                jlcd_zerocounter=0;
-                jlcd_lighton=(jlcd_received[1]&(byte)128)>>7;
-#ifdef SUPPORT_LIGHTS_SWITCH
-                digitalWrite(lights_pin, jlcd_lighton);
-#endif
-                jlcd_received[1]=jlcd_received[1]&(byte)127;
-                if (jlcd_received[1]<6)                      //set the assist-level (via poti-stat)
-                    poti_stat=map(jlcd_received[1],1,5,0,1023);
-                if (jlcd_received[1]==16)                    //16 means walk-mode
-                    throttle_stat=200;
-                else
-                    throttle_stat=0;
-                jlcd_maxspeed=10+jlcd_received[2]>>3;        //this is the max-speed set by J-LCD
-                jlcd_wheelsize=jlcd_received[2]&(byte)7;     //this is the wheel-size set by J-LCD
-            }
-            jlcd_receivecounter=0;
-            //-------------------------------------------Output to J-LCD start
-            displaySerial->write(0X46);
-            displaySerial->write(battery);
-            displaySerial->write((byte)(power/12.7));
-            displaySerial->write(highByte(wheeltime));
-            displaySerial->write(lowByte(wheeltime));
-            displaySerial->write(0X7D);
-            displaySerial->write(error);
-            displaySerial->write(battery^(byte)(power/12.7)^highByte(wheeltime)^lowByte(wheeltime)^0X7D^error); //this is XOR-checksum
-            //-------------------------------------------Output to J-LCD end
-        }
-        else
-            jlcd_received[jlcd_receivecounter]=receivedbyte;
-        if (jlcd_receivecounter>5)
-            jlcd_receivecounter=0;
-
-    }
-    if ((millis()-jlcd_last_transmission)>3000)
-    {
-        throttle_stat=0;
-        poti_stat=0;
-#if HARDWARE_REV >=2
-        save_shutdown();
-#endif
-    }
-#endif //(DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
-
-}
-
 static void slcd_update(byte battery, unsigned int wheeltime, byte error)
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)
@@ -839,10 +782,15 @@ void display_init()
     display_16x2_setup();
 #endif
 
-#if ((DISPLAY_TYPE==DISPLAY_TYPE_KINGMETER)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS)||(DISPLAY_TYPE==DISPLAY_TYPE_BMS3))
+#if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
+    KingMeter_Init(&KM, displaySerial);
+#endif
+
+#if ((DISPLAY_TYPE == DISPLAY_TYPE_BMS) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS3))
     displaySerial->begin(9600);
 #endif
 }
+
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 
@@ -1014,16 +962,162 @@ void display_update()
             break;
 #endif
     }
-#endif // (end of DISPLAY_TYPE stuff)
+#endif // (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+
+
+
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
-    jlcd_update(2,wheel_time,0,power);
-#endif
+    /* Prepare Tx parameters */
+
+    if(battery_percent_fromcapacity > 10)
+    {
+        KM.Tx.Battery = KM_BATTERY_NORMAL;
+    }
+    else
+    {
+        KM.Tx.Battery = KM_BATTERY_LOW;
+    }
+
+    if(wheel_time < 0x0DAC)
+    {
+        // Adapt wheeltime to match displayed speedo value according config.h setting      
+        KM.Tx.Wheeltime_ms = (uint16_t) (((float) wheel_time) * (((float) KM.Settings.WheelSize_mm) / (wheel_circumference * 1000)));
+    }
+    else
+    {
+        KM.Tx.Wheeltime_ms = 0x0DAC;
+    }
+
+    KM.Tx.Error = KM_ERROR_NONE;
+
+    KM.Tx.Current_x10  = (uint16_t) (current_display * 10);
+
+
+    /* Receive Rx parameters/settings and send Tx parameters */
+    KingMeter_Service(&KM);
+
+
+    /* Apply Rx parameters */
+
+    #ifdef SUPPORT_LIGHTS_SWITCH
+    if(KM.Rx.Headlight == KM_HEADLIGHT_OFF)
+    {
+        digitalWrite(lights_pin, 0);
+    }
+    else // KM_HEADLIGHT_ON, KM_HEADLIGHT_LOW, KM_HEADLIGHT_HIGH
+    {
+        digitalWrite(lights_pin, 1);
+    }
+    #endif
+
+    if(KM.Rx.PushAssist == KM_PUSHASSIST_ON)
+    {
+        #if (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_901U)
+        throttle_stat = map(KM.Rx.AssistLevel, 0, 255, 0,1023);
+        #else
+        throttle_stat = 200;
+        #endif
+    }
+    else
+    {
+        throttle_stat = 0;
+        poti_stat     = map(KM.Rx.AssistLevel, 0, 255, 0,1023);
+    }
+
+
+    /* Shutdown in case we received no message in the last 3s */
+
+    if((millis() - KM.LastRx) > 3000)
+    {
+        poti_stat     = 0;
+        throttle_stat = 0;
+        #if HARDWARE_REV >=2
+        save_shutdown();
+        #endif
+    }
+#endif // (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
+
+
+
 #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)
     slcd_update(map(battery_percent_fromcapacity,0,100,0,16),wheel_time,0);
 #endif
+
+
+
 #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS3)
     slcd3_update(map(battery_percent_fromcapacity,0,100,0,16),wheel_time, 0, max(power/9.75,0), (byte)0x20*(!brake_stat));
 #endif
+}
 
+
+
+
+void display_debug(HardwareSerial* localSerial)
+{
+#if (SERIAL_MODE & SERIAL_MODE_DISPLAYDEBUG)
+
+    #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+    // ToDo: Print Rx data of Nokia diplay here
+    #endif
+
+
+    #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+    // ToDo: Print Rx data of 16x2 diplay here
+    #endif
+
+    
+    #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
+    localSerial->print(MY_F("PASdir "));
+    localSerial->print(KM.Settings.PAS_RUN_Direction, HEX);
+    localSerial->print(MY_F("  PAStol "));
+    localSerial->print(KM.Settings.PAS_SCN_Tolerance);
+    localSerial->print(MY_F("  PASrat "));
+    localSerial->print(KM.Settings.PAS_N_Ratio);
+    localSerial->print(MY_F("  HND_HL "));
+    localSerial->print(KM.Settings.HND_HL_ThrParam, HEX);
+    localSerial->print(MY_F("  HND_HF "));
+    localSerial->print(KM.Settings.HND_HF_ThrParam, HEX);
+    localSerial->print(MY_F("  SlowSt "));
+    localSerial->print(KM.Settings.SYS_SSP_SlowStart);
+    localSerial->print(MY_F("  SpdMags "));
+    localSerial->print(KM.Settings.SPS_SpdMagnets);
+    localSerial->print(MY_F("  UnderVol "));
+    localSerial->print(((float)KM.Settings.VOL_1_UnderVolt_x10)/10);
+    localSerial->print(MY_F("  WhSize "));
+    localSerial->print(KM.Settings.WheelSize_mm);
+    localSerial->print(MY_F("  |  Assist "));
+    localSerial->print(KM.Rx.AssistLevel);
+    localSerial->print(MY_F("  Light "));
+    localSerial->print(KM.Rx.Headlight, HEX);
+    localSerial->print(MY_F("  Batt "));
+    localSerial->print(KM.Rx.Battery, HEX);
+    localSerial->print(MY_F("  Push "));
+    localSerial->print(KM.Rx.PushAssist, HEX);
+    localSerial->print(MY_F("  PwrAss "));
+    localSerial->print(KM.Rx.PowerAssist, HEX);
+    localSerial->print(MY_F("  Throttle "));
+    localSerial->print(KM.Rx.Throttle, HEX);
+    localSerial->print(MY_F("  Cruise "));
+    localSerial->print(KM.Rx.CruiseControl, HEX);
+    localSerial->print(MY_F("  OverSpd "));
+    localSerial->print(KM.Rx.OverSpeed, HEX);
+    localSerial->print(MY_F("  SpdLim "));
+    localSerial->print(((float)KM.Rx.SPEEDMAX_Limit_x10)/10);
+    localSerial->print(MY_F("  CurrLim "));
+    localSerial->println(((float)KM.Rx.CUR_Limit_x10)/10);
+    #endif
+
+    
+    #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)
+    // ToDo: Print Rx data of BMS diplay here
+    #endif
+    
+    
+    #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS3)
+    // ToDo: Print Rx data of BMS3 diplay here
+    #endif
+
+#endif
 }
