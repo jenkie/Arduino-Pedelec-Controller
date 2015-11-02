@@ -85,10 +85,13 @@ def write_config_h(filename=CONFIG_H,
         f.write('#define DISPLAY_TYPE_NOKIA_4PIN (1<<2)       //Nokia 5110 4 pin mode (SCE pin tied to GND)\n')
         f.write('#define DISPLAY_TYPE_NOKIA (DISPLAY_TYPE_NOKIA_5PIN|DISPLAY_TYPE_NOKIA_4PIN)\n')
         f.write('#define DISPLAY_TYPE_16X2_LCD_4BIT (1<<3)    //16x2 LCD 4bit-mode\n')
-        f.write('#define DISPLAY_TYPE_KINGMETER (1<<4)            //King-Meter J-LCD or SW-LCD\n')
-        f.write('#define DISPLAY_TYPE_BMS (1<<5)              //BMS Battery S-LCD\n')
         f.write('#define DISPLAY_TYPE_16X2_SERIAL (1<<6)    //16x2 LCD via serial connection (New Haven display)\n')
         f.write('#define DISPLAY_TYPE_16X2 (DISPLAY_TYPE_16X2_LCD_4BIT|DISPLAY_TYPE_16X2_SERIAL)\n')
+        f.write('#define DISPLAY_TYPE_BMS            (1<<5)                  // BMS Battery S-LCD\n')
+        f.write('#define DISPLAY_TYPE_BMS3           (1<<7)                  // BMS Battery S-LCD3\n')
+        f.write('#define DISPLAY_TYPE_KINGMETER_618U (1<<4)                  // King-Meter 618U protocol (KM5s, EBS-LCD2, J-LCD, SW-LCD)\n')
+        f.write('#define DISPLAY_TYPE_KINGMETER_901U (1<<8)                  // King-Meter 901U protocol (KM5s)\n')
+        f.write('#define DISPLAY_TYPE_KINGMETER      (DISPLAY_TYPE_KINGMETER_618U|DISPLAY_TYPE_KINGMETER_901U)\n')
         f.write('\n')
         f.write('#define DISPLAY_TYPE DISPLAY_TYPE_' + display_type + '    //Set your display type here. CHANGES ONLY HERE!<-----------------------------\n')
         f.write('\n')
@@ -285,7 +288,15 @@ class CompileTest(unittest.TestCase):
             self.build_firmware(feature, features=[feature])
 
     def test_display_types(self):
-        for disp_type in ['NONE', 'NOKIA_5PIN', 'NOKIA_4PIN', '16X2_LCD_4BIT', '16X2_SERIAL', 'KINGMETER', 'BMS']:
+        for disp_type in ['NONE',
+                          'NOKIA_5PIN',
+                          'NOKIA_4PIN',
+                          '16X2_LCD_4BIT',
+                          '16X2_SERIAL',
+                          'KINGMETER_618U',
+                          'KINGMETER_901U',
+                          'BMS',
+                          'BMS3']:
             self.build_firmware(disp_type, display_type=disp_type)
 
     def test_16x2_serial_with_dynamic_backlight(self):
