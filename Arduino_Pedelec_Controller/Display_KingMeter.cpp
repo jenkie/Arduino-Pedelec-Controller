@@ -175,7 +175,7 @@ static void KM_618U_Service(KINGMETER_t* KM_ctx)
             if(KM_ctx->RxCnt >= 6)                                      // Check for reception of complete message
             {
                 // Verify XOR CheckSum
-                if(KM_ctx->RxBuff[4] == KM_ctx->RxBuff[1] ^ KM_ctx->RxBuff[2] ^ KM_ctx->RxBuff[3])
+                if(KM_ctx->RxBuff[4] == (KM_ctx->RxBuff[1] ^ KM_ctx->RxBuff[2] ^ KM_ctx->RxBuff[3]))
                 {
                     KM_ctx->RxState = RXSTATE_DONE;
                 }
