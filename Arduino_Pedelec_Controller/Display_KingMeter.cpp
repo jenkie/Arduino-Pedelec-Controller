@@ -28,8 +28,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Definitions
 #define RXSTATE_STARTCODE   0
-#define RXSTATE_MSGBODY     1
-#define RXSTATE_DONE        2
+#define RXSTATE_SENDTXMSG   1
+#define RXSTATE_MSGBODY     2
+#define RXSTATE_DONE        3
 
 
 // Hashtable used for handshaking in 901U protocol
@@ -155,7 +156,7 @@ static void KM_618U_Service(KINGMETER_t* KM_ctx)
             {
                 KM_ctx->RxBuff[0] = 0x46;
                 KM_ctx->RxCnt = 1;
-                KM_ctx->RxState = RXSTATE_MSGBODY;
+                KM_ctx->RxState = RXSTATE_SENDTXMSG;
             }
             else
             {
@@ -163,6 +164,45 @@ static void KM_618U_Service(KINGMETER_t* KM_ctx)
             }
         }
     }
+
+
+    if(KM_ctx->RxState == RXSTATE_SENDTXMSG)
+    {
+        KM_ctx->RxState = RXSTATE_MSGBODY;
+
+        // Prepare Tx message
+        TxBuff[0] = 0X46;                                               // StartCode
+
+        if(KM_ctx->Tx.Battery == KM_BATTERY_LOW)
+        {
+            TxBuff[1] = 0x00;                                           // If none of Bit[0..2] is set, display blinks
+        }
+        else
+        {
+            TxBuff[1] = 0x01;
+        }
+
+        TxBuff[2] = (uint8_t) ((KM_ctx->Tx.Current_x10 * 3) / 10);      // Current unit: 1/3A
+        TxBuff[3] = highByte(KM_ctx->Tx.Wheeltime_ms);
+        TxBuff[4] = lowByte (KM_ctx->Tx.Wheeltime_ms);
+        TxBuff[5] = 0x7A;                                               // Reply with WheelSize 26" / Maxspeed 25km/h (no influence on display)
+        TxBuff[6] = KM_ctx->Tx.Error;
+
+        
+        // Send prepared message
+        TxBuff[7] = 0x00;
+
+        KM_ctx->SerialPort->write(TxBuff[0]);                           // Send StartCode
+
+        for(i=1; i<7; i++)
+        {
+            KM_ctx->SerialPort->write(TxBuff[i]);                       // Send TxBuff[1..6]
+            TxBuff[7] = TxBuff[7] ^ TxBuff[i];                          // Calculate XOR CheckSum
+        }
+
+        KM_ctx->SerialPort->write(TxBuff[7]);                           // Send XOR CheckSum
+    }
+
 
     // Receive Message body
     if(KM_ctx->RxState == RXSTATE_MSGBODY)
@@ -216,37 +256,6 @@ static void KM_618U_Service(KINGMETER_t* KM_ctx)
         KM_ctx->Settings.WheelSize_mm = KM_WHEELSIZE[KM_ctx->RxBuff[2] & 0x07];
 
 //      KM_ctx->Rx.CUR_Limit_x10;
-
-
-        // Prepare Tx message
-        TxBuff[0] = 0X46;                                               // StartCode
-
-        if(KM_ctx->Tx.Battery == KM_BATTERY_LOW)
-        {
-            TxBuff[1] = 0x00;                                           // If none of Bit[0..2] is set, display blinks
-        }
-        else
-        {
-            TxBuff[1] = 0x01;
-        }
-
-        TxBuff[2] = (uint8_t) ((KM_ctx->Tx.Current_x10 * 3) / 10);      // Current unit: 1/3A
-        TxBuff[3] = highByte(KM_ctx->Tx.Wheeltime_ms);
-        TxBuff[4] = lowByte (KM_ctx->Tx.Wheeltime_ms);
-        TxBuff[5] = KM_ctx->RxBuff[2];                                  // Reply WheelSize / Maxspeed (no influence on display)
-        TxBuff[6] = KM_ctx->Tx.Error;
-
-        
-        // Send prepared message
-        TxBuff[7] = 0x00;
-
-        for(i=0; i<7; i++)
-        {
-            KM_ctx->SerialPort->write(TxBuff[i]);                       // Send first 7 bytes of message
-            TxBuff[7] = TxBuff[7] ^ TxBuff[i];                          // Calculate XOR CheckSum
-        }
-
-        KM_ctx->SerialPort->write(TxBuff[7]);                           // Send XOR CheckSum
     }
 }
 #endif

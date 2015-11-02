@@ -991,7 +991,7 @@ void display_update()
 
     KM.Tx.Error = KM_ERROR_NONE;
 
-    KM.Tx.Current_x10  = (uint16_t) (current_display * 10);
+    KM.Tx.Current_x10  = (uint16_t) (current * 10);
 
 
     /* Receive Rx parameters/settings and send Tx parameters */
