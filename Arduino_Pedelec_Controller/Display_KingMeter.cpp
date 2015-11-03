@@ -62,7 +62,11 @@ static void KM_901U_Service(KINGMETER_t* KM_ctx);
  * KingMeter_Init() - Initializes the display object
  *
  ****************************************************************************************************/
-void KingMeter_Init(KINGMETER_t* KM_ctx, HardwareSerial* DisplaySerial)
+#if HARDWARE_REV < 20
+void KingMeter_Init (KINGMETER_t* KM_ctx, SoftwareSerial* DisplaySerial)
+#else
+void KingMeter_Init (KINGMETER_t* KM_ctx, HardwareSerial* DisplaySerial)
+#endif
 {
     uint8_t i;
 

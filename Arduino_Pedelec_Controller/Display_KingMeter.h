@@ -28,6 +28,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
 
+#if HARDWARE_REV < 20
+#include <SoftwareSerial.h>
+#endif
+
 
 // Definitions
 #if ((DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_618U) || (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER))
@@ -150,8 +154,12 @@ typedef struct
 
 typedef struct
 {
+#if HARDWARE_REV < 20
+    SoftwareSerial* SerialPort;
+#else
     HardwareSerial* SerialPort;
-
+#endif
+    
     uint8_t         RxState;
     uint32_t        LastRx;
 
@@ -168,7 +176,12 @@ typedef struct
 
 
 // Public function prototypes
-void KingMeter_Init   (KINGMETER_t* KM_ctx, HardwareSerial* DisplaySerial);
+#if HARDWARE_REV < 20
+void KingMeter_Init (KINGMETER_t* KM_ctx, SoftwareSerial* DisplaySerial);
+#else
+void KingMeter_Init (KINGMETER_t* KM_ctx, HardwareSerial* DisplaySerial);
+#endif
+
 void KingMeter_Service(KINGMETER_t* KM_ctx);
 
 
