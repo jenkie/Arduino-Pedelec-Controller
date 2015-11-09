@@ -310,7 +310,7 @@ static void KM_901U_Service(KINGMETER_t* KM_ctx)
 
             if(KM_ctx->RxCnt == 5)                                      // Range check of Data size
             {
-                if(KM_ctx->RxBuff[4] > (MAX_RXBUFF-3-4))
+                if(KM_ctx->RxBuff[4] > (MAX_RXBUFF-5-4))
                 {
                     KM_ctx->RxState = RXSTATE_STARTCODE;                // Invalid Data size, cancel reception
                     break;
@@ -333,7 +333,7 @@ static void KM_901U_Service(KINGMETER_t* KM_ctx)
                 }
                 else
                 {
-                    KM_ctx->RxState = RXSTATE_STARTCODE;
+                    KM_ctx->RxState = RXSTATE_STARTCODE;                // Invalid CheckSum, ignore message
                 }
 
                 break;
