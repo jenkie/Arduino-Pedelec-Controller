@@ -23,6 +23,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 void display_init();
 void display_update();
+void display_debug(HardwareSerial* localSerial);
+
 void display_show_important_info(const char *str, int duration_secs);
 void display_show_important_info(const __FlashStringHelper *str, int duration_secs);
 
