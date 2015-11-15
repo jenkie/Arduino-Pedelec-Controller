@@ -32,6 +32,8 @@ set(${FIRMWARE_NAME}_SRCS                          # Source code
     display.h
     display_backlight.cpp
     display_backlight.h
+    display_kingmeter.cpp
+    display_kingmeter.h
     hrmi_funcs.cpp
     hrmi_funcs.h
     menu.cpp

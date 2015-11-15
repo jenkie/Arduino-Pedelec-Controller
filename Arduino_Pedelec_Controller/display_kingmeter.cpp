@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Includes
 #include "config.h"
-#include "Display_KingMeter.h"
+#include "display_kingmeter.h"
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
 
@@ -46,7 +46,7 @@ const uint8_t KM_901U_HANDSHAKE[64] =
 
 
 // Local function prototypes
-#if ((DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_618U) || (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER))
+#if (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_618U)
 static void KM_618U_Service(KINGMETER_t* KM_ctx);
 #endif
 
@@ -56,7 +56,7 @@ static void KM_901U_Service(KINGMETER_t* KM_ctx);
 
 
 
-/* Public functions (Prototypes declared by Display_KingMeter.h) */
+/* Public functions (Prototypes declared by display_kingmeter.h) */
 
 /****************************************************************************************************
  * KingMeter_Init() - Initializes the display object
@@ -76,7 +76,7 @@ void KingMeter_Init (KINGMETER_t* KM_ctx, HardwareSerial* DisplaySerial)
     KM_ctx->RxState                         = RXSTATE_STARTCODE;
     KM_ctx->LastRx                          = millis();
 
-    for(i=0; i<MAX_RXBUFF; i++)
+    for(i=0; i<KM_MAX_RXBUFF; i++)
     {
         KM_ctx->RxBuff[i]                   = 0x00;
     }
@@ -108,7 +108,7 @@ void KingMeter_Init (KINGMETER_t* KM_ctx, HardwareSerial* DisplaySerial)
 
     // Parameters to be send to display in operation mode:
     KM_ctx->Tx.Battery                      = KM_BATTERY_NORMAL;
-    KM_ctx->Tx.Wheeltime_ms                 = 0x0DAC;                   //  0x0DAC= Wheel stopped (Maximum value)
+    KM_ctx->Tx.Wheeltime_ms                 = KM_MAX_WHEELTIME;
     KM_ctx->Tx.Error                        = KM_ERROR_NONE;
     KM_ctx->Tx.Current_x10                  = 0;
 
@@ -124,7 +124,7 @@ void KingMeter_Init (KINGMETER_t* KM_ctx, HardwareSerial* DisplaySerial)
  ***************************************************************************************************/
 void KingMeter_Service(KINGMETER_t* KM_ctx)
 {
-    #if ((DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_618U) || (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER))
+    #if (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_618U)
     KM_618U_Service(KM_ctx);
     #endif
 
@@ -138,7 +138,7 @@ void KingMeter_Service(KINGMETER_t* KM_ctx)
 
 /* Local functions */
 
-#if ((DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_618U) || (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER))
+#if (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_618U)
 /****************************************************************************************************
  * KM_618U_Service() - Communication protocol of 618U firmware (J-LCD compatible)
  *
@@ -146,7 +146,7 @@ void KingMeter_Service(KINGMETER_t* KM_ctx)
 static void KM_618U_Service(KINGMETER_t* KM_ctx)
 {
     uint8_t  i;
-    uint8_t TxBuff[MAX_TXBUFF];
+    uint8_t TxBuff[KM_MAX_TXBUFF];
 
 
     // Search for Start Code
@@ -276,7 +276,7 @@ static void KM_901U_Service(KINGMETER_t* KM_ctx)
 {
     uint8_t  i;
     uint16_t CheckSum;
-    uint8_t  TxBuff[MAX_TXBUFF];
+    uint8_t  TxBuff[KM_MAX_TXBUFF];
     uint8_t  TxCnt;
 
 
@@ -310,7 +310,7 @@ static void KM_901U_Service(KINGMETER_t* KM_ctx)
 
             if(KM_ctx->RxCnt == 5)                                      // Range check of Data size
             {
-                if(KM_ctx->RxBuff[4] > (MAX_RXBUFF-5-4))
+                if(KM_ctx->RxBuff[4] > (KM_MAX_RXBUFF-5-4))
                 {
                     KM_ctx->RxState = RXSTATE_STARTCODE;                // Invalid Data size, cancel reception
                     break;

@@ -25,7 +25,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "globals.h"
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
-#include "Display_KingMeter.h"
+#include "display_kingmeter.h"
 #endif
 
 
@@ -666,6 +666,82 @@ static void display_nokia_update()
 #endif // (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 }
 
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
+void kingmeter_update(void)
+{
+    /* Prepare Tx parameters */
+
+    if(battery_percent_fromcapacity > 10)
+    {
+        KM.Tx.Battery = KM_BATTERY_NORMAL;
+    }
+    else
+    {
+        KM.Tx.Battery = KM_BATTERY_LOW;
+    }
+
+    if(wheel_time < KM_MAX_WHEELTIME)
+    {
+        // Adapt wheeltime to match displayed speedo value according config.h setting      
+        KM.Tx.Wheeltime_ms = (uint16_t) (((float) wheel_time) * (((float) KM.Settings.WheelSize_mm) / (wheel_circumference * 1000)));
+    }
+    else
+    {
+        KM.Tx.Wheeltime_ms = KM_MAX_WHEELTIME;
+    }
+
+    KM.Tx.Error = KM_ERROR_NONE;
+
+    KM.Tx.Current_x10 = (uint16_t) (current_display * 10);
+
+
+    /* Receive Rx parameters/settings and send Tx parameters */
+    KingMeter_Service(&KM);
+
+
+    /* Apply Rx parameters */
+
+    #ifdef SUPPORT_LIGHTS_SWITCH
+    if(KM.Rx.Headlight == KM_HEADLIGHT_OFF)
+    {
+        digitalWrite(lights_pin, 0);
+    }
+    else // KM_HEADLIGHT_ON, KM_HEADLIGHT_LOW, KM_HEADLIGHT_HIGH
+    {
+        digitalWrite(lights_pin, 1);
+    }
+    #endif
+
+    if(KM.Rx.PushAssist == KM_PUSHASSIST_ON)
+    {
+        #if (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_901U)
+        throttle_stat = map(KM.Rx.AssistLevel, 0, 255, 0,1023);
+        #else
+        throttle_stat = 200;
+        #endif
+    }
+    else
+    {
+        throttle_stat = 0;
+        poti_stat     = map(KM.Rx.AssistLevel, 0, 255, 0,1023);
+    }
+
+
+    /* Shutdown in case we received no message in the last 3s */
+
+    if((millis() - KM.LastRx) > 3000)
+    {
+        poti_stat     = 0;
+        throttle_stat = 0;
+        #if HARDWARE_REV >=2
+        save_shutdown();
+        #endif
+    }
+}
+#endif
+
+
 static void slcd_update(byte battery, unsigned int wheeltime, byte error)
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)
@@ -921,6 +997,8 @@ static void display_nokia_update_graphic()
 }
 #endif
 
+
+
 void display_update()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
@@ -965,85 +1043,14 @@ void display_update()
 #endif // (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
 
 
-
-
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
-    /* Prepare Tx parameters */
-
-    if(battery_percent_fromcapacity > 10)
-    {
-        KM.Tx.Battery = KM_BATTERY_NORMAL;
-    }
-    else
-    {
-        KM.Tx.Battery = KM_BATTERY_LOW;
-    }
-
-    if(wheel_time < 0x0DAC)
-    {
-        // Adapt wheeltime to match displayed speedo value according config.h setting      
-        KM.Tx.Wheeltime_ms = (uint16_t) (((float) wheel_time) * (((float) KM.Settings.WheelSize_mm) / (wheel_circumference * 1000)));
-    }
-    else
-    {
-        KM.Tx.Wheeltime_ms = 0x0DAC;
-    }
-
-    KM.Tx.Error = KM_ERROR_NONE;
-
-    KM.Tx.Current_x10  = (uint16_t) (current * 10);
-
-
-    /* Receive Rx parameters/settings and send Tx parameters */
-    KingMeter_Service(&KM);
-
-
-    /* Apply Rx parameters */
-
-    #ifdef SUPPORT_LIGHTS_SWITCH
-    if(KM.Rx.Headlight == KM_HEADLIGHT_OFF)
-    {
-        digitalWrite(lights_pin, 0);
-    }
-    else // KM_HEADLIGHT_ON, KM_HEADLIGHT_LOW, KM_HEADLIGHT_HIGH
-    {
-        digitalWrite(lights_pin, 1);
-    }
-    #endif
-
-    if(KM.Rx.PushAssist == KM_PUSHASSIST_ON)
-    {
-        #if (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_901U)
-        throttle_stat = map(KM.Rx.AssistLevel, 0, 255, 0,1023);
-        #else
-        throttle_stat = 200;
-        #endif
-    }
-    else
-    {
-        throttle_stat = 0;
-        poti_stat     = map(KM.Rx.AssistLevel, 0, 255, 0,1023);
-    }
-
-
-    /* Shutdown in case we received no message in the last 3s */
-
-    if((millis() - KM.LastRx) > 3000)
-    {
-        poti_stat     = 0;
-        throttle_stat = 0;
-        #if HARDWARE_REV >=2
-        save_shutdown();
-        #endif
-    }
-#endif // (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
-
+    kingmeter_update();
+#endif
 
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)
     slcd_update(map(battery_percent_fromcapacity,0,100,0,16),wheel_time,0);
 #endif
-
 
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS3)

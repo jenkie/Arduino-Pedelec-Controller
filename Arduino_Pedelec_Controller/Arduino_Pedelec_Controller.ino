@@ -96,6 +96,11 @@ Time now;
 #error Lights switch is only possible on FC hardware rev 3 or newer
 #endif
 
+#if DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER
+#error Specified type of KingMeter display wrong, upgrade your config.h and choose one of the new definitions
+#endif
+
+
 #if ((DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS3))
 #if HARDWARE_REV < 20
 #include <SoftwareSerial.h>      // For King-Meter J-LCD, SW-LCD, KM5s-LCD, EBS-LCD2 and BMS S-LCD, S-LCD3

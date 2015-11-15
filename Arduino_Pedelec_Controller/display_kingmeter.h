@@ -34,14 +34,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 // Definitions
-#if ((DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_618U) || (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER))
- #define MAX_RXBUFF 6
- #define MAX_TXBUFF 8
+#define KM_MAX_WHEELTIME 0x0DAC          // Maximum Wheeltime reported to the display (e.g. when wheel is stopped)
+
+#if (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_618U)
+ #define KM_MAX_RXBUFF 6
+ #define KM_MAX_TXBUFF 8
 #endif
 
 #if (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_901U)
- #define MAX_RXBUFF 20
- #define MAX_TXBUFF 11
+ #define KM_MAX_RXBUFF 20
+ #define KM_MAX_TXBUFF 11
 #endif
 
 
@@ -72,7 +74,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define KM_WHEELSIZE_29         2294
 
 
-#if ((DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_618U) || (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER))
+#if (DISPLAY_TYPE == DISPLAY_TYPE_KINGMETER_618U)
  const uint16_t KM_WHEELSIZE[8] = { KM_WHEELSIZE_16, KM_WHEELSIZE_18, KM_WHEELSIZE_20,  KM_WHEELSIZE_22,
                                     KM_WHEELSIZE_24, KM_WHEELSIZE_26, KM_WHEELSIZE_700, KM_WHEELSIZE_28 };
 #endif
@@ -163,7 +165,7 @@ typedef struct
     uint8_t         RxState;
     uint32_t        LastRx;
 
-    uint8_t         RxBuff[MAX_RXBUFF];
+    uint8_t         RxBuff[KM_MAX_RXBUFF];
     uint8_t         RxCnt;
 
     RX_SETTINGS_t   Settings;
