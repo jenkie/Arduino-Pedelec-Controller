@@ -103,6 +103,9 @@ def write_config_h(filename=CONFIG_H,
         f.write('#define SERIAL_MODE_ANDROID (1<<2)           //send Arduino Pedelec HMI compatible data over serial/bluetooth\n')
         f.write('#define SERIAL_MODE_MMC (1<<3)               //send MMC-App compatible data over serial/bluetooth (for future use, not implemented yet)\n')
         f.write('#define SERIAL_MODE_LOGVIEW (1<<4)           //send logview-compatible data over serial (for future use, not implemented yet)\n')
+        f.write('#define SERIAL_MODE_IOS             (1<<5)   // Send IOS-compatible data over serial\n')
+        f.write('#define SERIAL_MODE_DISPLAYDEBUG    (1<<6)   // Send display-debug data over serial\n')
+
         f.write('#define SERIAL_MODE SERIAL_MODE_' + serial_mode + '        //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------\n')
         f.write('\n')
 
@@ -308,7 +311,13 @@ class CompileTest(unittest.TestCase):
                     features=my_features)
 
     def test_serial_modes(self):
-        for serial_mode in ['NONE', 'DEBUG', 'ANDROID', 'MMC', 'LOGVIEW']:
+        for serial_mode in ['NONE',
+                            'DEBUG',
+                            'ANDROID',
+                            'MMC',
+                            'LOGVIEW',
+                            'IOS',
+                            'DISPLAYDEBUG']:
             self.build_firmware(serial_mode, serial_mode=serial_mode)
 
     def test_control_modes(self):
