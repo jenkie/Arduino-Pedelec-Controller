@@ -62,7 +62,7 @@ DEFAULT_FEATURES = [
                  ]
 
 def write_config_h(filename=CONFIG_H,
-                   hardware_rev=4,
+                   hardware_rev=21,
                    display_type='NOKIA_4PIN',
                    serial_mode='DEBUG',
                    features=DEFAULT_FEATURES,
