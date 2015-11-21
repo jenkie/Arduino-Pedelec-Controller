@@ -65,6 +65,7 @@ def write_config_h(filename=CONFIG_H,
                    hardware_rev=21,
                    display_type='NOKIA_4PIN',
                    serial_mode='DEBUG',
+                   bluetooth_mode='NONE',
                    features=DEFAULT_FEATURES,
                    control_mode='NORMAL'):
     with open(filename, 'w') as f:
@@ -107,6 +108,18 @@ def write_config_h(filename=CONFIG_H,
         f.write('#define SERIAL_MODE_DISPLAYDEBUG    (1<<6)   // Send display-debug data over serial\n')
 
         f.write('#define SERIAL_MODE SERIAL_MODE_' + serial_mode + '        //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------\n')
+        f.write('\n')
+
+        f.write('//Since hardware revision 2.0 the bluetooth port uses a separate serial interface, select data here:\n')
+        f.write('#define BLUETOOTH_MODE_NONE         (1<<0)                  // Don\'t send bluetooth data at all\n')
+        f.write('#define BLUETOOTH_MODE_DEBUG        (1<<1)                  // Send debug data over bluetooth\n')
+        f.write('#define BLUETOOTH_MODE_ANDROID      (1<<2)                  // Send Arduino Pedelec HMI compatible data over bluetooth\n')
+        f.write('#define BLUETOOTH_MODE_MMC          (1<<3)                  // Send MMC-App compatible data over bluetooth\n')
+        f.write('#define BLUETOOTH_MODE_LOGVIEW      (1<<4)                  // Send logview-compatible data over bluetooth\n')
+        f.write('#define BLUETOOTH_MODE_IOS          (1<<5)                  // Send IOS-compatible data over bluetooth\n')
+        f.write('#define BLUETOOTH_MODE_DISPLAYDEBUG (1<<6)                  // Send display-debug data over bluetooth\n')
+        f.write('\n')
+        f.write('#define BLUETOOTH_MODE BLUETOOTH_MODE_' + bluetooth_mode + '                 // Set your bluetooth mode here. CHANGES ONLY HERE!<-----------------------------\n')
         f.write('\n')
 
         # Output all enabled features
@@ -319,6 +332,16 @@ class CompileTest(unittest.TestCase):
                             'IOS',
                             'DISPLAYDEBUG']:
             self.build_firmware(serial_mode, serial_mode=serial_mode)
+
+    def test_bluetooth_modes(self):
+        for bluetooth_mode in ['NONE',
+                            'DEBUG',
+                            'ANDROID',
+                            'MMC',
+                            'LOGVIEW',
+                            'IOS',
+                            'DISPLAYDEBUG']:
+            self.build_firmware(bluetooth_mode, bluetooth_mode=bluetooth_mode)
 
     def test_control_modes(self):
         for control_mode in ['NORMAL', 'LIMIT_WH_PER_KM', 'TORQUE']:
