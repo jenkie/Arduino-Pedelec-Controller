@@ -43,6 +43,7 @@ public:
     //   the PID calculation is performed.  default is 100
     
     void ResetIntegral();                 //resets integral part
+    void ShrinkIntegral();                //shrinks integral part, used to slowly fade out
 
 
 
@@ -71,7 +72,7 @@ private:
     double *mySetpoint;           //   PID, freeing the user from having to constantly tell us
     //   what these values are.  with pointers we'll just know.
 
-    unsigned long lastTime;
+    unsigned long lastTime, lastTimeShrink;
     double ITerm, lastInput;
 
     unsigned long SampleTime;

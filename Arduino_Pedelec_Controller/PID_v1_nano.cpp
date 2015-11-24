@@ -35,6 +35,7 @@ PID::PID(double* Input, double* Output, double* Setpoint,
     PID::SetTunings(Kp, Ki, Kd);
 
     lastTime = millis()-SampleTime;
+    lastTimeShrink = millis()-SampleTime;
 }
 
 
@@ -200,5 +201,16 @@ int PID::GetDirection() { return controllerDirection;}
 void PID::ResetIntegral()
 {
         ITerm = 0;
+}
+
+void PID::ShrinkIntegral()
+{
+    unsigned long now = millis();
+    unsigned long timeChange = (now - lastTimeShrink);
+    if(timeChange>=SampleTime)
+    {
+        ITerm*=0.99;
+        lastTimeShrink = now;
+    }
 }
 

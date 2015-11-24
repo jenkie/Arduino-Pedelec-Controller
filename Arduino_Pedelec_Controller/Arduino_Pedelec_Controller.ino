@@ -316,6 +316,8 @@ int memFree()
 //Setup---------------------------------------------------------------------------------------------------------------------
 void setup()
 {
+    pinMode(throttle_out,OUTPUT);
+    digitalWrite(throttle_out,0); //turn motor off for security reasons during startup
 #if HARDWARE_REV >= 2
     pinMode(fet_out,OUTPUT);
     digitalWrite(fet_out, FET_ON);           // turn on whole system on
@@ -748,8 +750,13 @@ void loop()
 
     if (power_set>curr_power_max*factor_speed)
     {power_set=curr_power_max*factor_speed;}                  //Maximum allowed power including Speed-Cutoff
-    if ((((poti_stat<=throttle_stat)||(pedaling==false))&&(throttle_stat==0))||(brake_stat==0))  //power_set is set to -60W when you stop pedaling or brake (this is the pid-input)
-    {power_set=-60;}
+    if ((((poti_stat<=throttle_stat)||(pedaling==false))&&(throttle_stat==0))||(brake_stat==0))  //integral part of PID regulator is slowly shrinked to 0 when you stop pedaling or brake
+      myPID.ShrinkIntegral();
+    else
+    {
+      pid_set=power_set;
+      myPID.Compute();                                      //this computes the needed drive voltage for the motor controller to maintain the "power_set" based on the current "power" measurment
+    }
 
 
 //Voltage cutoff----------------------------------------------------------------------------------------------------------
@@ -759,9 +766,6 @@ void loop()
     {factor_volt=factor_volt*0.9997+0.0003;}
 
 //Throttle output-------------------------------------------------------------------------------------------------------
-
-    pid_set=power_set;
-    myPID.Compute();                                      //this computes the needed drive voltage for the motor controller to maintain the "power_set" based on the current "power" measurment
 #ifdef SUPPORT_MOTOR_GUESS
     throttle_write=map(pid_out*brake_stat*factor_volt,0,1023,motor_offset,motor_max) + spd/spd_idle*(motor_max-motor_offset);
     throttle_write=constrain(throttle_write,0,motor_max);
