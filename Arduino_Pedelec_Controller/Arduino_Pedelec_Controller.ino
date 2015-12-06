@@ -751,7 +751,13 @@ void loop()
     if (power_set>curr_power_max*factor_speed)
     {power_set=curr_power_max*factor_speed;}                  //Maximum allowed power including Speed-Cutoff
     if ((((poti_stat<=throttle_stat)||(pedaling==false))&&(throttle_stat==0))||(brake_stat==0))  //integral part of PID regulator is slowly shrinked to 0 when you stop pedaling or brake
+    {
+#ifdef RESET_PID_ON_BRAKE
+      myPID.ResetIntegral();
+#else
       myPID.ShrinkIntegral();
+#endif
+    }
     else
     {
       pid_set=power_set;
