@@ -36,7 +36,7 @@ enum sw_action { ACTION_NONE=0,                // do nothing
                  ACTION_ENTER_MENU,            // enter on-the-go settings menu
                  ACTION_PROFILE_1,             // switch to profile 1
                  ACTION_PROFILE_2,             // switch to profile 2
-                 ACTION_PROFILE,               // switch profiles
+                 ACTION_PROFILE,               // switch profiles 1 <-> 2
                  ACTION_TOGGLE_LIGHTS,         // toggle lights on/off. Needs hardware revision 1.4 or newer
                  ACTION_INCREASE_POTI,         // increase poti value. Only working when SUPPORT_POTI is disabled
                  ACTION_DECREASE_POTI,         // decrease poti value. Only working when SUPPORT_POTI is disabled
