@@ -146,6 +146,12 @@ void action_decrease_poti()
 
     action_set_soft_poti(new_stat);
 }
+
+void action_set_fixed_poti()
+{
+    const int new_stat = map(poti_fixed_value_via_switch, 0, curr_power_poti_max, 0, 1023);
+    action_set_soft_poti(new_stat);
+}
 #endif
 
 static void action_fixed_throttle_value()
@@ -305,6 +311,9 @@ static void execute_action(const sw_action action)
             break;
         case ACTION_DECREASE_POTI:
             action_decrease_poti();
+            break;
+        case ACTION_SET_FIXED_POTI_VALUE:
+            action_set_fixed_poti();
             break;
 #endif
         case ACTION_FIXED_THROTTLE_VALUE:

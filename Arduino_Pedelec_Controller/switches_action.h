@@ -40,6 +40,7 @@ enum sw_action { ACTION_NONE=0,                // do nothing
                  ACTION_TOGGLE_LIGHTS,         // toggle lights on/off. Needs hardware revision 1.4 or newer
                  ACTION_INCREASE_POTI,         // increase poti value. Only working when SUPPORT_POTI is disabled
                  ACTION_DECREASE_POTI,         // decrease poti value. Only working when SUPPORT_POTI is disabled
+                 ACTION_SET_FIXED_POTI_VALUE,  // (re-)set soft poti to a fixed value in watts
                  ACTION_FIXED_THROTTLE_VALUE,  // set a fixed throttle value while switch is hold down (=emulate starting aid)
                  ACTION_DISPLAY_PREV_VIEW,     // go to prev view in display. Rools over if at the beginning
                  ACTION_DISPLAY_NEXT_VIEW,     // go the new view in display. Rolls over if at the end
