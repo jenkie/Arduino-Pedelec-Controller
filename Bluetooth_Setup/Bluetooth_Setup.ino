@@ -48,10 +48,16 @@ void setup()
     digitalWrite(btPin,HIGH);
     delay(5000);
     btSerial.print("AT");
-    delay(5000);
-    btSerial.print("AT+VERSION");
-    delay(5000);
-    btSerial.print("AT+PIN1234"); // Set pin to 1234 or anything of your choice
+    delay(1000);
+    btSerial.print("AT+VERSION?");
+    delay(1000);
+    btSerial.print("AT+ORGL");
+    delay(1000);
+    btSerial.print("AT+RMAAD");
+    delay(1000);
+    btSerial.print("AT+ROLE=0");
+    delay(1000);
+    btSerial.print("AT+PSWD=1234"); // Set pin to 1234 or anything of your choice
     delay(5000);
     btSerial.print("AT+NAMEArduinoPedelec"); //use your own name if you want
     delay(5000);
