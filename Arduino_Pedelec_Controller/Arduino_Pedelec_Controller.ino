@@ -1195,8 +1195,16 @@ void serial_debug(HardwareSerial* localSerial)
     //now: data for Arduino Pedelec Configurator
     //0:voltage 1:current 2:pasfactor*100 3:option-pin 4:poti 5:throttle 6: brake
     localSerial->print(MY_F("---raw---"));
+#ifndef USE_EXTERNAL_VOLTAGE_SENSOR
     localSerial->print(analogRead_noISR(voltage_in)); Serial.print(MY_F(";"));
+#else
+    localSerial->print(analogRead_noISR(external_voltage_in)); Serial.print(MY_F(";"));
+#endif
+#ifndef USE_EXTERNAL_CURRENT_SENSOR
     localSerial->print(analogRead_noISR(current_in)); Serial.print(MY_F(";"));
+#else
+    localSerial->print(analogRead_noISR(external_current_in)); Serial.print(MY_F(";"));
+#endif
 #ifdef SUPPORT_XCELL_RT
     localSerial->print(pedaling); Serial.print(MY_F(";"));
 #else
