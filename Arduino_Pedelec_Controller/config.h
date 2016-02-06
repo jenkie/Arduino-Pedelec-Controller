@@ -159,6 +159,11 @@ const byte gear_shift_pin_high_gear = 7;     //pin that connects to the high gea
 //#define SUPPORT_TEMP_SENSOR                //uncomment if you want to use a DS18x20 temperature sensor
 const byte temp_pin = A2;                     //pin connected to Data pin of the DS18x20 temperature Sensor
 
+//#define SUPPORT_HX711                        //uncomment this if you want to use a load cell with hx711 amplifier
+const byte hx711_data=20;                    //data pin of hx711 sensor
+const byte hx711_sck=21;                     //clock pin of hx711 sensor
+const double hx711_scale=78514.375;         //this is the scale to apply. 
+
 //Config Options-----------------------------------------------------------------------------------------------------
 const int pas_tolerance=1;               //0... increase to make pas sensor slower but more tolerant against speed changes
 const int throttle_offset=196;           //Offset voltage of throttle control when in "0" position (0..1023 = 0..5V)

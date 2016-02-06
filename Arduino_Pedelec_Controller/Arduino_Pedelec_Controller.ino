@@ -1,7 +1,7 @@
 /*
-Arduino Pedelec "Forumscontroller" for Hardware 1.1-2.0
+Arduino Pedelec "Forumscontroller" for Hardware 1.1-2.1
 written by jenkie and others / pedelecforum.de
-Copyright (C) 2012-2015
+Copyright (C) 2012-2016
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -112,6 +112,13 @@ Time now;
 #include "DallasTemp.h"
 OneWire tempWire(temp_pin); 
 DallasTemperature sensors(&tempWire);
+#endif
+
+#ifdef SUPPORT_HX711
+#include "HX711.h" 
+HX711 loadcell(hx711_data, hx711_sck);
+double load=0; //this is the current load
+boolean load_updated=false; //new measurement flag, becomes true if measurement is updated
 #endif
 
 // #define DEBUG_MEMORY_USAGE               // enable this define to print memory usage in SERIAL_MODE_DEBUG
@@ -519,6 +526,11 @@ motorservo.attach(throttle_out);
   TCCR4B |= myPrescaler; //set timer 4 prescaler to 001 --> 32 kHz PWM frequency on motor output pin
 #endif
 
+#ifdef SUPPORT_HX711     
+loadcell.tare();                   //set zero scale. remove any load diring startup!
+loadcell.set_scale(hx711_scale);   //apply scaling
+#endif
+
 #ifdef DEBUG_MEMORY_USAGE
     Serial.print(MY_F("memFree after setup:"));
     Serial.print(memFree());
@@ -528,7 +540,7 @@ motorservo.attach(throttle_out);
 
 void loop()
 {
-    looptime=millis();
+  looptime=millis();
 //Readings-----------------------------------------------------------------------------------------------------------------
 #ifdef SUPPORT_DSPC01
     handle_dspc();
@@ -536,6 +548,14 @@ void loop()
 #ifdef SUPPORT_POTI
     if (first_aid_ignore_poti == false)
         poti_stat = constrain(map(analogRead_noISR(poti_in),poti_offset,poti_max,0,1023),0,1023);   // 0...1023
+#endif
+
+#ifdef SUPPORT_HX711
+if (loadcell.is_ready())     //new conversion result from load cell available
+{
+  load=loadcell.get_units_fast();
+  load_updated=true;         //set new measurement flag
+}
 #endif
 
 #if ((DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS3))
