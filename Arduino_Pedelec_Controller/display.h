@@ -47,12 +47,23 @@ typedef enum {DISPLAY_MODE_TEXT,
              } display_mode_type;
 
 typedef enum {DISPLAY_VIEW_MAIN=0,
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)&&(defined(DV_GRAPHIC))
+              DISPLAY_VIEW_GRAPHIC,
+#endif
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+#if defined(DV_TIME)
               DISPLAY_VIEW_TIME,
+#endif
+#if defined(DV_BATTERY)
               DISPLAY_VIEW_BATTERY,
-#if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01) || defined(SUPPORT_TEMP_SENSOR)
+#endif
+#endif
+#if (defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01) || defined(SUPPORT_TEMP_SENSOR))&&defined(DV_ENVIRONMENT)
               DISPLAY_VIEW_ENVIRONMENT,
 #endif
+#if defined(DV_HUMAN)
               DISPLAY_VIEW_HUMAN,
+#endif
               _DISPLAY_VIEW_END
              } display_view_type;
 

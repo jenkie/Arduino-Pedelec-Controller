@@ -26,6 +26,14 @@
 
 #define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_4PIN                // Set your display type here. CHANGES ONLY HERE!<-----------------------------
 
+
+//Selection of available display views: comment out any view that you do not want. Can save much programming space!
+#define DV_GRAPHIC
+#define DV_TIME
+#define DV_BATTERY
+#define DV_ENVIRONMENT
+#define DV_HUMAN
+
 // If using a New Haven serial 16x2 display: The pin the display is connected to
 #if HARDWARE_REV < 20
 const int serial_display_16x2_pin = 10;
@@ -95,16 +103,16 @@ const sw_action SW_THROTTLE_LONG_PRESS  = ACTION_SHUTDOWN_SYSTEM;
 const sw_action SW_POTI_SHORT_PRESS = ACTION_NONE;
 const sw_action SW_POTI_LONG_PRESS = ACTION_NONE;
 
-const sw_action SW_DISPLAY1_SHORT_PRESS = ACTION_SHUTDOWN_SYSTEM;
+const sw_action SW_DISPLAY1_SHORT_PRESS = ACTION_DISPLAY_NEXT_VIEW;
 const sw_action SW_DISPLAY1_LONG_PRESS  = ACTION_ENTER_MENU;
 
-const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_NONE;
+const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_DISPLAY_NEXT_VIEW;
 const sw_action SW_DISPLAY2_LONG_PRESS  = ACTION_ENTER_MENU;
 
 // #define SUPPORT_DISPLAY_BACKLIGHT // uncomment for dynamic LCD display backlight support.
                                      // Normally the backlight is always on. If you enable this option,
                                      // it will only be on when something important is shown.
-
+                                     
                                      // The Nokia 5110 display needs a 120 Ohm resistor on the backlight pin
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
 const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f.e. instead of display switch #2 (12, default).

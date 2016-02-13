@@ -84,7 +84,6 @@ unsigned long slcd_last_transmission=millis(); //last time Slcd sent data--> sti
 static const PROGMEM byte glyph1[] = {0x0b, 0xfc, 0x4e, 0xac, 0x0b}; //symbol for wh/km part 1
 static const PROGMEM byte glyph2[] = {0xc8, 0x2f, 0x6a, 0x2e, 0xc8}; //symbol for wh/km part 2
 static const PROGMEM byte glyph3[] = {0x44, 0x28, 0xfe, 0x6c, 0x28}; //bluetooth-symbol       check this out: http://www.carlos-rodrigues.com/projects/pcd8544/
-
 unsigned long show_important_info_until = 0;
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
 static void prepare_important_info(int duration_secs)
@@ -239,29 +238,6 @@ void display_16x_serial_disable_backlight()
 }
 #endif
 
-static void display_nokia_setup()    //first time setup of nokia display
-{
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
-    lcd.begin(84, 48);
-    lcd.createChar(0, glyph1);
-    lcd.createChar(1, glyph2);
-    lcd.createChar(2, glyph3);
-    lcd.setCursor(4,0);
-    lcd.print(MY_F("V"));
-    lcd.setCursor(13,0);
-    lcd.print(MY_F("%"));
-    lcd.setCursor(3,1);
-    lcd.print(MY_F("W"));
-    lcd.setCursor(12,1);
-    lcd.print(MY_F("Wh"));
-    lcd.setCursor(0,2);
-    lcd.print(MY_F(" SPD   KM  CAD"));
-    lcd.setCursor(12,4);
-    lcd.write(0);
-    lcd.write(1);
-#endif
-}
-
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
 // TODO: Add PROGMEM support
 static const byte serial_break_symbol[8] = { 0x0,0xa,0x11,0x15,0x11,0xa,0x0,0x0 }; //Symbol for showing that the bikes brake is active
@@ -284,6 +260,16 @@ static void display_16x2_setup()
     lcd.createChar(0x01, serial_break_symbol);
     lcd.createChar(0x02, serial_batt_symbol);
     lcd.createChar(0x03, serial_profile2_symbol);
+#endif
+}
+
+static void display_nokia_setup()    //setup main view of nokia display
+{
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+    lcd.begin(84, 48);
+    lcd.createChar(0, glyph1);
+    lcd.createChar(1, glyph2);
+    lcd.createChar(2, glyph3);
 #endif
 }
 
@@ -576,97 +562,6 @@ static void display_menu()
 #endif
 }
 
-static void display_nokia_update()
-{
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
-    lcd.setCursor(0,0);
-    lcd.print(voltage_display,1);
-
-    lcd.setCursor(6,0);
-    if ((current_display<9.5)&&(current_display>0))
-    {lcd.print(MY_F(" "));}
-    lcd.print(current_display,1);
-
-    lcd.setCursor(10,0);
-    if (battery_percent_fromcapacity<100)
-    {lcd.print(MY_F(" "));}
-    if (battery_percent_fromcapacity<9.5)
-    {lcd.print(MY_F(" "));}
-    lcd.print(battery_percent_fromcapacity);
-
-    lcd.setCursor(0,1);
-    if (power<99.5)
-    {lcd.print(MY_F(" "));}
-    if (power<9.5)
-    {lcd.print(MY_F(" "));}
-    lcd.print(power,0);
-
-    lcd.setCursor(9,1);
-    if (wh<99.5)
-    {lcd.print(MY_F(" "));}
-    if (wh<9.5)
-    {lcd.print(MY_F(" "));}
-    lcd.print(wh,0);
-
-    lcd.setCursor(0,3);
-    if (spd<9.5)
-    {lcd.print(MY_F(" "));}
-    lcd.print(spd,1);
-
-    lcd.setCursor(5,3);
-    if (km<99.5)
-    {lcd.print(MY_F(" "));}
-    if (km<9.5)
-    {lcd.print(MY_F(" "));}
-    lcd.print(km,1);
-
-    lcd.setCursor(11,3);
-    if (cad<100)
-    {lcd.print(MY_F(" "));}
-    if (cad<10)
-    {lcd.print(MY_F(" "));}
-    lcd.print(cad,10);
-
-    lcd.setCursor(0,4);
-    if ( spd > 5.0)
-        lcd.print(power/spd,1);
-    else
-        lcd.print(MY_F("---"));
-    lcd.print(MY_F("/"));
-    if ( km > 0.1)
-        lcd.print(wh/km,1);
-    else
-        lcd.print(MY_F("---"));
-    lcd.print(MY_F(" "));
-
-    lcd.setCursor(0,5);
-//lcd.print(millis()/60000.0,1);   //uncomment this to display minutes since startup
-//lcd.print(" Minuten");
-#if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
-    //lcd.print(temperature,1);
-    //lcd.print(" ");
-    lcd.print(slope,0);
-    lcd.print(MY_F("% "));
-    lcd.print((int)altitude);
-    lcd.print(MY_F(" "));
-#endif
-#ifdef SUPPORT_HRMI
-    lcd.print((byte) pulse_human);
-    lcd.print(MY_F(" "));
-#endif
-    lcd.print(range,0);
-    lcd.print(MY_F("km "));
-#if HARDWARE_REV >=2
-    lcd.setCursor(13,5);
-    if (digitalRead(bluetooth_pin)==1)
-    {lcd.write(2);}
-    else
-    {lcd.print(MY_F(" "));}
-#endif
-#endif // (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
-}
-
-
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
 void kingmeter_update(void)
 {
@@ -893,6 +788,7 @@ static const PROGMEM byte bitmapBigSpace_p[2 * 9] = {    0x00, 0x00, 0x00, 0x00,
 
 static const PROGMEM byte bitmapBrakeSymbol_p[10] = {0x3C, 0x66, 0xC3, 0x18, 0x3C, 0x3C, 0x18, 0xC3, 0x66, 0x3C}; //Symbol for showing that the bikes brake is active
 static const PROGMEM byte bitmapBrakeSymbolClear_p[10] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; //10x0 empty rectangle for clearing the brake symbol
+static const PROGMEM byte bitmapHeartSymbol[5] = {0x0c, 0x1e, 0x3c, 0x1e, 0x0c}; //heart symbol
 
 static void drawSpeed(float speed, byte xpos, byte ypos) //print the speed in big 9x16 pixel characters, e.g. "27,6"
 {
@@ -933,8 +829,119 @@ static void printTripDistance(float km)  // print distance in exactly 6 characte
         }
     }
 }
+#endif
 
-static void display_nokia_update_graphic()
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+static void display_nokia_setup_main()    //setup main view of nokia display
+{
+    lcd.setCursor(4,0);
+    lcd.print(MY_F("V"));
+    lcd.setCursor(13,0);
+    lcd.print(MY_F("%"));
+    lcd.setCursor(3,1);
+    lcd.print(MY_F("W"));
+    lcd.setCursor(12,1);
+    lcd.print(MY_F("Wh"));
+    lcd.setCursor(0,2);
+    lcd.print(MY_F(" SPD   KM  CAD"));
+    lcd.setCursor(12,4);
+    lcd.write(0);
+    lcd.write(1);
+}
+#endif
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+static void display_nokia_view_main()
+{
+    lcd.setCursor(0,0);
+    lcd.print(voltage_display,1);
+
+    lcd.setCursor(6,0);
+    if ((current_display<9.5)&&(current_display>0))
+    {lcd.print(MY_F(" "));}
+    lcd.print(current_display,1);
+
+    lcd.setCursor(10,0);
+    if (battery_percent_fromcapacity<100)
+    {lcd.print(MY_F(" "));}
+    if (battery_percent_fromcapacity<9.5)
+    {lcd.print(MY_F(" "));}
+    lcd.print(battery_percent_fromcapacity);
+
+    lcd.setCursor(0,1);
+    if (power<99.5)
+    {lcd.print(MY_F(" "));}
+    if (power<9.5)
+    {lcd.print(MY_F(" "));}
+    lcd.print(power,0);
+
+    lcd.setCursor(9,1);
+    if (wh<99.5)
+    {lcd.print(MY_F(" "));}
+    if (wh<9.5)
+    {lcd.print(MY_F(" "));}
+    lcd.print(wh,0);
+
+    lcd.setCursor(0,3);
+    if (spd<9.5)
+    {lcd.print(MY_F(" "));}
+    lcd.print(spd,1);
+
+    lcd.setCursor(5,3);
+    if (km<99.5)
+    {lcd.print(MY_F(" "));}
+    if (km<9.5)
+    {lcd.print(MY_F(" "));}
+    lcd.print(km,1);
+
+    lcd.setCursor(11,3);
+    if (cad<100)
+    {lcd.print(MY_F(" "));}
+    if (cad<10)
+    {lcd.print(MY_F(" "));}
+    lcd.print(cad,10);
+
+    lcd.setCursor(0,4);
+    if ( spd > 5.0)
+        lcd.print(power/spd,1);
+    else
+        lcd.print(MY_F("---"));
+    lcd.print(MY_F("/"));
+    if ( km > 0.1)
+        lcd.print(wh/km,1);
+    else
+        lcd.print(MY_F("---"));
+    lcd.print(MY_F(" "));
+
+    lcd.setCursor(0,5);
+//lcd.print(millis()/60000.0,1);   //uncomment this to display minutes since startup
+//lcd.print(" Minuten");
+#if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
+    //lcd.print(temperature,1);
+    //lcd.print(" ");
+    lcd.print(slope,0);
+    lcd.print(MY_F("% "));
+    lcd.print((int)altitude);
+    lcd.print(MY_F(" "));
+#endif
+#ifdef SUPPORT_HRMI
+    lcd.print((byte) pulse_human);
+    lcd.print(MY_F(" "));
+#endif
+    lcd.print(range,0);
+    lcd.print(MY_F("km "));
+#if HARDWARE_REV >=2
+    lcd.setCursor(13,5);
+    if (digitalRead(bluetooth_pin)==1)
+    {lcd.write(2);}
+    else
+    {lcd.print(MY_F(" "));}
+#endif
+}
+#endif// (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+static void display_nokia_view_graphic()
 {
     //print range in km in the top left corner
     lcd.setCursorInPixels(0,0);
@@ -997,7 +1004,106 @@ static void display_nokia_update_graphic()
 }
 #endif
 
+static void display_nokia_view_human()
+{
+    lcd.setCursor(3,2); //print cadence centered
+    lcd.print(MY_F(" CAD ")); lcd.print(cad);
+#if defined(SUPPORT_XCELL_RT) //show left bar with human and battery wh
+    lcd.setCursor(3,3);  //print human power centered
+    lcd.print(MY_F("   W ")); lcd.print(power_human,0); 
+    //print motor wh in top left corner
+    lcd.setCursorInPixels(0,0);
+    lcd.print(wh,0); lcd.print(MY_F(" WhMotor"));
+    //print human wh in bottom left corner
+    lcd.setCursorInPixels(0,5);
+    lcd.print(wh_human,0); lcd.print(MY_F(" WhHuman"));
+    
+    //print bar graph left side, showing human wh (solid) vs motor wh (clear)
+    lcd.setCursorInPixels(0,1);
+    lcd.drawVerticalBar((word)(wh+wh_human), (word)(wh_human), (word)(0), 11, 4); 
+#endif
 
+#if defined(SUPPORT_HRMI)
+    lcd.setCursorInPixels(72,1);
+    lcd.drawVerticalBar((word)(pulse_range), (word)(pulse_human-pulse_min), (word)(0), 11, 4); 
+    lcd.setCursor(12,0);
+    lcd.print(pulse_human);
+    lcd.setCursorInPixels(75,5);
+    lcd.drawBitmap(bitmapHeartSymbol, 5,1);
+#endif   
+}
+
+static void display_nokia_view_environment()
+{
+#if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
+//#ifndef(SUPPORT_TEMP_SENSOR)
+    lcd.setCursor(0,0);
+    lcd.print(MY_F("Temp: "));
+    lcd.print((int)temperature);
+    lcd.print(MY_F(" C"));
+//#endif
+    lcd.setCursor(0,2);
+    // switch between altitude and slope very five seconds
+    lcd.print(MY_F("Start: "));
+    lcd.print((int)(altitude_start));
+    lcd.print(MY_F("m")); 
+    lcd.setCursor(0,3);    
+    lcd.print(MY_F("Altitude: "));
+    lcd.print((int)(altitude));
+    lcd.print(MY_F("m"));
+    lcd.print(MY_F(" "));
+    lcd.setCursor(0,4);
+    lcd.print(MY_F("Slope: "));
+    lcd.print(slope,0);
+    lcd.print(MY_F("%    "));
+#endif
+#if defined(SUPPORT_TEMP_SENSOR)
+    lcd.setCursor(0,0);
+    lcd.print(MY_F("T1: "));
+    lcd.print(sensors.getTempCByIndex(0),1);
+    lcd.print(MY_F(" C "));
+    lcd.print(MY_F("T2: "));
+    lcd.print((int)sensors.getTempCByIndex(1),1);
+    lcd.print(MY_F(" C "));
+#endif
+}
+
+static void display_nokia_update()
+{
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+      // View changed?
+    if (display_view_last != display_view)
+    {
+        lcd.clear();
+        if (display_view==DISPLAY_VIEW_MAIN)
+          display_nokia_setup_main();
+        display_view_last = display_view;
+    }
+
+    switch (display_view)
+    {
+#if (defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01) || defined(SUPPORT_TEMP_SENSOR))&& defined(DV_ENVIRONMENT)
+        case DISPLAY_VIEW_ENVIRONMENT:
+            display_nokia_view_environment();
+            break;
+#endif
+#if defined(DV_GRAPHIC)
+        case DISPLAY_VIEW_GRAPHIC:
+            display_nokia_view_graphic();
+            break;
+#endif
+#if defined(DV_HUMAN)
+        case DISPLAY_VIEW_HUMAN:
+            display_nokia_view_human();
+            break;
+#endif
+        case DISPLAY_VIEW_MAIN:
+        default:
+            display_nokia_view_main();
+            break;
+    }
+#endif
+}
 
 void display_update()
 {
@@ -1007,18 +1113,16 @@ void display_update()
 
     if (menu_active)
         display_mode=DISPLAY_MODE_MENU;
-    else if (spd>0 && !display_force_text)
-        display_mode=DISPLAY_MODE_GRAPHIC;
+    //else if (spd>0 && !display_force_text)
+        //display_mode=DISPLAY_MODE_GRAPHIC;
     else
         display_mode=DISPLAY_MODE_TEXT;
 
     if (display_mode!=display_mode_last)
     {
         lcd.clear();
-        if (display_mode==DISPLAY_MODE_TEXT)        // Note: noop for non-Nokia displays
-            display_nokia_setup();
-
         display_mode_last=display_mode;
+        display_view_last=_DISPLAY_VIEW_END;
     }
 
     switch(display_mode)
@@ -1027,9 +1131,6 @@ void display_update()
             display_menu();
             break;
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
-        case DISPLAY_MODE_GRAPHIC:
-            display_nokia_update_graphic();
-            break;
         case DISPLAY_MODE_TEXT:
             display_nokia_update();
             break;

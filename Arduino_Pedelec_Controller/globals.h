@@ -32,6 +32,7 @@ extern byte battery_percent_fromcapacity;
 extern double power;
 extern double power_set;
 extern float wh;
+extern double wh_human;
 extern unsigned int charge_count;
 extern volatile float spd;
 extern volatile int cad;
