@@ -1006,11 +1006,15 @@ static void display_nokia_view_graphic()
 
 static void display_nokia_view_human()
 {
+
     lcd.setCursor(3,2); //print cadence centered
-    lcd.print(MY_F(" CAD ")); lcd.print(cad);
+    lcd.print(MY_F(" CAD "));
+    lcd.print(cad);
+    lcd.print(MY_F("  "));
 #if defined(SUPPORT_XCELL_RT) //show left bar with human and battery wh
     lcd.setCursor(3,3);  //print human power centered
-    lcd.print(MY_F("   W ")); lcd.print(power_human,0); 
+    lcd.print(MY_F("   W ")); lcd.print(power_human,0);
+    lcd.print(MY_F("   "));
     //print motor wh in top left corner
     lcd.setCursorInPixels(0,0);
     lcd.print(wh,0); lcd.print(MY_F(" WhMotor"));
