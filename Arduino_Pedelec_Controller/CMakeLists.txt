@@ -21,6 +21,14 @@ set(${FIRMWARE_NAME}_SRCS                          # Source code
     ${CMAKE_CURRENT_BINARY_DIR}/main.cpp
     BMP085.cpp
     BMP085.h
+    DSPC01_nano.cpp
+    DSPC01_nano.h
+    DallasTemp.cpp
+    DallasTemp.h
+    HX711.cpp
+    HX711.h
+    LiquidCrystalDogm.cpp
+    LiquidCrystalDogm.h
     MenuSystem.cpp
     MenuSystem.h
     PCD8544_charset.cpp
@@ -28,16 +36,22 @@ set(${FIRMWARE_NAME}_SRCS                          # Source code
     PCD8544_nano.h
     PID_v1_nano.cpp
     PID_v1_nano.h
+    config.h
     display.cpp
     display.h
     display_backlight.cpp
     display_backlight.h
     display_kingmeter.cpp
     display_kingmeter.h
+    ds1307.cpp
+    ds1307.h
+    globals.h
     hrmi_funcs.cpp
     hrmi_funcs.h
     menu.cpp
     menu.h
+    one_Wire.cpp
+    one_Wire.h
     serial_command.cpp
     serial_command.h
     serial_lcd.cpp
