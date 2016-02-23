@@ -1004,6 +1004,7 @@ static void display_nokia_view_graphic()
 }
 #endif
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 static void display_nokia_view_human()
 {
 
@@ -1021,7 +1022,7 @@ static void display_nokia_view_human()
     //print human wh in bottom left corner
     lcd.setCursorInPixels(0,5);
     lcd.print(wh_human,0); lcd.print(MY_F(" WhHuman"));
-    
+
     //print bar graph left side, showing human wh (solid) vs motor wh (clear)
     lcd.setCursorInPixels(0,1);
     lcd.drawVerticalBar((word)(wh+wh_human), (word)(wh_human), (word)(0), 11, 4); 
@@ -1034,9 +1035,11 @@ static void display_nokia_view_human()
     lcd.print(pulse_human);
     lcd.setCursorInPixels(75,5);
     lcd.drawBitmap(bitmapHeartSymbol, 5,1);
-#endif   
+#endif
 }
+#endif
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 static void display_nokia_view_environment()
 {
 #if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
@@ -1071,6 +1074,7 @@ static void display_nokia_view_environment()
     lcd.print(MY_F(" C "));
 #endif
 }
+#endif
 
 static void display_nokia_update()
 {
