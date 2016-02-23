@@ -43,6 +43,7 @@ ALL_FEATURES = [
                   'SUPPORT_GEAR_SHIFT',
                   'SUPPORT_MOTOR_SERVO',
                   'SUPPORT_TEMP_SENSOR',
+                  'SUPPORT_HX711',
                   'DETECT_BROKEN_SPEEDSENSOR',
                   'USE_EXTERNAL_CURRENT_SENSOR',
                   'USE_EXTERNAL_VOLTAGE_SENSOR'
@@ -97,6 +98,16 @@ def write_config_h(filename=CONFIG_H,
         f.write('#define DISPLAY_TYPE DISPLAY_TYPE_' + display_type + '    //Set your display type here. CHANGES ONLY HERE!<-----------------------------\n')
         f.write('\n')
         f.write('#define NOKIA_LCD_CONTRAST 190                   //set display contrast here. values around 190 should do the job\n')
+        f.write('\n')
+        f.write('\n')
+        f.write('//Selection of available display views: comment out any view that you do not want. Can save much programming space!\n')
+        f.write('#define DV_GRAPHIC\n')
+        f.write('#define DV_TIME 1\n')
+        f.write('#define DV_BATTERY\n')
+        f.write('#define DV_ENVIRONMENT\n')
+        f.write('#define DV_HUMAN\n')
+        f.write('\n')
+        f.write('\n')
         f.write('const int serial_display_16x2_pin = 12;\n')
         f.write('\n')
         f.write('#define SERIAL_MODE_NONE (1<<0)              //dont send serial data at all\n')
@@ -155,7 +166,8 @@ def write_config_h(filename=CONFIG_H,
         f.write('\n')
         f.write('const int poti_value_on_startup_in_watts = 0;        //poti startup value in watts\n')
         f.write('const int poti_level_step_size_in_watts = 50;        //number of watts to increase / decrease poti value by switch press\n')
-        f.write('const int fixed_throttle_in_watts = 250;')
+        f.write('const int poti_fixed_value_via_switch = 250;\n')
+        f.write('const int fixed_throttle_in_watts = 250;\n')
         f.write('\n')
         f.write('#ifdef SUPPORT_GEAR_SHIFT\n')
         f.write('const byte gear_shift_pin_low_gear = 5;      //pin that connect to the low gear signal ("red" cable)\n')
@@ -166,6 +178,10 @@ def write_config_h(filename=CONFIG_H,
         f.write('#define CONTROL_MODE_LIMIT_WH_PER_KM 1   //Limit wh/km consumption: poti controls wh/km, throttle controls power to override poti\n')
         f.write('#define CONTROL_MODE_TORQUE 2            //power = x*power of the biker, see also description of power_poti_max!\n')
         f.write('#define CONTROL_MODE CONTROL_MODE_' + control_mode + ' //Set your control mode here\n')
+        f.write('\n')
+        f.write('const byte hx711_data=20;                    //data pin of hx711 sensor\n')
+        f.write('const byte hx711_sck=21;                     //clock pin of hx711 sensor\n')
+        f.write('const double hx711_scale=78514.375;         //this is the scale to apply.\n')
         f.write('\n')
         f.write('//Config Options-----------------------------------------------------------------------------------------------------\n')
         f.write('const byte temp_pin = A2;                //pin connected to Data pin of the DS18x20 temperature Sensor\n')
@@ -416,6 +432,8 @@ class CompileTest(unittest.TestCase):
                             'SUPPORT_BATTERY_CHARGE_DETECTION',
                             'SUPPORT_BATTERY_CHARGE_COUNTER',
                             'SUPPORT_GEAR_SHIFT',
+                            'SUPPORT_TEMP_SENSOR',
+                            'SUPPORT_HX711',
                             'DETECT_BROKEN_SPEEDSENSOR'
                         ]
                     )

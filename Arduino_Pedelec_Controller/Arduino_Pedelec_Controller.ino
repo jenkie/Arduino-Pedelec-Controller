@@ -110,12 +110,12 @@ Time now;
 #ifdef SUPPORT_TEMP_SENSOR
 #include "one_Wire.h"
 #include "DallasTemp.h"
-OneWire tempWire(temp_pin); 
+OneWire tempWire(temp_pin);
 DallasTemperature sensors(&tempWire);
 #endif
 
 #ifdef SUPPORT_HX711
-#include "HX711.h" 
+#include "HX711.h"
 HX711 loadcell(hx711_data, hx711_sck);
 double load=0; //this is the current load
 boolean load_updated=false; //new measurement flag, becomes true if measurement is updated
