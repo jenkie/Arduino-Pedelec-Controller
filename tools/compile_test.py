@@ -32,6 +32,8 @@ ALL_FEATURES = [
                   'SUPPORT_XCELL_RT',
                   'SUPPORT_HRMI',
                   'SUPPORT_BRAKE',
+                  'INVERT_BREAK',
+                  'RESET_PID_ON_BREAK',
                   'SUPPORT_PROFILE_SWITCH_MENU',
                   'SUPPORT_FIRST_AID_MENU',
                   'SUPPORT_LIGHTS_SWITCH',
@@ -381,6 +383,18 @@ class CompileTest(unittest.TestCase):
                             'SUPPORT_THROTTLE',
                             'SUPPORT_PAS',
                             'SUPPORT_BRAKE',
+                        ]
+                    )
+
+    def test_break_features(self):
+        self.build_firmware(hardware_rev = 20,
+                    display_type='NOKIA_4PIN',
+                    serial_mode='DEBUG',
+                    features=[
+                            'SUPPORT_PAS',
+                            'SUPPORT_BRAKE',
+                            'INVERT_BREAK',
+                            'RESET_PID_ON_BREAK'
                         ]
                     )
 
