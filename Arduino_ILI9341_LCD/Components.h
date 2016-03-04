@@ -48,6 +48,14 @@ public:
 
    //! Return the component at position index
    BaseComponent* get(uint8_t index);
+
+   //! remove the element at index, but does not delete it
+   void remove(uint8_t index);
+
+ private:
+   //! Update the Y position of all elements, and remove invisible elements from the list
+   void updatePositionAndRemoveInvisible();
+   
   // Member
 private:
   //! List with the components

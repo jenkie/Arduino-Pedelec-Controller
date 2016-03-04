@@ -31,17 +31,42 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 Components::Components()
           : m_components({0})
 {
-  uint16_t y = 150;
   for (uint8_t i = 0; i < COMPONENT_COUNT; i++) {
-    m_components[i] = new TextComponent();
-    m_components[i]->setY(y);
-    y += m_components[i]->getHeight();
-    y += 2;
+    String txt = "Eintrag ";
+    txt += i;
+    m_components[i] = new TextComponent(txt);
   }
+
+  updatePositionAndRemoveInvisible();
 }
 
 //! Destructor
 Components::~Components() {
+}
+
+//! Update the Y position of all elements, and remove invisible elements from the list
+void Components::updatePositionAndRemoveInvisible() {
+  uint16_t y = 150;
+  uint8_t i = 0;
+  for (; i < COMPONENT_COUNT; i++) {
+    if (m_components[i] == NULL) {
+      break;
+    }
+
+    m_components[i]->setY(y);
+    y += m_components[i]->getHeight();
+
+    if (y > 320) {
+      // Not fully visible, the next will be invisible
+      break;
+    }
+
+    y += 2;
+  }
+
+  for (; i < COMPONENT_COUNT; i++) {
+    m_components[i] = NULL;
+  }
 }
 
 //! Return the component at position index
@@ -49,9 +74,23 @@ BaseComponent* Components::get(uint8_t index) {
   return m_components[index];
 }
 
+//! remove the element at index, but does not delete it
+void Components::remove(uint8_t index) {
+  for (uint8_t i = index; i < COMPONENT_COUNT - 1; i++) {
+    m_components[i] = m_components[i + 1];
+  }
+
+  m_components[COMPONENT_COUNT - 1] = NULL;
+
+  updatePositionAndRemoveInvisible();
+}
+
 //! Draw all components
 void Components::draw() {
   for (uint8_t i = 0; i < COMPONENT_COUNT; i++) {
+    if (m_components[i] == NULL) {
+      return;
+    }
     m_components[i]->draw();
   }
 }

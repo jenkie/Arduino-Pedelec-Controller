@@ -111,6 +111,12 @@ void MainViewEdit::updateDisplay() {
   drawSelection();
 }
 
+//! remove the selected component
+void MainViewEdit::removeSelected() {
+  m_components->remove(m_selectedId);
+  updateDisplay();
+}
+
 //! Key (OK) pressed
 ViewResult MainViewEdit::keyPressed() {
   ViewResult result;

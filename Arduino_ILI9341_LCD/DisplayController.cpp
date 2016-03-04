@@ -162,6 +162,9 @@ void displayControllerLoop() {
 
       if (MENU_ID_VIEW_EDIT == result.value) {
         currentView = mainViewEdit;
+      } else if (MENU_ID_COMPONENT_REMOVE == result.value) {
+        mainViewEdit->removeSelected();
+        currentView = mainViewEdit;
       } else {
         currentView = mainView;
       }

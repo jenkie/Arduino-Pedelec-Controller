@@ -47,6 +47,9 @@ public:
   //! Key (OK) pressed
   virtual ViewResult keyPressed();
 
+  //! remove the selected component
+  void removeSelected();
+
 private:
   //! draw the selection mark
   void drawSelection();

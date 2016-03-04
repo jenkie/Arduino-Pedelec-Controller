@@ -31,7 +31,7 @@ class TextComponent: public BaseComponent {
   // Constructor / Destructor
 public:
   //! Constructor
-  TextComponent();
+  TextComponent(String text);
 
   //! Destructor
   virtual ~TextComponent();
@@ -46,4 +46,6 @@ public:
 
   // Member
 private:
+  //! Text to display
+  String m_text;
 };

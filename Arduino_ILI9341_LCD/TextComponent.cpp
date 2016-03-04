@@ -27,8 +27,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 
 //! Constructor
-TextComponent::TextComponent() {
-
+TextComponent::TextComponent(String text)
+             : m_text(text)
+{
 }
 
 //! Destructor
@@ -47,5 +48,5 @@ void TextComponent::draw() {
 
    tft.setTextColor(ILI9341_YELLOW);
    tft.setCursor(0, m_y + 2);
-   tft.print("ASDF");
+   tft.print(m_text.c_str());
 }
