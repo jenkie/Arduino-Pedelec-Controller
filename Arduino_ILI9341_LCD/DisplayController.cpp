@@ -27,6 +27,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #include "MainView.h"
 #include "MenuView.h"
+#include "MainViewEdit.h"
 
 #include "protocol.h"
 
@@ -60,6 +61,9 @@ RotaryEncoder encoder(KNOB0, KNOB1);
 //! Main view with speed etc.
 MainView* mainView;
 
+//! Edit custmizeable part of the main view
+MainViewEdit* mainViewEdit;
+
 //! Menu view to show a menu
 MenuView* menuView;
 
@@ -78,6 +82,7 @@ void displayControllerSetup() {
 
   mainView = new MainView(&components);
   menuView = new MenuView();
+  mainViewEdit = new MainViewEdit(&components);
 
   currentView = mainView;
   currentView->activate();
@@ -153,10 +158,14 @@ void displayControllerLoop() {
       currentView = mainView;
       currentView->activate();
     } else if (result.result == VIEW_RESULT_SELECTED) {
-      Serial.print("Key: ");
-      Serial.println(result.value);
       currentView->deactivate();
-      currentView = mainView;
+
+      if (MENU_ID_VIEW_EDIT == result.value) {
+        currentView = mainViewEdit;
+      } else {
+        currentView = mainView;
+      }
+
       currentView->activate();
     } else if (result.result == VIEW_RESULT_CHECKBOX_CHECKED) {
       //! Checkbox toggled

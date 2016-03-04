@@ -46,6 +46,8 @@ public:
    //! Draw all components
    void draw();
 
+   //! Return the component at position index
+   BaseComponent* get(uint8_t index);
   // Member
 private:
   //! List with the components

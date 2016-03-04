@@ -93,7 +93,7 @@ private:
   void drawLight(bool clearScreen);
 
   // Member
-private:
+protected:
   //! the speed in 0.1 km/h and update display if needed
   uint16_t m_speed;
 

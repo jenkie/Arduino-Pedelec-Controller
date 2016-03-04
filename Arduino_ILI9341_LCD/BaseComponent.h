@@ -54,6 +54,9 @@ public:
   //! Y Position on display
   void setY(uint16_t y);
 
+  //! Y Position on display
+  uint16_t getY();
+
   // Member
 protected:
   //! Y Position on display

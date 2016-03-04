@@ -40,5 +40,7 @@ void BaseComponent::setY(uint16_t y) {
   m_y = y;
 }
 
-
-
+//! Y Position on display
+uint16_t BaseComponent::getY() {
+  return m_y;
+}

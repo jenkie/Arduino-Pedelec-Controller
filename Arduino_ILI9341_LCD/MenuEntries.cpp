@@ -28,30 +28,26 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  */
 
 /*
-Layout:
-    ├── [Ausschalten]              (only shown when no button is set to ACTION_SHUTDOWN_SYSTEM)
-    ├── Anzeige
-    │   ├── Reset Wh
-    │   ├── Reset KM
-    │   ├── Graf. an/              (only for Nokia displays)
-    |   ├── Beleuchtung an         (only with SUPPORT_DISPLAY_BACKLIGHT)
-    |   ├── [Beleucht. aus]        (only without SUPPORT_DISPLAY_BACKLIGHT and DISPLAY_TYPE_16X2_SERIAL)
-    │   └── Zurück
-    ├── Licht an/aus
-    ├── BT an/aus
-    ├── Profil 1<>2
-    ├── Sonstiges
-    │   ├── Nothilfe
-    │   │    ├── Ign. Bremse
-    │   │    ├── Ign. Treten
-    │   │    ├── Ign. Tacho
-    │   │    ├── Ign. Gasgr.
-    │   │    ├── Ign. Poti             (only with SUPPORT_POTI)
-    │   │    ├── Poti +
-    │   │    ├── Poti -
-    │   │    └── Zurück
-    │   └── Zurück
-    └── Zurück
+Root Menu
+ ├── Ausschalten
+ ├── Anzeige
+ │   ├── Reset Wh
+ │   ├── Reset KM
+ │   ├── Anpassen
+ │   └── Zurück
+ ├── Licht an/aus
+ ├── BT an/aus
+ ├── Profil 1<>2
+ ├── Nothilfe
+ │    ├── Ign. Bremse
+ │    ├── Ign. Treten
+ │    ├── Ign. Tacho
+ │    ├── Ign. Gasgr.
+ │    ├── Ign. Poti             (only with SUPPORT_POTI)
+ │    ├── Poti +
+ │    ├── Poti -
+ │    └── Zurück
+ └── Zurück
 */
 
 #define UE "\x81"
@@ -61,9 +57,10 @@ const char TXT_MENU_TURN_OFF[] PROGMEM = "Ausschalten";
 const char TXT_MENU_VIEW[] PROGMEM = "Anzeige";
 const char TXT_MENU_RESET_WH[] PROGMEM = "Reset Wh";
 const char TXT_MENU_RESET_KM[] PROGMEM = "Reset KM";
-const char TXT_MENU__BACK[] PROGMEM = "Zur" UE "ck";
-const char TXT_MENU__LIGHT[] PROGMEM = "Licht an/aus";
-const char TXT_MENU__BLUETOOTH[] PROGMEM = "BT an/aus";
+const char TXT_MENU_VIEW_EDIT[] PROGMEM = "Anpassen";
+const char TXT_MENU_BACK[] PROGMEM = "Zur" UE "ck";
+const char TXT_MENU_LIGHT[] PROGMEM = "Licht an/aus";
+const char TXT_MENU_BLUETOOTH[] PROGMEM = "Bluetooth";
 const char TXT_MENU_PROFIL[] PROGMEM = "Profil 1<>2";
 const char TXT_MENU_EMERGENCY[] PROGMEM = "Nothilfe";
 const char TXT_MENU_EM_BRAKE[] PROGMEM = "Ign. Bremse";
@@ -74,44 +71,39 @@ const char TXT_MENU_EM_POTI[] PROGMEM = "Ign. Poti";
 const char TXT_MENU_ADD_POTI[] PROGMEM = "Poti +";
 const char TXT_MENU_DEC_POTI[] PROGMEM = "Poti -";
 
-/*
-typedef struct {
-  uint8_t id;
-  uint8_t parentId;
-  const char* text;
-} MenuItem;
 
-#define MENU_DEFAULT 0
-#define MENU_CHECKBOX 1
-#define MENU_BACK 2
+const char TXT_MENU_COMPONENT[] PROGMEM = "Komponent";
+const char TXT_MENU_COMPONENT_REPLACE[] PROGMEM = "Ersetzten";
+const char TXT_MENU_COMPONENT_REMOVE[] PROGMEM = "Entfernen";
 
-*/
 const MenuItem PROGMEM Menu[] = {
   // Root menu
-  {.id =  1, .parentId =  0, .text = TXT_MENU_ROOT, .flags = MENU_WITH_SUBMENU},
-  {.id =  2, .parentId =  1, .text = TXT_MENU_TURN_OFF, .flags = MENU_DEFAULT},
-  {.id =  3, .parentId =  1, .text = TXT_MENU_VIEW, .flags = MENU_WITH_SUBMENU},
-  {.id =  4, .parentId =  3, .text = TXT_MENU_RESET_WH, .flags = MENU_DEFAULT},
-  {.id =  5, .parentId =  3, .text = TXT_MENU_RESET_KM, .flags = MENU_DEFAULT},
-  {.id =  6, .parentId =  3, .text = TXT_MENU__BACK, .flags = MENU_BACK},
-  {.id =  7, .parentId =  1, .text = TXT_MENU__LIGHT, .flags = MENU_CHECKBOX},
-  {.id =  8, .parentId =  1, .text = TXT_MENU__BLUETOOTH, .flags = MENU_CHECKBOX},
-  {.id =  9, .parentId =  1, .text = TXT_MENU_PROFIL, .flags = MENU_CHECKBOX},
-  {.id = 10, .parentId =  1, .text = TXT_MENU_EMERGENCY, .flags = MENU_WITH_SUBMENU},
-  {.id = 11, .parentId = 10, .text = TXT_MENU_EM_BRAKE, .flags = MENU_CHECKBOX},
-  {.id = 12, .parentId = 10, .text = TXT_MENU_EM_PEDAL, .flags = MENU_CHECKBOX},
-  {.id = 13, .parentId = 10, .text = TXT_MENU_EM_SPEED, .flags = MENU_CHECKBOX},
-  {.id = 14, .parentId = 10, .text = TXT_MENU_EM_SPEEDCTRL, .flags = MENU_CHECKBOX},
-  {.id = 15, .parentId = 10, .text = TXT_MENU_ADD_POTI, .flags = MENU_CHECKBOX},
-  {.id = 16, .parentId = 10, .text = TXT_MENU_DEC_POTI, .flags = MENU_CHECKBOX},
-  {.id = 17, .parentId = 10, .text = TXT_MENU__BACK, .flags = MENU_BACK},
-  {.id = 18, .parentId =  1, .text = TXT_MENU__BACK, .flags = MENU_BACK},
+  {.id = MENU_ID_ROOT,            .parentId = MENU_ID_NONE, .text = TXT_MENU_ROOT, .flags = MENU_WITH_SUBMENU},
+  {.id = MENU_ID_TURN_OFF,        .parentId = MENU_ID_ROOT, .text = TXT_MENU_TURN_OFF, .flags = MENU_DEFAULT},
+  {.id = MENU_ID_VIEW,            .parentId = MENU_ID_ROOT, .text = TXT_MENU_VIEW, .flags = MENU_WITH_SUBMENU},
+  {.id = MENU_ID_RESET_WH,        .parentId = MENU_ID_VIEW, .text = TXT_MENU_RESET_WH, .flags = MENU_DEFAULT},
+  {.id = MENU_ID_RESET_KM,        .parentId = MENU_ID_VIEW, .text = TXT_MENU_RESET_KM, .flags = MENU_DEFAULT},
+  {.id = MENU_ID_VIEW_EDIT,       .parentId = MENU_ID_VIEW, .text = TXT_MENU_VIEW_EDIT, .flags = MENU_DEFAULT},
+  {.id = MENU_ID_BACK_VIEW,       .parentId = MENU_ID_VIEW, .text = TXT_MENU_BACK, .flags = MENU_BACK},
+  {.id = MENU_ID_LIGHT_CB,        .parentId = MENU_ID_ROOT, .text = TXT_MENU_LIGHT, .flags = MENU_CHECKBOX},
+  {.id = MENU_ID_BLUETOOTH_CB,    .parentId = MENU_ID_ROOT, .text = TXT_MENU_BLUETOOTH, .flags = MENU_CHECKBOX},
+  {.id = MENU_ID_PROFIL_CB,       .parentId = MENU_ID_ROOT, .text = TXT_MENU_PROFIL, .flags = MENU_CHECKBOX},
+  {.id = MENU_ID_EMERGENCY,       .parentId = MENU_ID_ROOT, .text = TXT_MENU_EMERGENCY, .flags = MENU_WITH_SUBMENU},
+  {.id = MENU_ID_EM_BRAKE_CB,     .parentId = MENU_ID_EMERGENCY, .text = TXT_MENU_EM_BRAKE, .flags = MENU_CHECKBOX},
+  {.id = MENU_ID_EM_PEDAL_CB,     .parentId = MENU_ID_EMERGENCY, .text = TXT_MENU_EM_PEDAL, .flags = MENU_CHECKBOX},
+  {.id = MENU_ID_EM_SPEED_CB,     .parentId = MENU_ID_EMERGENCY, .text = TXT_MENU_EM_SPEED, .flags = MENU_CHECKBOX},
+  {.id = MENU_ID_EM_SPEEDCTRL_CB, .parentId = MENU_ID_EMERGENCY, .text = TXT_MENU_EM_SPEEDCTRL, .flags = MENU_CHECKBOX},
+  {.id = MENU_ID_ADD_POTI_CB,     .parentId = MENU_ID_EMERGENCY, .text = TXT_MENU_ADD_POTI, .flags = MENU_CHECKBOX},
+  {.id = MENU_ID_DEC_POTI_CB,     .parentId = MENU_ID_EMERGENCY, .text = TXT_MENU_DEC_POTI, .flags = MENU_CHECKBOX},
+  {.id = MENU_ID_BACK_EMERGENCY,  .parentId = MENU_ID_EMERGENCY, .text = TXT_MENU_BACK, .flags = MENU_BACK},
+  {.id = MENU_ID_BACK_MAIN,       .parentId = MENU_ID_ROOT, .text = TXT_MENU_BACK, .flags = MENU_BACK},
 
-  // Menu 
+  // Component menu
+  {.id = MENU_ID_COMPONENT,         .parentId = MENU_ID_NONE, .text = TXT_MENU_COMPONENT, .flags = MENU_WITH_SUBMENU},
+  {.id = MENU_ID_COMPONENT_REPLACE, .parentId = MENU_ID_COMPONENT, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+  {.id = MENU_ID_COMPONENT_REMOVE,  .parentId = MENU_ID_COMPONENT, .text = TXT_MENU_COMPONENT_REMOVE, .flags = MENU_DEFAULT},
+  {.id = MENU_ID_COMPONENT_BACK,    .parentId = MENU_ID_COMPONENT, .text = TXT_MENU_BACK, .flags = MENU_BACK},
+
 };
 
-const uint8_t Menu_Count = 18;
-//const uint8_t Menu_Count = sizeof(Menu) / sizeof(MenuItem);
-
-
-
+uint8_t Menu_Count = sizeof(Menu) / sizeof(MenuItem);

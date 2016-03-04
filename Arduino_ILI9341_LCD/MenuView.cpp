@@ -293,6 +293,8 @@ void MenuView::unselectCheckbox(uint8_t index) {
 
 //! Set the root menu ID
 void MenuView::setRootMenuId(uint8_t menu) {
+  Serial.print("menu: ");
+  Serial.println(menu);
   m_menu = menu;
   m_lastSelectedMenuIndex = -1;
   m_itemCount = -1;

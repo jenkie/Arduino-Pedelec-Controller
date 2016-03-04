@@ -19,39 +19,46 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
+#pragma once
+
+#include "MainView.h"
+
 /**
- * List with the customized components
+ * Custmize main view
  */
 
-#include "Components.h"
-#include "TextComponent.h"
+class MainViewEdit : public MainView {
+  // Constructor / Destructor
+public:
+  //! Constructor
+  MainViewEdit(Components* components);
 
+  //! Destructor
+  virtual ~MainViewEdit();
 
-//! Constructor
-Components::Components()
-          : m_components({0})
-{
-  uint16_t y = 150;
-  for (uint8_t i = 0; i < COMPONENT_COUNT; i++) {
-    m_components[i] = new TextComponent();
-    m_components[i]->setY(y);
-    y += m_components[i]->getHeight();
-    y += 2;
-  }
-}
+  // public API
+public:
+  //! Update full display
+  virtual void updateDisplay();
 
-//! Destructor
-Components::~Components() {
-}
+  //! UP / DOWN Key
+  virtual void movePosition(int8_t diff);
 
-//! Return the component at position index
-BaseComponent* Components::get(uint8_t index) {
-  return m_components[index];
-}
+  //! Key (OK) pressed
+  virtual ViewResult keyPressed();
 
-//! Draw all components
-void Components::draw() {
-  for (uint8_t i = 0; i < COMPONENT_COUNT; i++) {
-    m_components[i]->draw();
-  }
-}
+private:
+  //! draw the selection mark
+  void drawSelection();
+
+  // Member
+private:
+  //! Selected element
+  int8_t m_selectedId;
+
+  //! Last selected element to repaint, -1 for none
+  int8_t m_lastSelectedId;
+
+  //! Positino, -1 top, 0 Element, 1 bottom
+  int8_t m_selectionPosition;
+};

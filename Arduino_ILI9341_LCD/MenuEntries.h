@@ -39,6 +39,39 @@ typedef struct _MenuItem {
 #define MENU_BACK 2
 #define MENU_WITH_SUBMENU 4
 
+enum {
+   MENU_ID_NONE = 0,
+
+   // -------------
+
+   MENU_ID_ROOT,
+   MENU_ID_TURN_OFF,
+   MENU_ID_VIEW,
+   MENU_ID_RESET_WH,
+   MENU_ID_RESET_KM,
+   MENU_ID_VIEW_EDIT,
+   MENU_ID_BACK_VIEW,
+   MENU_ID_LIGHT_CB,
+   MENU_ID_BLUETOOTH_CB,
+   MENU_ID_PROFIL_CB,
+   MENU_ID_EMERGENCY,
+   MENU_ID_EM_BRAKE_CB,
+   MENU_ID_EM_PEDAL_CB,
+   MENU_ID_EM_SPEED_CB,
+   MENU_ID_EM_SPEEDCTRL_CB,
+   MENU_ID_ADD_POTI_CB,
+   MENU_ID_DEC_POTI_CB,
+   MENU_ID_BACK_EMERGENCY,
+   MENU_ID_BACK_MAIN,
+
+   // -------------
+
+   MENU_ID_COMPONENT = 40,
+   MENU_ID_COMPONENT_REPLACE,
+   MENU_ID_COMPONENT_REMOVE,
+   MENU_ID_COMPONENT_BACK,
+};
+
 extern const MenuItem PROGMEM Menu[];
 
-extern const uint8_t Menu_Count;
+extern uint8_t Menu_Count;

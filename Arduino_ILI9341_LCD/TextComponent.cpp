@@ -43,7 +43,7 @@ uint8_t TextComponent::getHeight() {
 
 //! Draw the component to the display
 void TextComponent::draw() {
-   tft.drawRect(0, m_y, 240, getHeight(), ILI9341_MAGENTA);
+   tft.drawRect(0, m_y, 240, getHeight(), ILI9341_GREEN);
 
    tft.setTextColor(ILI9341_YELLOW);
    tft.setCursor(0, m_y + 2);
