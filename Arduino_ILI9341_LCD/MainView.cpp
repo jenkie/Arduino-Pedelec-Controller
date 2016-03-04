@@ -31,17 +31,23 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 MainView::MainView(Adafruit_ILI9341* tft)
         : BaseView(tft),
           m_speed(0),
-          m_batterPercent(0),
+          m_batteryMinVoltage(0),
+          m_batteryMaxVoltage(50),
+          m_batteryVoltage(25),
           m_wattage(0)
 {
 }
-  
+
 //! Destructor
 MainView::~MainView() {
 }
 
 //! Draw speed
 void MainView::drawSpeed(bool clearScreen) {
+  if (!m_active) {
+    return;
+  }
+
   const uint8_t speedY = 25;
 
   if (clearScreen) {
@@ -49,7 +55,7 @@ void MainView::drawSpeed(bool clearScreen) {
   } else {
     m_tft->setTextColor(ILI9341_WHITE);
   }
-  
+
   m_tft->setTextSize(4);
   m_tft->setCursor(45, speedY);
   String str = "";
@@ -79,21 +85,43 @@ void MainView::setSpeed(uint16_t kmh) {
   }
 
   m_speed = kmh;
-  drawSpeed(true);  
+  drawSpeed(true);
 }
 
-//! Battery percent, 0 ... 100
-void MainView::setBatteryPercent(uint8_t batterPercent) {
-  if (m_batterPercent == batterPercent) {
+//! Voltage when fully charged
+void MainView::setBatteryMaxVoltage(uint16_t voltage) {
+  if (m_batteryMaxVoltage == voltage) {
     return;
   }
 
-  m_batterPercent = batterPercent;
-  drawBattery(true);  
+  m_batteryMaxVoltage = voltage;
+}
+
+//! Voltage when dischaerged
+void MainView::setBatteryMinVoltage(uint16_t voltage) {
+  if (m_batteryMinVoltage == voltage) {
+    return;
+  }
+
+  m_batteryMinVoltage = voltage;
+}
+
+//! Current voltage
+void MainView::setBatteryVoltage(uint16_t voltage) {
+  if (m_batteryVoltage == voltage) {
+    return;
+  }
+
+  m_batteryVoltage = voltage;
+  drawBattery(true);
 }
 
 //! Draw battery
 void MainView::drawBattery(bool clearScreen) {
+  if (!m_active) {
+    return;
+  }
+
   if (!clearScreen) {
     m_tft->drawRect(0, 9, 29, 7*9, ILI9341_WHITE);
     m_tft->fillRect(10, 0, 9, 9, ILI9341_WHITE);
@@ -104,16 +132,18 @@ void MainView::drawBattery(bool clearScreen) {
 
   uint16_t batteryColor = RGB_TO_565(0, 255, 0);
 
-  if (m_batterPercent <= 40) {
+  uint8_t batterPercent = (m_batteryVoltage - m_batteryMinVoltage) * 100 / (m_batteryMaxVoltage - m_batteryMinVoltage);
+
+  if (batterPercent <= 40) {
     batteryColor = ILI9341_YELLOW;
   }
-  if (m_batterPercent <= 30) {
+  if (batterPercent <= 30) {
     batteryColor = RGB_TO_565(255, 0, 0);
   }
 
   for (uint8_t y = 0; y < 7; y++) {
     uint16_t barColor = ILI9341_BLACK;
-    if ((6 - y) * 14 <= m_batterPercent) {
+    if ((6 - y) * 14 <= batterPercent) {
       barColor = batteryColor;
     }
 
@@ -125,17 +155,17 @@ void MainView::drawBattery(bool clearScreen) {
   m_tft->setCursor(0, 75);
 
   String strPercent = "";
-  if (m_batterPercent < 10) {
+  if (batterPercent < 10) {
     strPercent += " ";
   }
 
-  strPercent += m_batterPercent;
+  strPercent += batterPercent;
   strPercent += "%";
 
-  if (m_batterPercent < 100) {
+  if (batterPercent < 100) {
     strPercent += " ";
   }
-  
+
   m_tft->print(strPercent);
 }
 
@@ -146,11 +176,15 @@ void MainView::setWattage(uint16_t wattage) {
   }
 
   m_wattage = wattage;
-  drawWattage(true);  
+  drawWattage(true);
 }
 
 //! Draw wattage bar
 void MainView::drawWattage(bool clearScreen) {
+  if (!m_active) {
+    return;
+  }
+
   const uint8_t wattageBarHeight = 68;
   if (clearScreen) {
     m_tft->drawRect(211, 2, 29, wattageBarHeight + 2, ILI9341_WHITE);
@@ -168,7 +202,7 @@ void MainView::drawWattage(bool clearScreen) {
     h = (wattageBarHeight * (wattage / 10)) / 50;
   }
   uint8_t y = wattageBarHeight - h;
-  
+
   m_tft->fillRect(213, 3, 25, y, ILI9341_BLACK);
 
   uint16_t  barColor = ILI9341_WHITE;
@@ -181,7 +215,7 @@ void MainView::drawWattage(bool clearScreen) {
   if (wattage > 9999) {
     wattage = 9999;
   }
-  
+
   String strWattage = "";
   strWattage += m_wattage;
   strWattage += "W";
@@ -189,7 +223,7 @@ void MainView::drawWattage(bool clearScreen) {
   while (strWattage.length() < 5) {
     strWattage = " " + strWattage;
   }
-  
+
   m_tft->setCursor(180, 75);
   m_tft->print(strWattage);
 }
@@ -201,7 +235,7 @@ void MainView::setBluetooth(bool bluetooth) {
   }
 
   m_bluetooth = bluetooth;
-  drawBluetooth(true);  
+  drawBluetooth(true);
 }
 
 //! Brakes enabled
@@ -211,7 +245,7 @@ void MainView::setBrakes(bool brakes) {
   }
 
   m_brakes = brakes;
-  drawBrakes(true);  
+  drawBrakes(true);
 }
 
 //! Light on
@@ -221,7 +255,7 @@ void MainView::setLight(bool light) {
   }
 
   m_light = light;
-  drawLight(true);  
+  drawLight(true);
 }
 
 // Icon position
@@ -231,6 +265,10 @@ const uint16_t ICON_DISABLED_COLOR = RGB_TO_565(25, 25, 25);
 
 //! Draw Bluetooth Icon
 void MainView::drawBluetooth(bool clearScreen) {
+  if (!m_active) {
+    return;
+  }
+
   uint16_t ix = 20;
   uint16_t blX1 = ix;
   uint16_t blX2 = ix + 10;
@@ -255,6 +293,10 @@ void MainView::drawBluetooth(bool clearScreen) {
 
 //! Draw Brakes Icon
 void MainView::drawBrakes(bool clearScreen) {
+  if (!m_active) {
+    return;
+  }
+
   uint16_t ix = 60;
   uint8_t breakRadius = 20;
 
@@ -281,7 +323,7 @@ void MainView::drawBrakes(bool clearScreen) {
     uint8_t bx = ix + breakRadius + i + 7;
     uint8_t y1 = ICON_Y + 6;
     uint8_t y2 = ICON_Y + ICON_HEIGHT - 7 - 6;
-    
+
     m_tft->drawLine(bx, y1, bx, y2, iconColor);
     m_tft->drawLine(bx, y2 + 4, bx, y2 + 7, iconColor);
   }
@@ -289,6 +331,10 @@ void MainView::drawBrakes(bool clearScreen) {
 
 //! Draw Light Icon
 void MainView::drawLight(bool clearScreen) {
+  if (!m_active) {
+    return;
+  }
+
   uint16_t ix = 130;
   uint8_t lightRadius = 12;
 
@@ -366,7 +412,7 @@ void MainView::updateDisplay() {
 
 //! UP / DOWN Key
 void MainView::movePosition(int8_t diff) {
-  
+
 }
 
 //! Key (OK) pressed
@@ -379,7 +425,3 @@ ViewResult MainView::keyPressed() {
 
   return result;
 }
-
-
-
-

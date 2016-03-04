@@ -20,59 +20,53 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
 #include "DisplayController.h"
+#include "protocol.h"
 
 void setup() {
   Serial.begin(115200);
   Serial.println("Display init");
 
   displayControllerSetup();
+
+  displayControlerCommand2(DISP_CMD_BATTERY_MAX, 430);
+  displayControlerCommand2(DISP_CMD_BATTERY_MIN, 330);
 }
 
 void loop() {
   displayControllerLoop();
 
-  
-/*
-    if (g_state == 0) {
-      menuView->deactivate();
-      mainView->activate();
-    } else if (g_state == 1) {
-      mainView->deactivate();
-      menuView->activate();
-    }
-*/
 
+  // Simulation
+  uint16_t s = millis() / 1000;
+  static uint16_t lastSecond = 0;
 
-/*
-  if (g_state == 0) {
-    mainView->setBluetooth(true);
-    mainView->setBrakes(true);
-    mainView->setLight(true);
-  
-    mainView->setSpeed(125);
-    mainView->setBatteryPercent(100);
-    mainView->setWattage(500);
-    delay(2000);
-  
-    mainView->setBatteryPercent(39);
-    mainView->setWattage(900);
-    delay(2000);
-    
-    mainView->setBluetooth(false);
-    mainView->setBrakes(false);
-    mainView->setLight(false);
-  
-    mainView->setBatteryPercent(20);
-    mainView->setWattage(100);
-    delay(2000);
-  
-    mainView->setSpeed(253);
-    mainView->setBatteryPercent(5);
-    mainView->setWattage(5);
-    delay(2000);
-  } else if (g_state == 1) {
+  if (lastSecond == s) {
+    return;    
   }
-  */
+
+  lastSecond = s;
+
+  uint8_t v5 = s % 5;
+
+  if (v5 == 0) {
+    displayControlerCommand1(DISP_CMD_STATES, 0);
+  } else if (v5 == 1) {
+    displayControlerCommand1(DISP_CMD_STATES, DISP_BIT_STATE_BLUETOOTH);
+  } else if (v5 == 2) {
+    displayControlerCommand1(DISP_CMD_STATES, DISP_BIT_STATE_BRAKE);
+  } else if (v5 == 3) {
+    displayControlerCommand1(DISP_CMD_STATES, DISP_BIT_STATE_LIGHT);
+  } else if (v5 == 4) {
+    displayControlerCommand1(DISP_CMD_STATES, DISP_BIT_STATE_BLUETOOTH | DISP_BIT_STATE_BRAKE | DISP_BIT_STATE_LIGHT);
+  }
+  
+  displayControlerCommand2(DISP_CMD_BATTERY, s % 100 + 330);
+  Serial.print("v1 ");
+  Serial.println(s % 100 + 330);
+
+  displayControlerCommand2(DISP_CMD_SPEED, s % 200 + 5);
+
+  displayControlerCommand2(DISP_CMD_WATTAGE, s * 100 + 3);
 }
 
 

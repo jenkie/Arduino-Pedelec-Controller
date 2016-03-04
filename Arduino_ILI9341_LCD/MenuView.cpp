@@ -127,6 +127,10 @@ void MenuView::drawMenuItem(MenuItem* menuItem, uint8_t menuIndex, uint16_t y, b
 
 //! Draw the menu to the display
 void MenuView::drawMenu(bool clearScreen) {
+  if (!m_active) {
+    return;
+  }
+
   if (clearScreen) {
     // Clear full screen
     m_tft->fillRect(0, 0, 240, 30, RGB_TO_565(150, 150, 255));
@@ -177,10 +181,6 @@ void MenuView::drawMenu(bool clearScreen) {
 
 //! Update full display
 void MenuView::updateDisplay() {
-  if (!m_active) {
-    return;
-  }
-
   drawMenu(true);
 }
 

@@ -32,7 +32,7 @@ class MainView : public BaseView {
 public:
   //! Constructor
   MainView(Adafruit_ILI9341* tft);
-  
+
   //! Destructor
   virtual ~MainView();
 
@@ -50,8 +50,14 @@ public:
   //! Set the speed in 0.1 km/h and update display if needed
   void setSpeed(uint16_t kmh);
 
-  //! Battery percent, 0 ... 100
-  void setBatteryPercent(uint8_t batterPercent);
+  //! Voltage when fully charged
+  void setBatteryMaxVoltage(uint16_t voltage);
+
+  //! Voltage when dischaerged
+  void setBatteryMinVoltage(uint16_t voltage);
+
+  //! Current voltage
+  void setBatteryVoltage(uint16_t voltage);
 
   //! Battery percent, 0 ... n
   void setWattage(uint16_t wattage);
@@ -89,8 +95,14 @@ private:
   //! the speed in 0.1 km/h and update display if needed
   uint16_t m_speed;
 
-  //! Battery percent, 0 ... 100
-  uint8_t m_batterPercent;
+  //! Voltage when fully charged
+  uint16_t m_batteryMaxVoltage;
+
+  //! Voltage when dischaerged
+  uint16_t m_batteryMinVoltage;
+
+  //! Current voltage
+  uint16_t m_batteryVoltage;
 
   //! Current motor wattage
   uint16_t m_wattage;
@@ -104,4 +116,3 @@ private:
   //! Light on
   bool m_light;
 };
-

@@ -34,3 +34,10 @@ void displayControllerSetup();
 //! Call in the main loop
 void displayControllerLoop();
 
+//! Execute 1 byte command
+void displayControlerCommand1(uint8_t cmd, uint8_t value);
+
+//! Execute 2 byte command
+void displayControlerCommand2(uint8_t cmd, uint16_t value);
+
+

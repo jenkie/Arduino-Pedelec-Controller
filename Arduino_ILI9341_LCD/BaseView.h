@@ -35,22 +35,22 @@ class Adafruit_ILI9341;
 extern const uint16_t LINE_GRAY;
 
 //! The view is still alive, nothing to do
-#define VIEW_RESULT_NOTHING 0;
+#define VIEW_RESULT_NOTHING 0
 
 //! Menu exited with back
-#define VIEW_RESULT_BACK 1;
+#define VIEW_RESULT_BACK 1
 
 //! Show a menu, the menu root ID is in ViewResult.value
-#define VIEW_RESULT_MENU 2;
+#define VIEW_RESULT_MENU 2
 
 //! An entry was selected, selected ID is return in ViewResult.value
-#define VIEW_RESULT_SELECTED 3;
+#define VIEW_RESULT_SELECTED 3
 
 //! Checkbox toggled
-#define VIEW_RESULT_CHECKBOX_CHECKED 4;
+#define VIEW_RESULT_CHECKBOX_CHECKED 4
 
 //! Checkbox toggled
-#define VIEW_RESULT_CHECKBOX_UNCHECKED 5;
+#define VIEW_RESULT_CHECKBOX_UNCHECKED 5
 
 typedef struct {
   uint8_t result;

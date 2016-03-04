@@ -28,6 +28,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "MainView.h"
 #include "MenuView.h"
 
+#include "protocol.h"
+
 /**
  * Control the whole display Navigation and output
  */
@@ -64,8 +66,6 @@ BaseView* currentView;
 
 //! Key pressed flag
 volatile bool g_keyPressed = false;
-volatile bool g_ignoreNextKeyPress = false;
-
 
 //! Call once on startup
 void displayControllerSetup() {
@@ -94,29 +94,35 @@ void displayControllerSetup() {
   // This enables the interrupt for pin 1 and 2 of Port C.
   PCMSK1 |= (1 << PCINT9) | (1 << PCINT10);
 
-  // This enables the interrupt for pin 0 of Port C.
-  // A0 for KEY
-  PCMSK1 |= (1 << PCINT8);
+  // Run timer2 interrupt every 15 ms 
+  TCCR2A = 0;
+  TCCR2B = 1 << CS22 | 1 << CS21 | 1 << CS20;
+  
+  // Timer2 Overflow Interrupt Enable
+  TIMSK2 |= 1 << TOIE2;
 }
 
-// Pin Change Interrupt for Button and A1 and A2
+//! Timer 2 interrupt, for button debouncing
+SIGNAL(TIMER2_OVF_vect) {
+  static bool lastState = 1;
+  bool currentState = digitalRead(KEY);
+
+  if (currentState == lastState) {
+    return;
+  }
+
+  if (currentState == 0) {
+    g_keyPressed = true;
+  }
+
+  lastState = currentState;
+}
+
+// Pin Change Interrupt for Rotation encoder, A1 and A2
 ISR(PCINT1_vect) {
 
   // Handle rotary interrupts
   encoder.tick();
-
-  static unsigned long lastChangeTime = 0;
-  if (digitalRead(KEY) == 0) {
-    if((millis() - lastChangeTime) >= 30) {
-      lastChangeTime = millis();
-
-      if (g_ignoreNextKeyPress) {
-        g_ignoreNextKeyPress = false;
-      } else {
-        g_keyPressed = true;
-      }
-    }
-  }
 }
 
 //! Call in the main loop
@@ -130,12 +136,61 @@ void displayControllerLoop() {
 
   if (g_keyPressed) {
     g_keyPressed = false;
-
-    if (digitalRead(KEY) == 0) {
-      g_ignoreNextKeyPress = true;
-    }
+    ViewResult result = currentView->keyPressed();
     
-    menuView->keyPressed();
+    if (result.result == VIEW_RESULT_MENU) {
+      currentView->deactivate();
+      menuView->setRootMenuId(result.value);
+      currentView = menuView;
+      currentView->activate();
+    } else if (result.result == VIEW_RESULT_BACK) {
+      currentView->deactivate();
+      currentView = mainView;
+      currentView->activate();
+    } else if (result.result == VIEW_RESULT_SELECTED) {
+      Serial.print("Key: ");
+      Serial.println(result.value);
+      currentView->deactivate();
+      currentView = mainView;
+      currentView->activate();
+    } else if (result.result == VIEW_RESULT_CHECKBOX_CHECKED) {
+      //! Checkbox toggled
+    } else if (result.result == VIEW_RESULT_CHECKBOX_UNCHECKED) {
+      //! Checkbox toggled
+    }
+  }
+ 
+}
+
+//! Execute 1 byte command
+void displayControlerCommand1(uint8_t cmd, uint8_t value) {
+  switch (cmd) {
+    case DISP_CMD_STATES:
+      mainView->setBluetooth(value & DISP_BIT_STATE_BLUETOOTH ? true : false);
+      mainView->setBrakes(value & DISP_BIT_STATE_BRAKE ? true : false);
+      mainView->setLight(value & DISP_BIT_STATE_LIGHT ? true : false);
+      break;
+  }
+}
+
+//! Execute 2 byte command
+void displayControlerCommand2(uint8_t cmd, uint16_t value) {
+  switch (cmd) {
+    case DISP_CMD_BATTERY:
+      mainView->setBatteryVoltage(value);
+      break;
+    case DISP_CMD_BATTERY_MAX:
+      mainView->setBatteryMaxVoltage(value);
+      break;
+    case DISP_CMD_BATTERY_MIN:
+      mainView->setBatteryMinVoltage(value);
+      break;
+    case DISP_CMD_SPEED:
+      mainView->setSpeed(value);
+      break;
+    case DISP_CMD_WATTAGE:
+      mainView->setWattage(value);
+      break;
   }
 }
 
