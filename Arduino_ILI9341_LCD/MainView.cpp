@@ -59,7 +59,14 @@ void MainView::drawSpeed(bool clearScreen) {
   m_tft->setTextSize(4);
   m_tft->setCursor(45, speedY);
   String str = "";
-  str += (m_speed / 100) % 10;
+  uint8_t speed10 = (m_speed / 100) % 10;
+
+  if (speed10 == 0) {
+    str += " ";
+  } else {
+    str += speed10;
+  }
+
   str += (m_speed / 10) % 10;
   str += ".";
   str += m_speed % 10;
@@ -186,8 +193,11 @@ void MainView::drawWattage(bool clearScreen) {
   }
 
   const uint8_t wattageBarHeight = 68;
-  if (clearScreen) {
+  if (!clearScreen) {
     m_tft->drawRect(211, 2, 29, wattageBarHeight + 2, ILI9341_WHITE);
+    m_tft->setTextColor(ILI9341_WHITE);
+  } else {
+    m_tft->setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   }
 
   uint16_t wattage = m_wattage;

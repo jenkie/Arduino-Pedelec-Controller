@@ -66,7 +66,7 @@ void loop() {
 
   displayControlerCommand2(DISP_CMD_SPEED, s % 200 + 5);
 
-  displayControlerCommand2(DISP_CMD_WATTAGE, s * 100 + 3);
+  displayControlerCommand2(DISP_CMD_WATTAGE, s % 500 + 3);
 }
 
 
