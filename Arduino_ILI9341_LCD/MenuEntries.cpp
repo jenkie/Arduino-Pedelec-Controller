@@ -48,6 +48,12 @@ Root Menu
  │    ├── Poti -
  │    └── Zurück
  └── Zurück
+
+ Komponent
+  ├── Ersetzen
+  ├── Entfernen
+  └── Zurück
+
 */
 
 #define UE "\x81"
@@ -73,7 +79,7 @@ const char TXT_MENU_DEC_POTI[] PROGMEM = "Poti -";
 
 
 const char TXT_MENU_COMPONENT[] PROGMEM = "Komponent";
-const char TXT_MENU_COMPONENT_REPLACE[] PROGMEM = "Ersetzten";
+const char TXT_MENU_COMPONENT_REPLACE[] PROGMEM = "Ersetzen";
 const char TXT_MENU_COMPONENT_REMOVE[] PROGMEM = "Entfernen";
 
 const MenuItem PROGMEM Menu[] = {
