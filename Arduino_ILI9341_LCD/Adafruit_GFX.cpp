@@ -6,7 +6,7 @@ paired with a hardware-specific library for each display device we carry
 
 Adafruit invests time and resources providing this open source code, please
 support Adafruit & open-source hardware by purchasing products from Adafruit!
- 
+
 Copyright (c) 2013 Adafruit Industries.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -81,7 +81,7 @@ void Adafruit_GFX::drawCircle(int16_t x0, int16_t y0, int16_t r,
     x++;
     ddF_x += 2;
     f += ddF_x;
-  
+
     drawPixel(x0 + x, y0 + y, color);
     drawPixel(x0 - x, y0 + y, color);
     drawPixel(x0 + x, y0 - y, color);
@@ -113,7 +113,7 @@ void Adafruit_GFX::drawCircleHelper( int16_t x0, int16_t y0,
     if (cornername & 0x4) {
       drawPixel(x0 + x, y0 + y, color);
       drawPixel(x0 + y, y0 + x, color);
-    } 
+    }
     if (cornername & 0x2) {
       drawPixel(x0 + x, y0 - y, color);
       drawPixel(x0 + y, y0 - x, color);
@@ -379,7 +379,7 @@ void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
             uint16_t color, uint16_t bg) {
 
   int16_t i, j, byteWidth = (w + 7) / 8;
-  
+
   for(j=0; j<h; j++) {
     for(i=0; i<w; i++ ) {
       if(pgm_read_byte(bitmap + j * byteWidth + i / 8) & (128 >> (i & 7))) {
@@ -398,9 +398,9 @@ void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
 void Adafruit_GFX::drawXBitmap(int16_t x, int16_t y,
                               const uint8_t *bitmap, int16_t w, int16_t h,
                               uint16_t color) {
-  
+
   int16_t i, j, byteWidth = (w + 7) / 8;
-  
+
   for(j=0; j<h; j++) {
     for(i=0; i<w; i++ ) {
       if(pgm_read_byte(bitmap + j * byteWidth + i / 8) & (1 << (i % 8))) {
@@ -476,40 +476,37 @@ void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
   }
 
   if (size == 2) {
+    uint8_t index = 0xff;
     if (c >= '0' && c <= '9') {
-      drawChar(x, y, color, bg, fontHex2 + 18 * (c - '0'), 10, 14);
-      return;
+      index = 3 + (c - '0');
+    } else if (c >= 'A' && c <= 'Z') {
+      index = 13 + (c - 'A');
+    } else if (c >= 'a' && c <= 'z') {
+      index = 39 + (c - 'a');
+    } else if (c >= 'a' && c <= 'z') {
+      index = 39 + (c - 'a');
+    } else if (c == '%') {
+      index = 0;
+    } else if (c == '.') {
+      index = 1;
+    } else if (c == '/') {
+      index = 2;
+    } else if (c == 'Ä') {
+      index = 65;
+    } else if (c == 'Ö') {
+      index = 66;
+    } else if (c == 'Ü') {
+      index = 67;
+    } else if (c == 'ä') {
+      index = 68;
+    } else if (c == 'ö') {
+      index = 69;
+    } else if (c == 'ü') {
+      index = 70;
     }
-    if (c >= 'A' && c <= 'D') {
-      drawChar(x, y, color, bg, fontHex2 + 18 * (c - 'A' + 10), 10, 14);
-      return;
-    }
-    if (c == 'R') {
-      drawChar(x, y, color, bg, fontHex2 + 18 * 14, 10, 14);
-      return;
-    }
-    if (c == 'G') {
-      drawChar(x, y, color, bg, fontHex2 + 18 * 15, 10, 14);
-      return;
-    }
-    if (c == 'N') {
-      drawChar(x, y, color, bg, fontHex2 + 18 * 16, 10, 14);
-      return;
-    }
-    if (c == 'S') {
-      drawChar(x, y, color, bg, fontHex2 + 18 * 17, 10, 14);
-      return;
-    }
-    if (c == 'Y') {
-      drawChar(x, y, color, bg, fontHex2 + 18 * 18, 10, 14);
-      return;
-    }
-    if (c == '%') {
-      drawChar(x, y, color, bg, fontHex2 + 18 * 19, 10, 14);
-      return;
-    }
-    if (c == '/') {
-      drawChar(x, y, color, bg, fontHex2 + 18 * 20, 10, 14);
+
+    if (index != 0xff) {
+      drawChar(x, y, color, bg, fontHex2 + (18 * index), 10, 14);
       return;
     }
   }
@@ -518,9 +515,9 @@ void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
 
   for (int8_t i=0; i<6; i++ ) {
     uint8_t line;
-    if (i == 5) 
+    if (i == 5)
       line = 0x0;
-    else 
+    else
       line = pgm_read_byte(font+(c*5)+i);
     for (int8_t j = 0; j<8; j++) {
       if (line & 0x1) {
@@ -528,7 +525,7 @@ void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
           drawPixel(x+i, y+j, color);
         else {  // big size
           fillRect(x+(i*size), y+(j*size), size, size, color);
-        } 
+        }
       } else if (bg != color) {
         if (size == 1) { // default size
           drawPixel(x+i, y+j, bg);
@@ -559,14 +556,14 @@ void Adafruit_GFX::setTextSize(uint8_t s) {
 }
 
 void Adafruit_GFX::setTextColor(uint16_t c) {
-  // For 'transparent' background, we'll set the bg 
+  // For 'transparent' background, we'll set the bg
   // to the same as fg instead of using a flag
   textcolor = textbgcolor = c;
 }
 
 void Adafruit_GFX::setTextColor(uint16_t c, uint16_t b) {
   textcolor   = c;
-  textbgcolor = b; 
+  textbgcolor = b;
 }
 
 void Adafruit_GFX::setTextWrap(boolean w) {
@@ -608,7 +605,7 @@ void Adafruit_GFX::cp437(boolean x) {
 int16_t Adafruit_GFX::width(void) const {
   return _width;
 }
- 
+
 int16_t Adafruit_GFX::height(void) const {
   return _height;
 }
@@ -625,9 +622,9 @@ Adafruit_GFX_Button::Adafruit_GFX_Button(void) {
 }
 
 void Adafruit_GFX_Button::initButton(Adafruit_GFX *gfx,
-					  int16_t x, int16_t y, 
-					  uint8_t w, uint8_t h, 
-					  uint16_t outline, uint16_t fill, 
+					  int16_t x, int16_t y,
+					  uint8_t w, uint8_t h,
+					  uint16_t outline, uint16_t fill,
 					  uint16_t textcolor,
 					  char *label, uint8_t textsize)
 {
@@ -644,7 +641,7 @@ void Adafruit_GFX_Button::initButton(Adafruit_GFX *gfx,
   _label[9] = 0;
 }
 
- 
+
 
  void Adafruit_GFX_Button::drawButton(boolean inverted) {
    uint16_t fill, outline, text;
@@ -661,8 +658,8 @@ void Adafruit_GFX_Button::initButton(Adafruit_GFX *gfx,
 
    _gfx->fillRoundRect(_x - (_w/2), _y - (_h/2), _w, _h, min(_w,_h)/4, fill);
    _gfx->drawRoundRect(_x - (_w/2), _y - (_h/2), _w, _h, min(_w,_h)/4, outline);
-   
-   
+
+
    _gfx->setCursor(_x - strlen(_label)*3*_textsize, _y-4*_textsize);
    _gfx->setTextColor(text);
    _gfx->setTextSize(_textsize);
@@ -680,7 +677,7 @@ boolean Adafruit_GFX_Button::contains(int16_t x, int16_t y) {
    laststate = currstate;
    currstate = p;
  }
- 
+
  boolean Adafruit_GFX_Button::isPressed() { return currstate; }
  boolean Adafruit_GFX_Button::justPressed() { return (currstate && !laststate); }
  boolean Adafruit_GFX_Button::justReleased() { return (!currstate && laststate); }
