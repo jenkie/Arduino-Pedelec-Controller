@@ -19,36 +19,33 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
+#pragma once
+
+#include "BaseComponent.h"
+
 /**
- * Display a text with value on the display
+ * Display a diagram with a history of the value
  */
 
-#include "TextComponent.h"
+class DiagramComponent: public BaseComponent {
+  // Constructor / Destructor
+public:
+  //! Constructor
+  DiagramComponent();
 
+  //! Destructor
+  virtual ~DiagramComponent();
 
-//! Constructor
-TextComponent::TextComponent(String text)
-             : m_text(text)
-{
-}
+  // public API
+public:
+  //! Return the height in pixel
+  virtual uint8_t getHeight();
 
-//! Destructor
-TextComponent::~TextComponent() {
+  //! Draw the component to the display
+  virtual void draw();
 
-}
-
-//! Y Position on display
-uint8_t TextComponent::getHeight() {
-   return 18;
-}
-
-//! Draw the component to the display
-void TextComponent::draw() {
-   tft.setTextColor(ILI9341_WHITE);
-   tft.setCursor(0, m_y + 2);
-   tft.print(m_text.c_str());
-
-   tft.setTextColor(ILI9341_YELLOW);
-   tft.setCursor(240 - 5*12, m_y + 2);
-   tft.print("75.50");
-}
+  // Member
+private:
+  //! Diagram data (the display is 240px wide / 2px)
+  uint8_t m_data[120];
+};

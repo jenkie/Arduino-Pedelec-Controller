@@ -96,8 +96,8 @@ void MainViewEdit::drawSelection() {
     return;
   }
 
-  tft.drawRect(0, component->getY(), 240, component->getHeight() + 2, ILI9341_MAGENTA);
-  tft.drawRect(1, component->getY() - 1, 238, component->getHeight(), ILI9341_MAGENTA);
+  tft.drawRect(0, component->getY(), 240, component->getHeight() + 1, ILI9341_MAGENTA);
+  tft.drawRect(1, component->getY() - 1, 238, component->getHeight() + 1, ILI9341_MAGENTA);
 }
 
 //! Update full display

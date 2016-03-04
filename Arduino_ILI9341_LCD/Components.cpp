@@ -25,16 +25,22 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #include "Components.h"
 #include "TextComponent.h"
-
+#include "DiagramComponent.h"
 
 //! Constructor
 Components::Components()
           : m_components({0})
 {
   for (uint8_t i = 0; i < COMPONENT_COUNT; i++) {
-    String txt = "Eintrag ";
-    txt += i;
-    m_components[i] = new TextComponent(txt);
+
+    if (i == 3) {
+      m_components[i] = new DiagramComponent();
+    } else {
+      String txt = "Eintrag ";
+      txt += i;
+      m_components[i] = new TextComponent(txt);
+    }
+
   }
 
   updatePositionAndRemoveInvisible();
