@@ -41,6 +41,8 @@ POSSIBILITY OF SUCH DAMAGE.
  #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
 #endif
 
+#include "defines.h"
+
 #ifndef min
  #define min(a,b) ((a < b) ? a : b)
 #endif
@@ -491,17 +493,17 @@ void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
       index = 1;
     } else if (c == '/') {
       index = 2;
-    } else if (c == 'Ä') {
+    } else if (c == 0x83) { // AE
       index = 65;
-    } else if (c == 'Ö') {
+    } else if (c == 0x99) { // OE
       index = 66;
-    } else if (c == 'Ü') {
+    } else if (c == 0x81) { // UE
       index = 67;
-    } else if (c == 'ä') {
+    } else if (c == 0x84) { // ae
       index = 68;
-    } else if (c == 'ö') {
+    } else if (c == 0x94) { // oe
       index = 69;
-    } else if (c == 'ü') {
+    } else if (c == 0xa3) { // ue
       index = 70;
     }
 

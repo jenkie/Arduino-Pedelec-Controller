@@ -20,6 +20,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
 #include "MenuEntries.h"
+#include "defines.h"
 
 #include <avr/pgmspace.h>
 
@@ -29,11 +30,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 /*
 Root Menu
- ├── Ausschalten
  ├── Anzeige
+ │   ├── Anpassen
  │   ├── Reset Wh
  │   ├── Reset KM
- │   ├── Anpassen
  │   └── Zurück
  ├── Licht an/aus
  ├── BT an/aus
@@ -47,6 +47,7 @@ Root Menu
  │    ├── Poti +
  │    ├── Poti -
  │    └── Zurück
+ ├── Ausschalten
  └── Zurück
 
  Komponent
@@ -56,18 +57,15 @@ Root Menu
 
 */
 
-#define UE "\x81"
-
 const char TXT_MENU_ROOT[] PROGMEM = "Men" UE;
-const char TXT_MENU_TURN_OFF[] PROGMEM = "Ausschalten";
 const char TXT_MENU_VIEW[] PROGMEM = "Anzeige";
+const char TXT_MENU_VIEW_EDIT[] PROGMEM = "Customize View";
 const char TXT_MENU_RESET_WH[] PROGMEM = "Reset Wh";
 const char TXT_MENU_RESET_KM[] PROGMEM = "Reset KM";
-const char TXT_MENU_VIEW_EDIT[] PROGMEM = "Anpassen";
 const char TXT_MENU_BACK[] PROGMEM = "Zur" UE "ck";
 const char TXT_MENU_LIGHT[] PROGMEM = "Licht an/aus";
-const char TXT_MENU_BLUETOOTH[] PROGMEM = "Bluetooth";
-const char TXT_MENU_PROFIL[] PROGMEM = "Profil 1<>2";
+const char TXT_MENU_BLUETOOTH[] PROGMEM = "Bluetooth an/aus";
+const char TXT_MENU_PROFIL[] PROGMEM = "Profil 1/2";
 const char TXT_MENU_EMERGENCY[] PROGMEM = "Nothilfe";
 const char TXT_MENU_EM_BRAKE[] PROGMEM = "Ign. Bremse";
 const char TXT_MENU_EM_PEDAL[] PROGMEM = "Ign. Treten";
@@ -76,6 +74,7 @@ const char TXT_MENU_EM_SPEEDCTRL[] PROGMEM = "Ign. Gasgr.";
 const char TXT_MENU_EM_POTI[] PROGMEM = "Ign. Poti";
 const char TXT_MENU_ADD_POTI[] PROGMEM = "Poti +";
 const char TXT_MENU_DEC_POTI[] PROGMEM = "Poti -";
+const char TXT_MENU_TURN_OFF[] PROGMEM = "Ausschalten";
 
 
 const char TXT_MENU_COMPONENT[] PROGMEM = "Komponent";
@@ -85,11 +84,10 @@ const char TXT_MENU_COMPONENT_REMOVE[] PROGMEM = "Entfernen";
 const MenuItem PROGMEM Menu[] = {
   // Root menu
   {.id = MENU_ID_ROOT,            .parentId = MENU_ID_NONE, .text = TXT_MENU_ROOT, .flags = MENU_WITH_SUBMENU},
-  {.id = MENU_ID_TURN_OFF,        .parentId = MENU_ID_ROOT, .text = TXT_MENU_TURN_OFF, .flags = MENU_DEFAULT},
   {.id = MENU_ID_VIEW,            .parentId = MENU_ID_ROOT, .text = TXT_MENU_VIEW, .flags = MENU_WITH_SUBMENU},
+  {.id = MENU_ID_VIEW_EDIT,       .parentId = MENU_ID_VIEW, .text = TXT_MENU_VIEW_EDIT, .flags = MENU_DEFAULT},
   {.id = MENU_ID_RESET_WH,        .parentId = MENU_ID_VIEW, .text = TXT_MENU_RESET_WH, .flags = MENU_DEFAULT},
   {.id = MENU_ID_RESET_KM,        .parentId = MENU_ID_VIEW, .text = TXT_MENU_RESET_KM, .flags = MENU_DEFAULT},
-  {.id = MENU_ID_VIEW_EDIT,       .parentId = MENU_ID_VIEW, .text = TXT_MENU_VIEW_EDIT, .flags = MENU_DEFAULT},
   {.id = MENU_ID_BACK_VIEW,       .parentId = MENU_ID_VIEW, .text = TXT_MENU_BACK, .flags = MENU_BACK},
   {.id = MENU_ID_LIGHT_CB,        .parentId = MENU_ID_ROOT, .text = TXT_MENU_LIGHT, .flags = MENU_CHECKBOX},
   {.id = MENU_ID_BLUETOOTH_CB,    .parentId = MENU_ID_ROOT, .text = TXT_MENU_BLUETOOTH, .flags = MENU_CHECKBOX},
@@ -102,6 +100,7 @@ const MenuItem PROGMEM Menu[] = {
   {.id = MENU_ID_ADD_POTI_CB,     .parentId = MENU_ID_EMERGENCY, .text = TXT_MENU_ADD_POTI, .flags = MENU_CHECKBOX},
   {.id = MENU_ID_DEC_POTI_CB,     .parentId = MENU_ID_EMERGENCY, .text = TXT_MENU_DEC_POTI, .flags = MENU_CHECKBOX},
   {.id = MENU_ID_BACK_EMERGENCY,  .parentId = MENU_ID_EMERGENCY, .text = TXT_MENU_BACK, .flags = MENU_BACK},
+  {.id = MENU_ID_TURN_OFF,        .parentId = MENU_ID_ROOT, .text = TXT_MENU_TURN_OFF, .flags = MENU_DEFAULT},
   {.id = MENU_ID_BACK_MAIN,       .parentId = MENU_ID_ROOT, .text = TXT_MENU_BACK, .flags = MENU_BACK},
 
   // Component menu
