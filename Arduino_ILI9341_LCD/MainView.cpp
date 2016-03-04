@@ -23,18 +23,21 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 
+#include "TextComponent.h"
+#include "Components.h"
+
 /**
  * Main view
  */
 
 //! Constructor
-MainView::MainView(Adafruit_ILI9341* tft)
-        : BaseView(tft),
-          m_speed(0),
+MainView::MainView(Components* components)
+        : m_speed(0),
           m_batteryMinVoltage(0),
           m_batteryMaxVoltage(50),
           m_batteryVoltage(25),
-          m_wattage(0)
+          m_wattage(0),
+          m_components(components)
 {
 }
 
@@ -51,13 +54,13 @@ void MainView::drawSpeed(bool clearScreen) {
   const uint8_t speedY = 25;
 
   if (clearScreen) {
-    m_tft->setTextColor(ILI9341_WHITE, ILI9341_BLACK);
+    tft.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   } else {
-    m_tft->setTextColor(ILI9341_WHITE);
+    tft.setTextColor(ILI9341_WHITE);
   }
 
-  m_tft->setTextSize(4);
-  m_tft->setCursor(45, speedY);
+  tft.setTextSize(4);
+  tft.setCursor(45, speedY);
   String str = "";
   uint8_t speed10 = (m_speed / 100) % 10;
 
@@ -70,18 +73,18 @@ void MainView::drawSpeed(bool clearScreen) {
   str += (m_speed / 10) % 10;
   str += ".";
   str += m_speed % 10;
-  m_tft->print(str);
+  tft.print(str);
 
-  m_tft->setTextColor(ILI9341_WHITE);
-  m_tft->setTextSize(2);
+  tft.setTextColor(ILI9341_WHITE);
+  tft.setTextSize(2);
 
   if (!clearScreen) {
-    m_tft->setCursor(160, speedY - 5);
-    m_tft->print("km");
-    m_tft->setCursor(167, speedY + 17);
-    m_tft->print("h");
-    m_tft->drawLine(155, speedY + 12, 185, speedY + 12, ILI9341_WHITE);
-    m_tft->drawLine(155, speedY + 13, 185, speedY + 13, ILI9341_WHITE);
+    tft.setCursor(160, speedY - 5);
+    tft.print("km");
+    tft.setCursor(167, speedY + 17);
+    tft.print("h");
+    tft.drawLine(155, speedY + 12, 185, speedY + 12, ILI9341_WHITE);
+    tft.drawLine(155, speedY + 13, 185, speedY + 13, ILI9341_WHITE);
   }
 }
 
@@ -130,11 +133,11 @@ void MainView::drawBattery(bool clearScreen) {
   }
 
   if (!clearScreen) {
-    m_tft->drawRect(0, 9, 29, 7*9, ILI9341_WHITE);
-    m_tft->fillRect(10, 0, 9, 9, ILI9341_WHITE);
-    m_tft->setTextColor(ILI9341_WHITE);
+    tft.drawRect(0, 9, 29, 7*9, ILI9341_WHITE);
+    tft.fillRect(10, 0, 9, 9, ILI9341_WHITE);
+    tft.setTextColor(ILI9341_WHITE);
   } else {
-    m_tft->setTextColor(ILI9341_WHITE, ILI9341_BLACK);
+    tft.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   }
 
   uint16_t batteryColor = RGB_TO_565(0, 255, 0);
@@ -154,12 +157,12 @@ void MainView::drawBattery(bool clearScreen) {
       barColor = batteryColor;
     }
 
-    m_tft->fillRect(2, y * 9 + 10, 25, 7, barColor);
+    tft.fillRect(2, y * 9 + 10, 25, 7, barColor);
   }
 
-  m_tft->setTextSize(2);
+  tft.setTextSize(2);
 
-  m_tft->setCursor(0, 75);
+  tft.setCursor(0, 75);
 
   String strPercent = "";
   if (batterPercent < 10) {
@@ -173,7 +176,7 @@ void MainView::drawBattery(bool clearScreen) {
     strPercent += " ";
   }
 
-  m_tft->print(strPercent);
+  tft.print(strPercent);
 }
 
 //! Battery percent, 0 ... n
@@ -194,10 +197,10 @@ void MainView::drawWattage(bool clearScreen) {
 
   const uint8_t wattageBarHeight = 68;
   if (!clearScreen) {
-    m_tft->drawRect(211, 2, 29, wattageBarHeight + 2, ILI9341_WHITE);
-    m_tft->setTextColor(ILI9341_WHITE);
+    tft.drawRect(211, 2, 29, wattageBarHeight + 2, ILI9341_WHITE);
+    tft.setTextColor(ILI9341_WHITE);
   } else {
-    m_tft->setTextColor(ILI9341_WHITE, ILI9341_BLACK);
+    tft.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   }
 
   uint16_t wattage = m_wattage;
@@ -213,13 +216,13 @@ void MainView::drawWattage(bool clearScreen) {
   }
   uint8_t y = wattageBarHeight - h;
 
-  m_tft->fillRect(213, 3, 25, y, ILI9341_BLACK);
+  tft.fillRect(213, 3, 25, y, ILI9341_BLACK);
 
   uint16_t  barColor = ILI9341_WHITE;
   if (m_wattage > 500) {
     barColor = ILI9341_RED;
   }
-  m_tft->fillRect(213, 3 + y, 25, h, barColor);
+  tft.fillRect(213, 3 + y, 25, h, barColor);
 
   wattage = m_wattage;
   if (wattage > 9999) {
@@ -234,8 +237,8 @@ void MainView::drawWattage(bool clearScreen) {
     strWattage = " " + strWattage;
   }
 
-  m_tft->setCursor(180, 75);
-  m_tft->print(strWattage);
+  tft.setCursor(180, 75);
+  tft.print(strWattage);
 }
 
 //! Bluetooth enabled
@@ -291,13 +294,13 @@ void MainView::drawBluetooth(bool clearScreen) {
     iconColor = ICON_DISABLED_COLOR;
   }
 
-  m_tft->drawLine(blX2, ICON_Y, blX2, ICON_Y + ICON_HEIGHT, iconColor);
+  tft.drawLine(blX2, ICON_Y, blX2, ICON_Y + ICON_HEIGHT, iconColor);
 
-  m_tft->drawLine(blX2, ICON_Y, blX3, ICON_Y + ICON_HEIGHT/4, iconColor);
-  m_tft->drawLine(blX3, ICON_Y + ICON_HEIGHT - ICON_HEIGHT/4, blX1, ICON_Y + 10, iconColor);
+  tft.drawLine(blX2, ICON_Y, blX3, ICON_Y + ICON_HEIGHT/4, iconColor);
+  tft.drawLine(blX3, ICON_Y + ICON_HEIGHT - ICON_HEIGHT/4, blX1, ICON_Y + 10, iconColor);
 
-  m_tft->drawLine(blX2, ICON_Y + ICON_HEIGHT, blX3, ICON_Y + ICON_HEIGHT - ICON_HEIGHT/4, iconColor);
-  m_tft->drawLine(blX3, ICON_Y + ICON_HEIGHT/4, blX1, ICON_Y + ICON_HEIGHT - 10, iconColor);
+  tft.drawLine(blX2, ICON_Y + ICON_HEIGHT, blX3, ICON_Y + ICON_HEIGHT - ICON_HEIGHT/4, iconColor);
+  tft.drawLine(blX3, ICON_Y + ICON_HEIGHT/4, blX1, ICON_Y + ICON_HEIGHT - 10, iconColor);
 
 }
 
@@ -317,16 +320,16 @@ void MainView::drawBrakes(bool clearScreen) {
     iconColor = ICON_DISABLED_COLOR;
   }
 
-  m_tft->drawCircle(ix + breakRadius, ICON_Y + breakRadius, breakRadius, iconColor);
-  m_tft->drawCircle(ix + breakRadius, ICON_Y + breakRadius, breakRadius-1, iconColor);
+  tft.drawCircle(ix + breakRadius, ICON_Y + breakRadius, breakRadius, iconColor);
+  tft.drawCircle(ix + breakRadius, ICON_Y + breakRadius, breakRadius-1, iconColor);
 
-  m_tft->drawCircle(ix + breakRadius+14, ICON_Y + breakRadius, breakRadius, iconColor);
-  m_tft->drawCircle(ix + breakRadius+14, ICON_Y + breakRadius, breakRadius-1, iconColor);
+  tft.drawCircle(ix + breakRadius+14, ICON_Y + breakRadius, breakRadius, iconColor);
+  tft.drawCircle(ix + breakRadius+14, ICON_Y + breakRadius, breakRadius-1, iconColor);
 
-  m_tft->fillRect(ix + 7, ICON_Y, breakRadius + breakRadius, breakRadius + breakRadius + 2, ILI9341_BLACK);
+  tft.fillRect(ix + 7, ICON_Y, breakRadius + breakRadius, breakRadius + breakRadius + 2, ILI9341_BLACK);
 
-  m_tft->drawCircle(ix + breakRadius + 7, ICON_Y + breakRadius, breakRadius, iconColor);
-  m_tft->drawCircle(ix + breakRadius + 7, ICON_Y + breakRadius, breakRadius-1, iconColor);
+  tft.drawCircle(ix + breakRadius + 7, ICON_Y + breakRadius, breakRadius, iconColor);
+  tft.drawCircle(ix + breakRadius + 7, ICON_Y + breakRadius, breakRadius-1, iconColor);
 
 
   for (int8_t i = -1; i < 2; i++) {
@@ -334,8 +337,8 @@ void MainView::drawBrakes(bool clearScreen) {
     uint8_t y1 = ICON_Y + 6;
     uint8_t y2 = ICON_Y + ICON_HEIGHT - 7 - 6;
 
-    m_tft->drawLine(bx, y1, bx, y2, iconColor);
-    m_tft->drawLine(bx, y2 + 4, bx, y2 + 7, iconColor);
+    tft.drawLine(bx, y1, bx, y2, iconColor);
+    tft.drawLine(bx, y2 + 4, bx, y2 + 7, iconColor);
   }
 }
 
@@ -355,10 +358,10 @@ void MainView::drawLight(bool clearScreen) {
     iconColor = ICON_DISABLED_COLOR;
   }
 
-  m_tft->fillCircle(ix + lightRadius, ICON_Y + lightRadius, lightRadius, iconColor);
-  m_tft->fillRect(ix + lightRadius - 4, ICON_Y + lightRadius*2, 9, 8, iconColor);
+  tft.fillCircle(ix + lightRadius, ICON_Y + lightRadius, lightRadius, iconColor);
+  tft.fillRect(ix + lightRadius - 4, ICON_Y + lightRadius*2, 9, 8, iconColor);
 
-  m_tft->fillRect(ix + lightRadius - 2, ICON_Y + lightRadius*2+10, 5, 2, iconColor);
+  tft.fillRect(ix + lightRadius - 2, ICON_Y + lightRadius*2+10, 5, 2, iconColor);
 }
 
 
@@ -369,58 +372,62 @@ void MainView::updateDisplay() {
   }
 
   // Clear full screen
-  m_tft->fillRect(0, 0, 240, 320, ILI9341_BLACK);
+  tft.fillRect(0, 0, 240, 320, ILI9341_BLACK);
 
   drawSpeed(false);
 
   // Gesamt KM
-  m_tft->setTextColor(ILI9341_WHITE);
-  m_tft->setTextSize(2);
-  m_tft->setCursor(60, 75);
-  m_tft->print("12345 km");
+  tft.setTextColor(ILI9341_WHITE);
+  tft.setTextSize(2);
+  tft.setCursor(60, 75);
+  tft.print("12345 km");
 
   drawBattery(false);
   drawWattage(false);
 
   // Icons
-  m_tft->drawLine(0, 95, 240, 95, LINE_GRAY);
+  tft.drawLine(0, 95, 240, 95, LINE_GRAY);
   drawBluetooth(false);
   drawBrakes(false);
   drawLight(false);
-  m_tft->drawLine(0, 95 + 50, 240, 95 + 50, LINE_GRAY);
+  tft.drawLine(0, 95 + 50, 240, 95 + 50, LINE_GRAY);
+
+  m_components->draw();
 
 
 
+/*
 
 
 
-  m_tft->setTextColor(ILI9341_WHITE);
-  m_tft->setTextSize(2);
+  tft.setTextColor(ILI9341_WHITE);
+  tft.setTextSize(2);
 
   uint16_t textY = 240;
-  m_tft->drawLine(0, textY-5, 240, textY-5, LINE_GRAY);
+  tft.drawLine(0, textY-5, 240, textY-5, LINE_GRAY);
 
-  m_tft->setCursor(0, textY);
-  m_tft->print("Reichweite");
+
+  tft.setCursor(0, textY);
+  tft.print("Reichweite");
 
   // Zeichenbreite: 12px
-  m_tft->setCursor(168, textY);
-  m_tft->print("41.5km");
+  tft.setCursor(168, textY);
+  tft.print("41.5km");
 
-  m_tft->setCursor(0, textY + 17+7);
-  m_tft->print("Gefahren");
+  tft.setCursor(0, textY + 17+7);
+  tft.print("Gefahren");
 
-  m_tft->setCursor(168, textY + 17+7);
-  m_tft->print(" 1.2km");
+  tft.setCursor(168, textY + 17+7);
+  tft.print(" 1.2km");
 
-  m_tft->setCursor(168, textY + 34+7);
-  m_tft->print("0:12h");
+  tft.setCursor(168, textY + 34+7);
+  tft.print("0:12h");
 
-  m_tft->setCursor(0, textY + 51+14);
-  m_tft->print("Verbraucht");
+  tft.setCursor(0, textY + 51+14);
+  tft.print("Verbraucht");
 
-  m_tft->setCursor(168, textY + 51+14);
-  m_tft->print(" 240Wh");
+  tft.setCursor(168, textY + 51+14);
+  tft.print(" 240Wh");*/
 
 }
 

@@ -19,43 +19,33 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
-#pragma once
-
-#include "Arduino.h"
-#include "Print.h"
-#include "Adafruit_GFX.h"
-#include "Adafruit_ILI9341.h"
-
 /**
- * Base class for customizeable components
+ * Display a text with value on the display
  */
 
-// Don't use a member, use this extern declared reference
-// Not a nice coding practice, but saves about 300 Bytes of Flash
-extern Adafruit_ILI9341 tft;
+#include "TextComponent.h"
 
-class BaseComponent {
-  // Constructor / Destructor
-public:
-  //! Constructor
-  BaseComponent();
 
-  //! Destructor
-  virtual ~BaseComponent();
+//! Constructor
+TextComponent::TextComponent() {
 
-  // public API
-public:
-  //! Return the height in pixel
-  virtual uint8_t getHeight() = 0;
+}
 
-  //! Draw the component to the display
-  virtual void draw() = 0;
+//! Destructor
+TextComponent::~TextComponent() {
 
-  //! Y Position on display
-  void setY(uint16_t y);
+}
 
-  // Member
-protected:
-  //! Y Position on display
-  uint16_t m_y;
-};
+//! Y Position on display
+uint8_t TextComponent::getHeight() {
+   return 18;
+}
+
+//! Draw the component to the display
+void TextComponent::draw() {
+   tft.drawRect(0, m_y, 240, getHeight(), ILI9341_MAGENTA);
+
+   tft.setTextColor(ILI9341_YELLOW);
+   tft.setCursor(0, m_y + 2);
+   tft.print("ASDF");
+}

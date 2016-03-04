@@ -32,8 +32,8 @@ class MenuView : public BaseView {
   // Constructor / Destructor
 public:
   //! Constructor
-  MenuView(Adafruit_ILI9341* tft);
-  
+  MenuView();
+
   //! Destructor
   virtual ~MenuView();
 
@@ -66,10 +66,10 @@ private:
 
   //! Mark a checkbox as selected
   void selectCheckbox(uint8_t index);
-  
+
   //! Mark a checkbox as not selected
   void unselectCheckbox(uint8_t index);
-  
+
   // Member
 private:
   //! Root menu index
@@ -93,4 +93,3 @@ private:
   //! Selected checkboxes indexes, 0 is an empty field
   uint8_t m_selectedCheckboxes[30];
 };
-

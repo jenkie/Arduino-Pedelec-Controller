@@ -21,41 +21,33 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #pragma once
 
-#include "Arduino.h"
-#include "Print.h"
-#include "Adafruit_GFX.h"
-#include "Adafruit_ILI9341.h"
+#include "BaseComponent.h"
 
 /**
- * Base class for customizeable components
+ * List with the customized components
  */
 
-// Don't use a member, use this extern declared reference
-// Not a nice coding practice, but saves about 300 Bytes of Flash
-extern Adafruit_ILI9341 tft;
+//! Max. 10 Components on the screen (should be enough, there isn't more space)
+#define COMPONENT_COUNT 10
 
-class BaseComponent {
+class BaseComponent;
+
+class Components {
   // Constructor / Destructor
 public:
   //! Constructor
-  BaseComponent();
+  Components();
 
   //! Destructor
-  virtual ~BaseComponent();
+  virtual ~Components();
 
   // public API
 public:
-  //! Return the height in pixel
-  virtual uint8_t getHeight() = 0;
-
-  //! Draw the component to the display
-  virtual void draw() = 0;
-
-  //! Y Position on display
-  void setY(uint16_t y);
+   //! Draw all components
+   void draw();
 
   // Member
-protected:
-  //! Y Position on display
-  uint16_t m_y;
+private:
+  //! List with the components
+  BaseComponent* m_components[COMPONENT_COUNT];
 };

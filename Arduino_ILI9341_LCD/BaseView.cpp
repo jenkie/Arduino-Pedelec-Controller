@@ -28,9 +28,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 const uint16_t LINE_GRAY = RGB_TO_565(150, 150, 150);
 
 //! Constructor
-BaseView::BaseView(Adafruit_ILI9341* tft)
-        : m_tft(tft),
-          m_active(false)
+BaseView::BaseView()
+        : m_active(false)
 {
 }
   

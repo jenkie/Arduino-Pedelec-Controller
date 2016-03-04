@@ -19,43 +19,34 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
-#pragma once
-
-#include "Arduino.h"
-#include "Print.h"
-#include "Adafruit_GFX.h"
-#include "Adafruit_ILI9341.h"
-
 /**
- * Base class for customizeable components
+ * List with the customized components
  */
 
-// Don't use a member, use this extern declared reference
-// Not a nice coding practice, but saves about 300 Bytes of Flash
-extern Adafruit_ILI9341 tft;
+#include "Components.h"
+#include "TextComponent.h"
 
-class BaseComponent {
-  // Constructor / Destructor
-public:
-  //! Constructor
-  BaseComponent();
 
-  //! Destructor
-  virtual ~BaseComponent();
+//! Constructor
+Components::Components()
+          : m_components({0})
+{
+  uint16_t y = 150;
+  for (uint8_t i = 0; i < COMPONENT_COUNT; i++) {
+     m_components[i] = new TextComponent();
+     m_components[i]->setY(y);
+     y += m_components[i]->getHeight();
+  }
+}
 
-  // public API
-public:
-  //! Return the height in pixel
-  virtual uint8_t getHeight() = 0;
+//! Destructor
+Components::~Components() {
 
-  //! Draw the component to the display
-  virtual void draw() = 0;
+}
 
-  //! Y Position on display
-  void setY(uint16_t y);
-
-  // Member
-protected:
-  //! Y Position on display
-  uint16_t m_y;
-};
+//! Draw all components
+void Components::draw() {
+  for (uint8_t i = 0; i < COMPONENT_COUNT; i++) {
+    m_components[i]->draw();
+  }
+}

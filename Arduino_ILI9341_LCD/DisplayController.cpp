@@ -30,6 +30,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #include "protocol.h"
 
+#include "Components.h"
+
 /**
  * Control the whole display Navigation and output
  */
@@ -64,6 +66,9 @@ MenuView* menuView;
 //! Current active view
 BaseView* currentView;
 
+//! Customizeable components on the main screen
+Components components;
+
 //! Key pressed flag
 volatile bool g_keyPressed = false;
 
@@ -71,8 +76,8 @@ volatile bool g_keyPressed = false;
 void displayControllerSetup() {
   tft.begin();
 
-  mainView = new MainView(&tft);
-  menuView = new MenuView(&tft);
+  mainView = new MainView(&components);
+  menuView = new MenuView();
 
   currentView = mainView;
   currentView->activate();
@@ -94,10 +99,10 @@ void displayControllerSetup() {
   // This enables the interrupt for pin 1 and 2 of Port C.
   PCMSK1 |= (1 << PCINT9) | (1 << PCINT10);
 
-  // Run timer2 interrupt every 15 ms 
+  // Run timer2 interrupt every 15 ms
   TCCR2A = 0;
   TCCR2B = 1 << CS22 | 1 << CS21 | 1 << CS20;
-  
+
   // Timer2 Overflow Interrupt Enable
   TIMSK2 |= 1 << TOIE2;
 }
@@ -137,7 +142,7 @@ void displayControllerLoop() {
   if (g_keyPressed) {
     g_keyPressed = false;
     ViewResult result = currentView->keyPressed();
-    
+
     if (result.result == VIEW_RESULT_MENU) {
       currentView->deactivate();
       menuView->setRootMenuId(result.value);
@@ -159,7 +164,7 @@ void displayControllerLoop() {
       //! Checkbox toggled
     }
   }
- 
+
 }
 
 //! Execute 1 byte command
@@ -193,5 +198,3 @@ void displayControlerCommand2(uint8_t cmd, uint16_t value) {
       break;
   }
 }
-
- 

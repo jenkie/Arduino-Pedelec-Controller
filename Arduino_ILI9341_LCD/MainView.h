@@ -27,11 +27,13 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * Main view
  */
 
+class Components;
+
 class MainView : public BaseView {
   // Constructor / Destructor
 public:
   //! Constructor
-  MainView(Adafruit_ILI9341* tft);
+  MainView(Components* components);
 
   //! Destructor
   virtual ~MainView();
@@ -115,4 +117,7 @@ private:
 
   //! Light on
   bool m_light;
+
+  //! Customizeable components on the screen
+  Components* m_components;
 };

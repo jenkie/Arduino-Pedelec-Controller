@@ -26,9 +26,19 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "BaseComponent.h"
 
 //! Constructor
-BaseComponent::BaseComponent() {
+BaseComponent::BaseComponent()
+             : m_y(0)
+{
 }
 
 //! Destructor
 BaseComponent::~BaseComponent() {
 }
+
+//! Y Position on display
+void BaseComponent::setY(uint16_t y) {
+  m_y = y;
+}
+
+
+
