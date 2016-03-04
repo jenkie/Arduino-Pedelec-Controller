@@ -390,6 +390,10 @@ void MainView::updateDisplay() {
   m_tft->drawLine(0, 95 + 50, 240, 95 + 50, LINE_GRAY);
 
 
+
+
+
+
   m_tft->setTextColor(ILI9341_WHITE);
   m_tft->setTextSize(2);
 
