@@ -50,10 +50,43 @@ Root Menu
  ├── Ausschalten
  └── Zurück
 
- Komponent
-  ├── Ersetzen
-  ├── Entfernen
-  └── Zurück
+Komponent
+ ├── Ersetzen
+ ├── Entfernen
+ └── Zurück
+
+ //print battery percent left
+ lcd.drawVerticalBar((word)(100), (word)(constrain((voltage_display-vcutoff)/(vmax-vcutoff)*100,0,100)), (word)(battery_percent_fromcapacity), 11, 4);
+
+
+Komponent wählen
+ ├── Sensoren
+ │    ├── Temperatur 1      // sensors.getTempCByIndex(0) / temperature
+ │    └── Temperatur 2      // sensors.getTempCByIndex(1)
+ ├── Höhe
+ │    ├── Start             // altitude_start
+ │    ├── Altitude          // altitude
+ │    └── Steigung          // slope
+ ├── Leistung
+ │    ├── Leistung Motor    // wh
+ │    ├── Stromverbrauch    // current_display
+ │    ├── Akku Spannung     // voltage_display
+ │    ├── Aktuelle Leistung // power
+ │    ├── Leistung Mensch   // wh_human
+ │    ├── Trittfrequenz     // CAD: cad
+ │    └── Reichweite        // range
+ ├── Unterstützung          // lcd.drawVerticalBar((word)(max(curr_power_max,curr_power_poti_max)), (word)(max(power_set,0)), (word)(power), 11, 4);
+ ├── Uhr                    // now.hh / now.mm
+ ├── Fahrzeit               // printTime(millis() / 1000UL);  //millis can be used, because they roll over only after 50 days
+ ├── Tages km               // km
+ ├── Aktives Profil         // current_profile
+ ├── Puls
+ │    ├── Puls              // pulse_human
+ │    ├── Puls min          // pulse_min
+ │    └── Puls Bereich      // pulse_range
+ └── Zurück
+
+// TODO Pulse icon
 
 */
 
@@ -80,6 +113,9 @@ const char TXT_MENU_TURN_OFF[] PROGMEM = "Ausschalten";
 const char TXT_MENU_COMPONENT[] PROGMEM = "Komponent";
 const char TXT_MENU_COMPONENT_REPLACE[] PROGMEM = "Ersetzen";
 const char TXT_MENU_COMPONENT_REMOVE[] PROGMEM = "Entfernen";
+
+const char TXT_MENU_COMPONENT_SELECTION[] PROGMEM = "Komponent w" ae "hlen";
+
 
 const MenuItem PROGMEM Menu[] = {
   // Root menu
@@ -109,6 +145,28 @@ const MenuItem PROGMEM Menu[] = {
   {.id = MENU_ID_COMPONENT_REMOVE,  .parentId = MENU_ID_COMPONENT, .text = TXT_MENU_COMPONENT_REMOVE, .flags = MENU_DEFAULT},
   {.id = MENU_ID_COMPONENT_BACK,    .parentId = MENU_ID_COMPONENT, .text = TXT_MENU_BACK, .flags = MENU_BACK},
 
+  // Component selection menu
+  /*
+  {.id = MENU_ID_COMPONENT_SELECTION, .parentId = MENU_ID_NONE, .text = TXT_MENU_COMPONENT_SELECTION, .flags = MENU_WITH_SUBMENU},
+  {.id = XXXXXXXXXXXXXXXXXXXXXXXXXxx, .parentId = MENU_ID_COMPONENT_SELECTION, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+  {.id = XXXXXXXXXXXXXXXXXXXXXXXXXxx, .parentId = MENU_ID_COMPONENT_SELECTION, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+  {.id = XXXXXXXXXXXXXXXXXXXXXXXXXxx, .parentId = MENU_ID_COMPONENT_SELECTION, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+  {.id = XXXXXXXXXXXXXXXXXXXXXXXXXxx, .parentId = MENU_ID_COMPONENT_SELECTION, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+  {.id = XXXXXXXXXXXXXXXXXXXXXXXXXxx, .parentId = MENU_ID_COMPONENT_SELECTION, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+  {.id = XXXXXXXXXXXXXXXXXXXXXXXXXxx, .parentId = MENU_ID_COMPONENT_SELECTION, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+  {.id = XXXXXXXXXXXXXXXXXXXXXXXXXxx, .parentId = MENU_ID_COMPONENT_SELECTION, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+  {.id = XXXXXXXXXXXXXXXXXXXXXXXXXxx, .parentId = MENU_ID_COMPONENT_SELECTION, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+  {.id = XXXXXXXXXXXXXXXXXXXXXXXXXxx, .parentId = MENU_ID_COMPONENT_SELECTION, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+  {.id = XXXXXXXXXXXXXXXXXXXXXXXXXxx, .parentId = MENU_ID_COMPONENT_SELECTION, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+  {.id = XXXXXXXXXXXXXXXXXXXXXXXXXxx, .parentId = MENU_ID_COMPONENT_SELECTION, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+  {.id = XXXXXXXXXXXXXXXXXXXXXXXXXxx, .parentId = MENU_ID_COMPONENT_SELECTION, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+  {.id = XXXXXXXXXXXXXXXXXXXXXXXXXxx, .parentId = MENU_ID_COMPONENT_SELECTION, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+  {.id = XXXXXXXXXXXXXXXXXXXXXXXXXxx, .parentId = MENU_ID_COMPONENT_SELECTION, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+  {.id = XXXXXXXXXXXXXXXXXXXXXXXXXxx, .parentId = MENU_ID_COMPONENT_SELECTION, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+  {.id = XXXXXXXXXXXXXXXXXXXXXXXXXxx, .parentId = MENU_ID_COMPONENT_SELECTION, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+  {.id = XXXXXXXXXXXXXXXXXXXXXXXXXxx, .parentId = MENU_ID_COMPONENT_SELECTION, .text = TXT_MENU_COMPONENT_REPLACE, .flags = MENU_DEFAULT},
+
+*/
 };
 
 uint8_t Menu_Count = sizeof(Menu) / sizeof(MenuItem);

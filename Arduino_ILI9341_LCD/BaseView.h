@@ -26,13 +26,16 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 
+#include "DataModel.h"
+
 /**
  * Base class for a display view
  */
 
 // Don't use a member, use this extern declared reference
-// Not a nice coding practice, but saves about 300 Bytes of Flash
+// Not a nice coding practice, but saves about 300 Bytes of Flash (only for TFT!)
 extern Adafruit_ILI9341 tft;
+extern DataModel model;
 
 #define RGB_TO_565(r, g, b) ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3)
 extern const uint16_t LINE_GRAY;

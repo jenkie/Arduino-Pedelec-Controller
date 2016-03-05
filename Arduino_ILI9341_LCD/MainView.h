@@ -29,7 +29,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 class Components;
 
-class MainView : public BaseView {
+class MainView : public BaseView, public DataListener {
   // Constructor / Destructor
 public:
   //! Constructor
@@ -64,14 +64,13 @@ public:
   //! Battery percent, 0 ... n
   void setWattage(uint16_t wattage);
 
-  //! Bluetooth enabled
-  void setBluetooth(bool bluetooth);
+    // DataListener
+public:
+  //! Icon changed
+  virtual void onIconUpdate(uint8_t iconId);
 
-  //! Brakes enabled
-  void setBrakes(bool brakes);
-
-  //! Light on
-  void setLight(bool light);
+  //! a value was changed
+  virtual void onValueChanged(uint8_t valueId);
 
 private:
   //! Draw speed
@@ -108,15 +107,6 @@ protected:
 
   //! Current motor wattage
   uint16_t m_wattage;
-
-  //! Bluetooth enabled
-  bool m_bluetooth;
-
-  //! Brakes enabled
-  bool m_brakes;
-
-  //! Light on
-  bool m_light;
 
   //! Customizeable components on the screen
   Components* m_components;

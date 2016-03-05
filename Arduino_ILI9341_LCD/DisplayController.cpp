@@ -48,6 +48,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 // Use Hardware SPI
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
 
+// Model with all data
+DataModel model;
 
 #define KEY A0
 
@@ -183,9 +185,26 @@ void displayControllerLoop() {
 void displayControlerCommand1(uint8_t cmd, uint8_t value) {
   switch (cmd) {
     case DISP_CMD_STATES:
-      mainView->setBluetooth(value & DISP_BIT_STATE_BLUETOOTH ? true : false);
-      mainView->setBrakes(value & DISP_BIT_STATE_BRAKE ? true : false);
-      mainView->setLight(value & DISP_BIT_STATE_LIGHT ? true : false);
+      if(value & DISP_BIT_STATE_BLUETOOTH) {
+        model.showIcon(ICON_ID_BLUETOOTH);
+      } else {
+        model.clearIcon(ICON_ID_BLUETOOTH);
+      }
+
+      if(value & DISP_BIT_STATE_BRAKE) {
+        model.showIcon(ICON_ID_BRAKE);
+      } else {
+        model.clearIcon(ICON_ID_BRAKE);
+      }
+
+      if(value & DISP_BIT_STATE_LIGHT) {
+        model.showIcon(ICON_ID_LIGHT);
+      } else {
+        model.clearIcon(ICON_ID_LIGHT);
+      }
+//  ICON_ID_HEART     = (1 << 3)
+
+    
       break;
   }
 }

@@ -70,6 +70,11 @@ enum {
    MENU_ID_COMPONENT_REPLACE,
    MENU_ID_COMPONENT_REMOVE,
    MENU_ID_COMPONENT_BACK,
+
+   // -------------
+
+   MENU_ID_COMPONENT_SELECTION = 60,
+   
 };
 
 extern const MenuItem PROGMEM Menu[];

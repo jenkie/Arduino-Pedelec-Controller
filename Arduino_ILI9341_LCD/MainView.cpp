@@ -39,6 +39,7 @@ MainView::MainView(Components* components)
           m_wattage(0),
           m_components(components)
 {
+  model.addListener(this);
 }
 
 //! Destructor
@@ -241,36 +242,6 @@ void MainView::drawWattage(bool clearScreen) {
   tft.print(strWattage);
 }
 
-//! Bluetooth enabled
-void MainView::setBluetooth(bool bluetooth) {
-  if (m_bluetooth == bluetooth) {
-    return;
-  }
-
-  m_bluetooth = bluetooth;
-  drawBluetooth(true);
-}
-
-//! Brakes enabled
-void MainView::setBrakes(bool brakes) {
-  if (m_brakes == brakes) {
-    return;
-  }
-
-  m_brakes = brakes;
-  drawBrakes(true);
-}
-
-//! Light on
-void MainView::setLight(bool light) {
-  if (m_light == light) {
-    return;
-  }
-
-  m_light = light;
-  drawLight(true);
-}
-
 // Icon position
 const uint16_t ICON_Y = 100;
 const uint16_t ICON_HEIGHT = 40;
@@ -288,7 +259,7 @@ void MainView::drawBluetooth(bool clearScreen) {
   uint16_t blX3 = ix + 20;
 
   uint16_t iconColor;
-  if (m_bluetooth) {
+  if (model.getIcon() & ICON_ID_BLUETOOTH) {
     iconColor = ILI9341_BLUE;
   } else {
     iconColor = ICON_DISABLED_COLOR;
@@ -314,7 +285,7 @@ void MainView::drawBrakes(bool clearScreen) {
   uint8_t breakRadius = 20;
 
   uint16_t iconColor;
-  if (m_brakes) {
+  if (model.getIcon() & ICON_ID_BRAKE) {
     iconColor = ILI9341_RED;
   } else {
     iconColor = ICON_DISABLED_COLOR;
@@ -352,7 +323,7 @@ void MainView::drawLight(bool clearScreen) {
   uint8_t lightRadius = 12;
 
   uint16_t iconColor;
-  if (m_light) {
+  if (model.getIcon() & ICON_ID_LIGHT) {
     iconColor = ILI9341_YELLOW;
   } else {
     iconColor = ICON_DISABLED_COLOR;
@@ -393,42 +364,6 @@ void MainView::updateDisplay() {
   tft.drawLine(0, 95 + 50, 240, 95 + 50, LINE_GRAY);
 
   m_components->draw();
-
-
-
-/*
-
-
-
-  tft.setTextColor(ILI9341_WHITE);
-  tft.setTextSize(2);
-
-  uint16_t textY = 240;
-  tft.drawLine(0, textY-5, 240, textY-5, LINE_GRAY);
-
-
-  tft.setCursor(0, textY);
-  tft.print("Reichweite");
-
-  // Zeichenbreite: 12px
-  tft.setCursor(168, textY);
-  tft.print("41.5km");
-
-  tft.setCursor(0, textY + 17+7);
-  tft.print("Gefahren");
-
-  tft.setCursor(168, textY + 17+7);
-  tft.print(" 1.2km");
-
-  tft.setCursor(168, textY + 34+7);
-  tft.print("0:12h");
-
-  tft.setCursor(0, textY + 51+14);
-  tft.print("Verbraucht");
-
-  tft.setCursor(168, textY + 51+14);
-  tft.print(" 240Wh");*/
-
 }
 
 //! UP / DOWN Key
@@ -445,4 +380,22 @@ ViewResult MainView::keyPressed() {
   result.value = 1;
 
   return result;
+}
+
+//! Icon changed
+void MainView::onIconUpdate(uint8_t iconId) {
+  if (iconId & ICON_ID_BLUETOOTH) {
+    drawBluetooth(true);
+  }
+  if (iconId & ICON_ID_BRAKE) {
+    drawBrakes(true);
+  }
+  if (iconId & ICON_ID_LIGHT) {
+    drawLight(true);
+  }
+}
+
+//! a value was changed
+void MainView::onValueChanged(uint8_t valueId) {
+
 }
