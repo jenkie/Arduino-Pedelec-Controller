@@ -30,7 +30,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 //! Constructor
 DataModel::DataModel()
          : m_iconState(0),
-           m_listener({0})
+           m_listener({0}),
+           m_values({0})
 {
 }
 
@@ -52,6 +53,18 @@ void DataModel::showIcon(uint8_t icon) {
   fireIconUpdate(diff);
 }
 
+//! Set the value
+void DataModel::setValue(uint8_t valueId, uint16_t value) {
+  m_values[valueId] = value;
+
+  fireValueUpdate(valueId);
+}
+
+//! Get a value
+uint16_t DataModel::getValue(uint8_t valueId) {
+  return m_values[valueId];
+}
+
 //! Bitmask with icon state
 uint8_t DataModel::getIcon() {
   return m_iconState;
@@ -67,11 +80,20 @@ void DataModel::addListener(DataListener* listener) {
   }
 }
 
-//! fire an icon state change for each change
+//! fire an icon state change
 void DataModel::fireIconUpdate(uint8_t iconId) {
   for (uint8_t i = 0; i < sizeof(m_listener) / sizeof(DataListener*); i++) {
     if (m_listener[i] != NULL) {
       m_listener[i]->onIconUpdate(iconId);
+    }
+  }
+}
+
+//! fire a value changed
+void DataModel::fireValueUpdate(uint8_t valueId) {
+  for (uint8_t i = 0; i < sizeof(m_listener) / sizeof(DataListener*); i++) {
+    if (m_listener[i] != NULL) {
+      m_listener[i]->onValueChanged(valueId);
     }
   }
 }

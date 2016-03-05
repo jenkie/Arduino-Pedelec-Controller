@@ -49,18 +49,6 @@ public:
   //! Key (OK) pressed
   virtual ViewResult keyPressed();
 
-  //! Set the speed in 0.1 km/h and update display if needed
-  void setSpeed(uint16_t kmh);
-
-  //! Voltage when fully charged
-  void setBatteryMaxVoltage(uint16_t voltage);
-
-  //! Voltage when dischaerged
-  void setBatteryMinVoltage(uint16_t voltage);
-
-  //! Current voltage
-  void setBatteryVoltage(uint16_t voltage);
-
   //! Battery percent, 0 ... n
   void setWattage(uint16_t wattage);
 
@@ -93,18 +81,6 @@ private:
 
   // Member
 protected:
-  //! the speed in 0.1 km/h and update display if needed
-  uint16_t m_speed;
-
-  //! Voltage when fully charged
-  uint16_t m_batteryMaxVoltage;
-
-  //! Voltage when dischaerged
-  uint16_t m_batteryMinVoltage;
-
-  //! Current voltage
-  uint16_t m_batteryVoltage;
-
   //! Current motor wattage
   uint16_t m_wattage;
 

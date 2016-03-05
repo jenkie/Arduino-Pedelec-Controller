@@ -33,7 +33,19 @@ enum IconId {
 };
 
 enum ValueId {
-  VALUE_ID_0
+  //! the speed in 0.1 km/h and update display if needed
+  VALUE_ID_SPEED = 0,
+
+  //! Voltage when fully charged
+  VALUE_ID_BATTERY_VOLTAGE_MAX,
+
+  //! Voltage when dischaerged
+  VALUE_ID_BATTERY_VOLTAGE_MIN,
+
+  //! Current voltage
+  VALUE_ID_BATTERY_VOLTAGE_CURRENT,
+
+  VALUE_COUNT
 };
 
 class DataListener {
@@ -42,7 +54,7 @@ public:
   virtual void onIconUpdate(uint8_t iconId) = 0;
 
   //! a value was changed
-  virtual void onValueChanged(uint8_t valueId) {};
+  virtual void onValueChanged(uint8_t valueId) = 0;
 
 };
 
@@ -63,13 +75,22 @@ public:
   //! Bitmask with icon state
   uint8_t getIcon();
 
+  //! Set the value
+  void setValue(uint8_t valueId, uint16_t value);
+
+  //! Get a value
+  uint16_t getValue(uint8_t valueId);
+
 public:
   //! Add a listener to get informed about changes
   void addListener(DataListener* listener);
 
 private:
-  //! fire an icon state change for each change
+  //! fire an icon state change
   void fireIconUpdate(uint8_t iconId);
+
+  //! fire a value changed
+  void fireValueUpdate(uint8_t valueId);
 
   // Member
 private:
@@ -78,4 +99,7 @@ private:
 
   //! Listener list
   DataListener* m_listener[4];
+
+  //! Values
+  uint16_t m_values[VALUE_COUNT];
 };

@@ -32,11 +32,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 //! Constructor
 MainView::MainView(Components* components)
-        : m_speed(0),
-          m_batteryMinVoltage(0),
-          m_batteryMaxVoltage(50),
-          m_batteryVoltage(25),
-          m_wattage(0),
+        : m_wattage(0),
           m_components(components)
 {
   model.addListener(this);
@@ -60,10 +56,12 @@ void MainView::drawSpeed(bool clearScreen) {
     tft.setTextColor(ILI9341_WHITE);
   }
 
+  uint16_t speed = model.getValue(VALUE_ID_SPEED);
+
   tft.setTextSize(4);
   tft.setCursor(45, speedY);
   String str = "";
-  uint8_t speed10 = (m_speed / 100) % 10;
+  uint8_t speed10 = (speed / 100) % 10;
 
   if (speed10 == 0) {
     str += " ";
@@ -71,9 +69,9 @@ void MainView::drawSpeed(bool clearScreen) {
     str += speed10;
   }
 
-  str += (m_speed / 10) % 10;
+  str += (speed / 10) % 10;
   str += ".";
-  str += m_speed % 10;
+  str += speed % 10;
   tft.print(str);
 
   tft.setTextColor(ILI9341_WHITE);
@@ -87,44 +85,6 @@ void MainView::drawSpeed(bool clearScreen) {
     tft.drawLine(155, speedY + 12, 185, speedY + 12, ILI9341_WHITE);
     tft.drawLine(155, speedY + 13, 185, speedY + 13, ILI9341_WHITE);
   }
-}
-
-//! Set the speed in 0.1 km/h and update display if needed
-void MainView::setSpeed(uint16_t kmh) {
-  if (m_speed == kmh) {
-    return;
-  }
-
-  m_speed = kmh;
-  drawSpeed(true);
-}
-
-//! Voltage when fully charged
-void MainView::setBatteryMaxVoltage(uint16_t voltage) {
-  if (m_batteryMaxVoltage == voltage) {
-    return;
-  }
-
-  m_batteryMaxVoltage = voltage;
-}
-
-//! Voltage when dischaerged
-void MainView::setBatteryMinVoltage(uint16_t voltage) {
-  if (m_batteryMinVoltage == voltage) {
-    return;
-  }
-
-  m_batteryMinVoltage = voltage;
-}
-
-//! Current voltage
-void MainView::setBatteryVoltage(uint16_t voltage) {
-  if (m_batteryVoltage == voltage) {
-    return;
-  }
-
-  m_batteryVoltage = voltage;
-  drawBattery(true);
 }
 
 //! Draw battery
@@ -143,7 +103,11 @@ void MainView::drawBattery(bool clearScreen) {
 
   uint16_t batteryColor = RGB_TO_565(0, 255, 0);
 
-  uint8_t batterPercent = (m_batteryVoltage - m_batteryMinVoltage) * 100 / (m_batteryMaxVoltage - m_batteryMinVoltage);
+  uint16_t batteryVoltage = model.getValue(VALUE_ID_BATTERY_VOLTAGE_CURRENT);
+  uint16_t batteryMaxVoltage = model.getValue(VALUE_ID_BATTERY_VOLTAGE_MAX);
+  uint16_t batteryMinVoltage = model.getValue(VALUE_ID_BATTERY_VOLTAGE_MIN);
+
+  uint8_t batterPercent = (batteryVoltage - batteryMinVoltage) * 100 / (batteryMaxVoltage - batteryMinVoltage);
 
   if (batterPercent <= 40) {
     batteryColor = ILI9341_YELLOW;
@@ -397,5 +361,15 @@ void MainView::onIconUpdate(uint8_t iconId) {
 
 //! a value was changed
 void MainView::onValueChanged(uint8_t valueId) {
-
+  switch (valueId) {
+    case VALUE_ID_SPEED:
+      drawSpeed(true);
+      break;
+    case VALUE_ID_BATTERY_VOLTAGE_CURRENT:
+      drawBattery(true);
+      break;
+  }
 }
+
+
+

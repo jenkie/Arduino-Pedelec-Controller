@@ -213,16 +213,16 @@ void displayControlerCommand1(uint8_t cmd, uint8_t value) {
 void displayControlerCommand2(uint8_t cmd, uint16_t value) {
   switch (cmd) {
     case DISP_CMD_BATTERY:
-      mainView->setBatteryVoltage(value);
+      model.setValue(VALUE_ID_BATTERY_VOLTAGE_CURRENT, value);
       break;
     case DISP_CMD_BATTERY_MAX:
-      mainView->setBatteryMaxVoltage(value);
+      model.setValue(VALUE_ID_BATTERY_VOLTAGE_MAX, value);
       break;
     case DISP_CMD_BATTERY_MIN:
-      mainView->setBatteryMinVoltage(value);
+      model.setValue(VALUE_ID_BATTERY_VOLTAGE_MIN, value);
       break;
     case DISP_CMD_SPEED:
-      mainView->setSpeed(value);
+      model.setValue(VALUE_ID_SPEED, value);
       break;
     case DISP_CMD_WATTAGE:
       mainView->setWattage(value);
