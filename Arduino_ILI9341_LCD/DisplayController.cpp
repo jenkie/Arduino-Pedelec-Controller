@@ -60,20 +60,20 @@ DataModel model;
 // Setup a RoraryEncoder for pins A2 and A3:
 RotaryEncoder encoder(KNOB0, KNOB1);
 
+//! Customizeable components on the main screen
+Components components;
+
 //! Main view with speed etc.
-MainView* mainView;
+MainView mainView(&components);
 
 //! Edit custmizeable part of the main view
-MainViewEdit* mainViewEdit;
+MainViewEdit mainViewEdit(&components);
 
 //! Menu view to show a menu
-MenuView* menuView;
+MenuView menuView;
 
 //! Current active view
 BaseView* currentView;
-
-//! Customizeable components on the main screen
-Components components;
 
 //! Key pressed flag
 volatile bool g_keyPressed = false;
@@ -82,11 +82,7 @@ volatile bool g_keyPressed = false;
 void displayControllerSetup() {
   tft.begin();
 
-  mainView = new MainView(&components);
-  menuView = new MenuView();
-  mainViewEdit = new MainViewEdit(&components);
-
-  currentView = mainView;
+  currentView = &mainView;
   currentView->activate();
 
   // Button
@@ -152,23 +148,23 @@ void displayControllerLoop() {
 
     if (result.result == VIEW_RESULT_MENU) {
       currentView->deactivate();
-      menuView->setRootMenuId(result.value);
-      currentView = menuView;
+      menuView.setRootMenuId(result.value);
+      currentView = &menuView;
       currentView->activate();
     } else if (result.result == VIEW_RESULT_BACK) {
       currentView->deactivate();
-      currentView = mainView;
+      currentView = &mainView;
       currentView->activate();
     } else if (result.result == VIEW_RESULT_SELECTED) {
       currentView->deactivate();
 
       if (MENU_ID_VIEW_EDIT == result.value) {
-        currentView = mainViewEdit;
+        currentView = &mainViewEdit;
       } else if (MENU_ID_COMPONENT_REMOVE == result.value) {
-        mainViewEdit->removeSelected();
-        currentView = mainViewEdit;
+        mainViewEdit.removeSelected();
+        currentView = &mainViewEdit;
       } else {
-        currentView = mainView;
+        currentView = &mainView;
       }
 
       currentView->activate();
@@ -204,7 +200,7 @@ void displayControlerCommand1(uint8_t cmd, uint8_t value) {
       }
 //  ICON_ID_HEART     = (1 << 3)
 
-    
+
       break;
   }
 }
@@ -225,7 +221,7 @@ void displayControlerCommand2(uint8_t cmd, uint16_t value) {
       model.setValue(VALUE_ID_SPEED, value);
       break;
     case DISP_CMD_WATTAGE:
-      mainView->setWattage(value);
+      mainView.setWattage(value);
       break;
   }
 }

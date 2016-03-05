@@ -96,6 +96,7 @@ void MainView::drawSpeed(bool clearScreen) {
     tft.print("km");
     tft.setCursor(167, speedY + 17);
     tft.print("h");
+
     tft.drawLine(155, speedY + 12, 185, speedY + 12, ILI9341_WHITE);
     tft.drawLine(155, speedY + 13, 185, speedY + 13, ILI9341_WHITE);
   }
@@ -115,14 +116,13 @@ void MainView::drawBattery(bool clearScreen) {
     tft.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   }
 
-  uint16_t batteryColor = RGB_TO_565(0, 255, 0);
-
   uint16_t batteryVoltage = model.getValue(VALUE_ID_BATTERY_VOLTAGE_CURRENT);
   uint16_t batteryMaxVoltage = model.getValue(VALUE_ID_BATTERY_VOLTAGE_MAX);
   uint16_t batteryMinVoltage = model.getValue(VALUE_ID_BATTERY_VOLTAGE_MIN);
 
   uint8_t batterPercent = (batteryVoltage - batteryMinVoltage) * 100 / (batteryMaxVoltage - batteryMinVoltage);
 
+  uint16_t batteryColor = RGB_TO_565(0, 255, 0);
   if (batterPercent <= 40) {
     batteryColor = ILI9341_YELLOW;
   }
@@ -240,14 +240,6 @@ void MainView::updateDisplay() {
   drawBattery(false);
   drawWattage(false);
 
-/*
-  // Icons
-  tft.drawLine(0, 95, 240, 95, LINE_GRAY);
-  drawBluetooth(false);
-  drawBrakes(false);
-  drawLight(false);
-  tft.drawLine(0, 95 + 50, 240, 95 + 50, LINE_GRAY);
-*/
   m_components->draw();
 }
 
@@ -265,10 +257,6 @@ ViewResult MainView::keyPressed() {
   result.value = 1;
 
   return result;
-}
-
-//! Icon changed
-void MainView::onIconUpdate(uint8_t iconId) {
 }
 
 //! a value was changed

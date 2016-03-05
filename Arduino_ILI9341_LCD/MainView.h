@@ -60,9 +60,6 @@ public:
 
     // DataListener
 public:
-  //! Icon changed
-  virtual void onIconUpdate(uint8_t iconId);
-
   //! a value was changed
   virtual void onValueChanged(uint8_t valueId);
 
