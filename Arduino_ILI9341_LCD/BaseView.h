@@ -37,7 +37,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 extern Adafruit_ILI9341 tft;
 extern DataModel model;
 
-#define RGB_TO_565(r, g, b) ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3)
 extern const uint16_t LINE_GRAY;
 
 //! The view is still alive, nothing to do
@@ -75,10 +74,10 @@ public:
   // public API
 public:
   //! This view is now enabled and displayed
-  void activate();
+  virtual void activate();
 
   //! This view is now disabled and not displayed
-  void deactivate();
+  virtual void deactivate();
 
   //! Update full display
   virtual void updateDisplay() = 0;

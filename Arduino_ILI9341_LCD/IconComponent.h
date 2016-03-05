@@ -19,16 +19,46 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
+#pragma once
+
+#include "BaseComponent.h"
+
 /**
- * Defines, e.g. for Umlauts
+ * Display a text with value on the display
  */
 
-#define UE "\x81"
-#define OE "\x99"
-#define AE "\x83"
+class IconComponent: public BaseComponent, public DataListener {
+  // Constructor / Destructor
+public:
+  //! Constructor
+  IconComponent();
 
-#define ae "\x84"
-#define oe "\x94"
-#define ue "\xa3"
+  //! Destructor
+  virtual ~IconComponent();
 
-#define RGB_TO_565(r, g, b) ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3)
+  // public API
+public:
+  //! Return the height in pixel
+  virtual uint8_t getHeight();
+
+  //! Draw the component to the display
+  virtual void draw();
+
+private:
+  //! Draw Bluetooth Icon
+  void drawBluetooth(bool clearScreen);
+
+  //! Draw Brakes Icon
+  void drawBrakes(bool clearScreen);
+
+  //! Draw Light Icon
+  void drawLight(bool clearScreen);
+
+//! DataListener
+public:
+  //! Icon changed
+  virtual void onIconUpdate(uint8_t iconId);
+
+  // Member
+private:
+};

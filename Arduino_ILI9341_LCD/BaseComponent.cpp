@@ -44,3 +44,8 @@ void BaseComponent::setY(uint16_t y) {
 uint16_t BaseComponent::getY() {
   return m_y;
 }
+
+//! If this component is active drawed on update
+void BaseComponent::setActive(bool active) {
+  m_active = active;
+}

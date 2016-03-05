@@ -28,7 +28,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  */
 
 //! Max. 10 Components on the screen (should be enough, there isn't more space)
-#define COMPONENT_COUNT 10
+#define COMPONENT_COUNT 20
 
 class BaseComponent;
 
@@ -52,10 +52,13 @@ public:
    //! remove the element at index, but does not delete it
    void remove(uint8_t index);
 
+   //! Activate / Deactivate children
+   void deActivateChilren(bool enabled);
+
  private:
    //! Update the Y position of all elements, and remove invisible elements from the list
    void updatePositionAndRemoveInvisible();
-   
+
   // Member
 private:
   //! List with the components

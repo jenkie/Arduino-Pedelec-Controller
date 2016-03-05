@@ -20,6 +20,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
 #include "BaseView.h"
+#include "defines.h"
 
 /**
  * Base class for a display view

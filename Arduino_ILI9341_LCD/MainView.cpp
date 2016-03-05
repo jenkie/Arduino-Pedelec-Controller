@@ -25,6 +25,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #include "TextComponent.h"
 #include "Components.h"
+#include "defines.h"
 
 /**
  * Main view
@@ -40,6 +41,19 @@ MainView::MainView(Components* components)
 
 //! Destructor
 MainView::~MainView() {
+  // never deleted...
+}
+
+//! This view is now enabled and displayed
+void MainView::activate() {
+  BaseView::activate();
+  m_components->deActivateChilren(m_active);
+}
+
+//! This view is now disabled and not displayed
+void MainView::deactivate() {
+  BaseView::deactivate();
+  m_components->deActivateChilren(m_active);
 }
 
 //! Draw speed
@@ -206,100 +220,6 @@ void MainView::drawWattage(bool clearScreen) {
   tft.print(strWattage);
 }
 
-// Icon position
-const uint16_t ICON_Y = 100;
-const uint16_t ICON_HEIGHT = 40;
-const uint16_t ICON_DISABLED_COLOR = RGB_TO_565(25, 25, 25);
-
-//! Draw Bluetooth Icon
-void MainView::drawBluetooth(bool clearScreen) {
-  if (!m_active) {
-    return;
-  }
-
-  uint16_t ix = 20;
-  uint16_t blX1 = ix;
-  uint16_t blX2 = ix + 10;
-  uint16_t blX3 = ix + 20;
-
-  uint16_t iconColor;
-  if (model.getIcon() & ICON_ID_BLUETOOTH) {
-    iconColor = ILI9341_BLUE;
-  } else {
-    iconColor = ICON_DISABLED_COLOR;
-  }
-
-  tft.drawLine(blX2, ICON_Y, blX2, ICON_Y + ICON_HEIGHT, iconColor);
-
-  tft.drawLine(blX2, ICON_Y, blX3, ICON_Y + ICON_HEIGHT/4, iconColor);
-  tft.drawLine(blX3, ICON_Y + ICON_HEIGHT - ICON_HEIGHT/4, blX1, ICON_Y + 10, iconColor);
-
-  tft.drawLine(blX2, ICON_Y + ICON_HEIGHT, blX3, ICON_Y + ICON_HEIGHT - ICON_HEIGHT/4, iconColor);
-  tft.drawLine(blX3, ICON_Y + ICON_HEIGHT/4, blX1, ICON_Y + ICON_HEIGHT - 10, iconColor);
-
-}
-
-//! Draw Brakes Icon
-void MainView::drawBrakes(bool clearScreen) {
-  if (!m_active) {
-    return;
-  }
-
-  uint16_t ix = 60;
-  uint8_t breakRadius = 20;
-
-  uint16_t iconColor;
-  if (model.getIcon() & ICON_ID_BRAKE) {
-    iconColor = ILI9341_RED;
-  } else {
-    iconColor = ICON_DISABLED_COLOR;
-  }
-
-  tft.drawCircle(ix + breakRadius, ICON_Y + breakRadius, breakRadius, iconColor);
-  tft.drawCircle(ix + breakRadius, ICON_Y + breakRadius, breakRadius-1, iconColor);
-
-  tft.drawCircle(ix + breakRadius+14, ICON_Y + breakRadius, breakRadius, iconColor);
-  tft.drawCircle(ix + breakRadius+14, ICON_Y + breakRadius, breakRadius-1, iconColor);
-
-  tft.fillRect(ix + 7, ICON_Y, breakRadius + breakRadius, breakRadius + breakRadius + 2, ILI9341_BLACK);
-
-  tft.drawCircle(ix + breakRadius + 7, ICON_Y + breakRadius, breakRadius, iconColor);
-  tft.drawCircle(ix + breakRadius + 7, ICON_Y + breakRadius, breakRadius-1, iconColor);
-
-
-  for (int8_t i = -1; i < 2; i++) {
-    uint8_t bx = ix + breakRadius + i + 7;
-    uint8_t y1 = ICON_Y + 6;
-    uint8_t y2 = ICON_Y + ICON_HEIGHT - 7 - 6;
-
-    tft.drawLine(bx, y1, bx, y2, iconColor);
-    tft.drawLine(bx, y2 + 4, bx, y2 + 7, iconColor);
-  }
-}
-
-//! Draw Light Icon
-void MainView::drawLight(bool clearScreen) {
-  if (!m_active) {
-    return;
-  }
-
-  uint16_t ix = 130;
-  uint8_t lightRadius = 12;
-
-  uint16_t iconColor;
-  if (model.getIcon() & ICON_ID_LIGHT) {
-    iconColor = ILI9341_YELLOW;
-  } else {
-    iconColor = ICON_DISABLED_COLOR;
-  }
-
-  tft.fillCircle(ix + lightRadius, ICON_Y + lightRadius, lightRadius, iconColor);
-  tft.fillRect(ix + lightRadius - 4, ICON_Y + lightRadius*2, 9, 8, iconColor);
-
-  tft.fillRect(ix + lightRadius - 2, ICON_Y + lightRadius*2+10, 5, 2, iconColor);
-}
-
-
 //! Update full display
 void MainView::updateDisplay() {
   if (!m_active) {
@@ -320,13 +240,14 @@ void MainView::updateDisplay() {
   drawBattery(false);
   drawWattage(false);
 
+/*
   // Icons
   tft.drawLine(0, 95, 240, 95, LINE_GRAY);
   drawBluetooth(false);
   drawBrakes(false);
   drawLight(false);
   tft.drawLine(0, 95 + 50, 240, 95 + 50, LINE_GRAY);
-
+*/
   m_components->draw();
 }
 
@@ -348,15 +269,6 @@ ViewResult MainView::keyPressed() {
 
 //! Icon changed
 void MainView::onIconUpdate(uint8_t iconId) {
-  if (iconId & ICON_ID_BLUETOOTH) {
-    drawBluetooth(true);
-  }
-  if (iconId & ICON_ID_BRAKE) {
-    drawBrakes(true);
-  }
-  if (iconId & ICON_ID_LIGHT) {
-    drawLight(true);
-  }
 }
 
 //! a value was changed
@@ -370,6 +282,3 @@ void MainView::onValueChanged(uint8_t valueId) {
       break;
   }
 }
-
-
-

@@ -23,6 +23,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 
+#include "defines.h"
+
 /**
  * Display a single menu
  */

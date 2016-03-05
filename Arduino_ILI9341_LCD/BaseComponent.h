@@ -25,6 +25,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "Print.h"
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
+#include "DataModel.h"
 
 /**
  * Base class for customizeable components
@@ -33,6 +34,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 // Don't use a member, use this extern declared reference
 // Not a nice coding practice, but saves about 300 Bytes of Flash
 extern Adafruit_ILI9341 tft;
+extern DataModel model;
 
 class BaseComponent {
   // Constructor / Destructor
@@ -57,8 +59,14 @@ public:
   //! Y Position on display
   uint16_t getY();
 
+  //! If this component is active drawed on update
+  void setActive(bool active);
+
   // Member
 protected:
   //! Y Position on display
   uint16_t m_y;
+
+  //! Flag if active / not active
+  bool m_active;
 };

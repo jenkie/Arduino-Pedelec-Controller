@@ -26,14 +26,16 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "Components.h"
 #include "TextComponent.h"
 #include "DiagramComponent.h"
+#include "IconComponent.h"
 
 //! Constructor
 Components::Components()
           : m_components({0})
 {
   for (uint8_t i = 0; i < COMPONENT_COUNT; i++) {
-
-    if (i == 3) {
+    if (i == 0) {
+      m_components[i] = new IconComponent();
+    } else if (i == 3) {
       m_components[i] = new DiagramComponent();
     } else {
       String txt = "Eintrag ";
@@ -50,9 +52,18 @@ Components::Components()
 Components::~Components() {
 }
 
+//! Activate / Deactivate children
+void Components::deActivateChilren(bool enabled) {
+  for (uint8_t i = 0; i < COMPONENT_COUNT; i++) {
+    if (m_components[i] != NULL) {
+      m_components[i]->setActive(enabled);
+    }
+  }
+}
+
 //! Update the Y position of all elements, and remove invisible elements from the list
 void Components::updatePositionAndRemoveInvisible() {
-  uint16_t y = 150;
+  uint16_t y = 95;
   uint8_t i = 0;
   for (; i < COMPONENT_COUNT; i++) {
     if (m_components[i] == NULL) {

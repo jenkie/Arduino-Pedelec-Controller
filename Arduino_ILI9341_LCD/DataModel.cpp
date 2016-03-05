@@ -80,6 +80,16 @@ void DataModel::addListener(DataListener* listener) {
   }
 }
 
+//! Remove a listener
+void DataModel::removeListener(DataListener* listener) {
+  for (uint8_t i = 0; i < sizeof(m_listener) / sizeof(DataListener*); i++) {
+    if (m_listener[i] == listener) {
+      m_listener[i] = NULL;
+      break;
+    }
+  }
+}
+
 //! fire an icon state change
 void DataModel::fireIconUpdate(uint8_t iconId) {
   for (uint8_t i = 0; i < sizeof(m_listener) / sizeof(DataListener*); i++) {

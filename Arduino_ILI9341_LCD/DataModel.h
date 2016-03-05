@@ -19,6 +19,8 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
+#pragma once
+
 /**
  * Model with all data which can be displayed by the different views
  */
@@ -51,10 +53,10 @@ enum ValueId {
 class DataListener {
 public:
   //! Icon changed
-  virtual void onIconUpdate(uint8_t iconId) = 0;
+  virtual void onIconUpdate(uint8_t iconId) {};
 
   //! a value was changed
-  virtual void onValueChanged(uint8_t valueId) = 0;
+  virtual void onValueChanged(uint8_t valueId) {};
 
 };
 
@@ -85,6 +87,9 @@ public:
   //! Add a listener to get informed about changes
   void addListener(DataListener* listener);
 
+  //! Remove a listener
+  void removeListener(DataListener* listener);
+
 private:
   //! fire an icon state change
   void fireIconUpdate(uint8_t iconId);
@@ -98,7 +103,7 @@ private:
   uint8_t m_iconState;
 
   //! Listener list
-  DataListener* m_listener[4];
+  DataListener* m_listener[16];
 
   //! Values
   uint16_t m_values[VALUE_COUNT];

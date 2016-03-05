@@ -43,6 +43,12 @@ public:
   //! Update full display
   virtual void updateDisplay();
 
+  //! This view is now enabled and displayed
+  virtual void activate();
+
+  //! This view is now disabled and not displayed
+  virtual void deactivate();
+
   //! UP / DOWN Key
   virtual void movePosition(int8_t diff);
 
@@ -69,15 +75,6 @@ private:
 
   //! Draw wattage bar
   void drawWattage(bool clearScreen);
-
-  //! Draw Bluetooth Icon
-  void drawBluetooth(bool clearScreen);
-
-  //! Draw Brakes Icon
-  void drawBrakes(bool clearScreen);
-
-  //! Draw Light Icon
-  void drawLight(bool clearScreen);
 
   // Member
 protected:
