@@ -48,29 +48,17 @@ MainViewEdit::~MainViewEdit() {
 void MainViewEdit::movePosition(int8_t diff) {
   m_lastSelectedId = m_selectedId;
 
-  while (diff > 0) {
-    m_selectedId++;
-    if (m_selectedId -1 >= COMPONENT_COUNT) {
-      m_selectedId = COMPONENT_COUNT - 1;
-      break;
-    }
-
-    if (m_components->get(m_selectedId) == NULL) {
-      m_selectedId--;
-      break;
-    }
-
-    diff--;
+  m_selectedId += diff;
+  if (m_selectedId < 0) {
+    m_selectedId = 0;
   }
 
-  while (diff < 0) {
+  if (m_selectedId -1 >= COMPONENT_COUNT) {
+    m_selectedId = COMPONENT_COUNT - 1;
+  }
+  
+  while (m_components->get(m_selectedId) == NULL && m_selectedId > 0) {
     m_selectedId--;
-    if (m_selectedId <= 0) {
-      m_selectedId = 0;
-      break;
-    }
-
-    diff++;
   }
 
   drawSelection();
@@ -96,8 +84,9 @@ void MainViewEdit::drawSelection() {
     return;
   }
 
-  tft.drawRect(0, component->getY(), 240, component->getHeight() + 1, ILI9341_MAGENTA);
-  tft.drawRect(1, component->getY() - 1, 238, component->getHeight() + 1, ILI9341_MAGENTA);
+  for (uint8_t i = 0; i <= 1; i++) {
+    tft.drawRect(i, component->getY() + i, 240 - 2 * i, component->getHeight() + 1 - 2 * i, ILI9341_MAGENTA);
+  }
 }
 
 //! Update full display

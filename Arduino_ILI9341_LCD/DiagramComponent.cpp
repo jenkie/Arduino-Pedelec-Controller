@@ -167,9 +167,9 @@ const uint16_t DIAGRAM_DATA_COLOR = RGB_TO_565(0x28, 0x2B, 0xDA);
 
 //! Draw the component to the display
 void DiagramComponent::draw() {
-  tft.drawLine(0, m_y, 240, m_y, DIAGRAM_LINE_COLOR);
-  tft.drawLine(0, m_y + 30, 240, m_y + 30, DIAGRAM_LINE_COLOR);
-  tft.drawLine(0, m_y + 60, 240, m_y + 60, DIAGRAM_LINE_COLOR);
+  for (uint8_t i = 0; i <= 60; i += 30) {
+    tft.drawLine(0, m_y + i, 240, m_y + i, DIAGRAM_LINE_COLOR);
+  }
 
   for (uint16_t x = 20; x < 240; x += 40) {
     tft.drawLine(x, m_y + 1, x, m_y + 58, DIAGRAM_LINE_COLOR);
@@ -182,13 +182,5 @@ void DiagramComponent::draw() {
     tft.drawLine(x, y1, x + 2, y2, DIAGRAM_DATA_COLOR);
     tft.drawLine(x, y1 + 1, x + 2, y2 + 1, DIAGRAM_DATA_COLOR);
   }
-
-/*
-   tft.setTextColor(ILI9341_WHITE);
-   tft.setCursor(0, m_y + 2);
-   tft.print(m_text.c_str());
-
-   tft.setTextColor(ILI9341_YELLOW);
-   tft.setCursor(240 - 5*12, m_y + 2);
-   tft.print("75.50");*/
 }
+

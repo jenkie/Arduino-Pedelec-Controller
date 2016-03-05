@@ -27,15 +27,18 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "TextComponent.h"
 #include "DiagramComponent.h"
 #include "IconComponent.h"
+#include "SeparatorComponent.h"
 
 //! Constructor
 Components::Components()
           : m_components({0})
 {
   for (uint8_t i = 0; i < COMPONENT_COUNT; i++) {
-    if (i == 0) {
+    if (i == 1) {
       m_components[i] = new IconComponent();
-    } else if (i == 3) {
+    } else if (i == 0 || i == 2) {
+      m_components[i] = new SeparatorComponent();
+    } else if (i == 5) {
       m_components[i] = new DiagramComponent();
     } else {
       String txt = "Eintrag ";

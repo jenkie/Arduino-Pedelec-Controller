@@ -91,11 +91,10 @@ void IconComponent::drawBrakes(bool clearScreen) {
     iconColor = ICON_DISABLED_COLOR;
   }
 
-  tft.drawCircle(ix + breakRadius, ICON_TOP_Y + breakRadius, breakRadius, iconColor);
-  tft.drawCircle(ix + breakRadius, ICON_TOP_Y + breakRadius, breakRadius-1, iconColor);
-
-  tft.drawCircle(ix + breakRadius+14, ICON_TOP_Y + breakRadius, breakRadius, iconColor);
-  tft.drawCircle(ix + breakRadius+14, ICON_TOP_Y + breakRadius, breakRadius-1, iconColor);
+  for (uint8_t i = 0; i < 2; i++) {
+    tft.drawCircle(ix + breakRadius, ICON_TOP_Y + breakRadius, breakRadius - i, iconColor);
+    tft.drawCircle(ix + breakRadius+14, ICON_TOP_Y + breakRadius, breakRadius - i, iconColor);
+  }
 
   tft.fillRect(ix + 7, ICON_TOP_Y, breakRadius + breakRadius, breakRadius + breakRadius + 2, ILI9341_BLACK);
 
