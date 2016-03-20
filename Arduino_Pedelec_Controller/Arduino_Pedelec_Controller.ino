@@ -298,7 +298,7 @@ boolean first_aid_ignore_throttle = false;
 
 // Forward declarations for compatibility with new gcc versions
 void pas_change();
-void pas_change_thun(boolean signal);
+void pas_change_dual(boolean signal);
 void speed_change();
 void send_serial_data();
 void handle_dspc();
@@ -458,18 +458,18 @@ void setup()
 #ifdef SUPPORT_PAS
     bitClear(DDRE,5);      //configure PE5 as input
     bitSet(PORTE,5);       //enable pull-up on PAS sensor
-#ifndef SUPPORT_XCELL_RT
+#if !defined(SUPPORT_XCELL_RT) && !defined(SUPPORT_BBS)
     bitSet(EICRB,2);      //trigger on any edge INT5 for PAS sensor
     EIMSK  |= (1<<INT5);  //turn on interrupt INT5 for PAS sensor
 #else
     bitClear(DDRE,6);      //configure PE6 as input
     bitSet(PORTE,6);       //enable pull-up on PAS 2 sensor
-    bitSet(EICRB,2);      //trigger on rising edge INT5 for Thun sensor
-    bitSet(EICRB,3);      //trigger on rising edge INT5 for Thun sensor
-    bitSet(EICRB,4);      //trigger on rising edge INT6 for Thun sensor
-    bitSet(EICRB,5);      //trigger on rising edge INT6 for Thun sensor
+    bitSet(EICRB,2);      //trigger on rising edge INT5 for Thun sensor/BBS
+    bitSet(EICRB,3);      //trigger on rising edge INT5 for Thun sensor/BBS
+    bitSet(EICRB,4);      //trigger on rising edge INT6 for Thun sensor/BBS
+    bitSet(EICRB,5);      //trigger on rising edge INT6 for Thun sensor/BBS
     EIMSK  |= (1<<INT5);  //turn on interrupt INT5 for PAS sensor
-    EIMSK  |= (1<<INT6);  //turn on interrupt for Thun sensor
+    EIMSK  |= (1<<INT6);  //turn on interrupt for Thun sensor/BBS
 #endif
 #endif
 #endif
@@ -993,16 +993,16 @@ ISR(INT7_vect)
     speed_change();
 }
 #ifdef SUPPORT_PAS
-#ifdef SUPPORT_XCELL_RT
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_BBS)
 ISR(INT5_vect)
 {
-    pas_change_thun(false);
+    pas_change_dual(false);
 }
 ISR(INT6_vect)
 {
-    pas_change_thun(true);
+    pas_change_dual(true);
 }
-#else //no thun bracket
+#else //no thun bracket or BBS
 ISR(INT5_vect)
 {
     pas_change();
@@ -1012,23 +1012,29 @@ ISR(INT5_vect)
 #endif
 
 #if HARDWARE_REV >= 20
-#ifdef SUPPORT_XCELL_RT
-void pas_change_thun(boolean signal)
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_BBS)
+void pas_change_dual(boolean signal)
 {
     if (signal)
         pedaling=bitRead(PINE,5);
     else
     {
         pedaling=!bitRead(PINE,6);
-        cad=7500/(millis()-last_pas_event);
+#ifdef SUPPORT_XCELL_RT
+        cad=7500/(millis()-last_pas_event); //8 pulses per revolution
+#else
+        cad=2500/(millis()-last_pas_event); //24 pulses per revolution
+#endif        
         last_pas_event = millis();
     }
+#ifdef SUPPORT_XCELL_RT
     if (analogRead_in_use)
     {
       thun_want_calculation = true;
       return;
     }
     read_current_torque();
+#endif
 }
 #endif
 #endif
@@ -1191,6 +1197,8 @@ void serial_debug(HardwareSerial* localSerial)
     localSerial->print(pas_off_time);
     localSerial->print(MY_F(" PAS_factor"));
     localSerial->print((float)pas_on_time/pas_off_time);
+    localSerial->print(MY_F(" Pedaling"));
+    localSerial->print(pedaling);
 #endif
     localSerial->print(MY_F(" Speed"));
     localSerial->print(spd);
