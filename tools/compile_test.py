@@ -48,7 +48,8 @@ ALL_FEATURES = [
                   'SUPPORT_HX711',
                   'DETECT_BROKEN_SPEEDSENSOR',
                   'USE_EXTERNAL_CURRENT_SENSOR',
-                  'USE_EXTERNAL_VOLTAGE_SENSOR'
+                  'USE_EXTERNAL_VOLTAGE_SENSOR',
+                  'SUPPORT_BBS'
                  ]
 
 # List of features that's enabled by default
