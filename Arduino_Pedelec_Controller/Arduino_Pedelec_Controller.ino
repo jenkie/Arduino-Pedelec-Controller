@@ -133,6 +133,9 @@ struct savings   //add variables if you want to store additional values to the e
 #ifdef SUPPORT_BATTERY_CHARGE_COUNTER
     unsigned int charge_count;//battery charge count
 #endif
+#ifdef SUPPORT_XCELL_RT
+    float wh_human; //human watthours
+#endif
 };
 savings variable = {0.0, 0.0, 0.0, 0.0, 0}; //variable stores last voltage and capacity read from EEPROM
 savings variable_new = {0.0, 0.0, 0.0, 0.0, 0}; //variable_new stores new EEPROM values
@@ -676,6 +679,9 @@ if (loadcell.is_ready())     //new conversion result from load cell available
             wh=variable.wh;
             km=variable.kilometers;
             mah=variable.mah;
+#ifdef SUPPORT_XCELL_RT
+            wh_human=variable.wh_human;
+#endif
         }
         else
         {
@@ -1417,6 +1423,9 @@ void save_eeprom()
   variable_new.odo=odo;        //save total kilometers
 #ifdef SUPPORT_BATTERY_CHARGE_COUNTER
   variable_new.charge_count=charge_count; //save charge counter
+#endif
+#ifdef SUPPORT_XCELL_RT
+  variable_new.wh_human=wh_human; //save human watthours
 #endif
   const byte* p_new = (const byte*)(const void*)&variable_new; //pointer to new variables to save
   const byte* p_old = (const byte*)(const void*)&variable; //pointer to current EEPROM content
