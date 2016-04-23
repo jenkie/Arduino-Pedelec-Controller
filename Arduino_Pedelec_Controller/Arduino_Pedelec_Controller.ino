@@ -253,6 +253,7 @@ volatile byte wheel_counter=0; //counter for events that should happen once per 
 volatile unsigned long last_pas_event = millis();  //last change-time of PAS sensor status
 #define pas_time 60000/pas_magnets //conversion factor for pas_time to rpm (cadence)
 volatile boolean pedaling = false;  //pedaling? (in forward direction!)
+volatile boolean pedalingbackwards = false;  //pedalingn in backward direction
 boolean firstrun = true;  //first run of loop?
 boolean brake_stat = true; //brake activated?
 PID myPID(&power, &pid_out,&pid_set,pid_p,pid_i,0, DIRECT);
@@ -275,6 +276,9 @@ volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 #endif
 volatile byte torqueindex=0;        //index to write next torque value
 volatile boolean readtorque=false;  //true if torque array has been updated -> recalculate in main loop
+#endif
+#ifdef SUPPORT_BBS
+unsigned long bbs_pausestart=0; //start time of power pause for gear change
 #endif
 
 #if (SERIAL_MODE & SERIAL_MODE_MMC)           //communicate with mmc-app
@@ -429,6 +433,11 @@ void setup()
 #else
     pinMode(display_backlight_pin, OUTPUT);
 #endif
+#endif
+
+#ifdef SUPPORT_BBS
+pinMode(option_pin,OUTPUT); //make torque pin on Thun connector to 5V source for BBS PAS sensor
+digitalWrite(option_pin,HIGH);
 #endif
 
 #ifdef SUPPORT_GEAR_SHIFT
@@ -695,9 +704,11 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 
 //Are we pedaling?---------------------------------------------------------------------------------------------------------
 #ifdef SUPPORT_PAS
-    if (((millis()-last_pas_event)>pas_timeout)||(pas_failtime>pas_tolerance))
-    {pedaling = false;}                               //we are not pedaling anymore, if pas did not change for > 0,5 s
-
+    if (((millis()-last_pas_event)>pas_timeout)||(pas_failtime>pas_tolerance)) //we are not pedaling anymore, if pas did not change for > 0,5 s
+    {
+      pedaling = false;         
+      pedalingbackwards = false;
+    }                               
     // First aid support: Ignore missing PAS events
     // Note: No need to fix it up in pas_change(), "pedaling" is only set to false above.
     // If we still get some cadence, show it to the rider.
@@ -705,7 +716,14 @@ if (loadcell.is_ready())     //new conversion result from load cell available
         pedaling = true;
 
     cad=cad*pedaling;
-#endif
+
+#ifdef SUPPORT_BBS
+    if (pedalingbackwards) //gear change pause requested
+      bbs_pausestart=millis();
+#endif //SUPPORT_BBS 
+#endif //SUPPORT_PAS
+
+
 
 //live speed update when there is no speed_change interrupt-----------------------------------------------------------------
     unsigned long wheeltime_temp=(millis()-last_wheel_time)*wheel_magnets; //current upper limit of the speed based on last measurement
@@ -775,7 +793,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     }
 
     if (power_set>curr_power_max*factor_speed)
-    {power_set=curr_power_max*factor_speed;}                  //Maximum allowed power including Speed-Cutoff
+    {power_set=curr_power_max*factor_speed;}                  //Maximum allowed power including Speed-Cutoff    
     if ((((poti_stat<=throttle_stat)||(pedaling==false))&&(throttle_stat==0))||(brake_stat==0))  //integral part of PID regulator is slowly shrinked to 0 when you stop pedaling or brake
     {
 #ifdef RESET_PID_ON_BRAKE
@@ -798,6 +816,11 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     {factor_volt=factor_volt*0.9997+0.0003;}
 
 //Throttle output-------------------------------------------------------------------------------------------------------
+#ifdef SUPPORT_BBS
+ if (millis()-bbs_pausestart<BBS_GEARCHANGEPAUSE)  //activate brake for specified pause time to allow for gear change
+   brake_stat=0;
+#endif
+
 #ifdef SUPPORT_MOTOR_GUESS
     throttle_write=map(pid_out*brake_stat*factor_volt,0,1023,motor_offset,motor_max) + spd/spd_idle*(motor_max-motor_offset);
     throttle_write=constrain(throttle_write,0,motor_max);
@@ -1033,6 +1056,7 @@ void pas_change_dual(boolean signal)
 #endif        
         last_pas_event = millis();
     }
+    pedalingbackwards=!pedaling;
 #ifdef SUPPORT_XCELL_RT
     if (analogRead_in_use)
     {
