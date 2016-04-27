@@ -603,6 +603,8 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 #else
     brake_stat = digitalRead(brake_in);
 #endif
+#else
+    brake_stat = true;
 #endif
 #ifdef SUPPORT_FIRST_AID_MENU
     if (first_aid_ignore_break)
@@ -745,6 +747,10 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 
 
 //Power control-------------------------------------------------------------------------------------------------------------
+#ifdef SUPPORT_BBS
+   if ((millis()-bbs_pausestart)<BBS_GEARCHANGEPAUSE)  //activate brake for specified pause time to allow for gear change
+     brake_stat=0;
+#endif
     power_throttle = throttle_stat / 1023.0 * curr_power_max;         //power currently set by throttle
 
 #if CONTROL_MODE == CONTROL_MODE_TORQUE                      //human power control mode
@@ -816,11 +822,6 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     {factor_volt=factor_volt*0.9997+0.0003;}
 
 //Throttle output-------------------------------------------------------------------------------------------------------
-#ifdef SUPPORT_BBS
- if (millis()-bbs_pausestart<BBS_GEARCHANGEPAUSE)  //activate brake for specified pause time to allow for gear change
-   brake_stat=0;
-#endif
-
 #ifdef SUPPORT_MOTOR_GUESS
     throttle_write=map(pid_out*brake_stat*factor_volt,0,1023,motor_offset,motor_max) + spd/spd_idle*(motor_max-motor_offset);
     throttle_write=constrain(throttle_write,0,motor_max);
