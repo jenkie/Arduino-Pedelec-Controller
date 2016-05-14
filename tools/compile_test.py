@@ -146,6 +146,8 @@ def write_config_h(filename=CONFIG_H,
             f.write('#define ' + feature + '\n')
         f.write('// FEATURES end\n')
         f.write('\n')
+        f.write('#define BBS_GEARCHANGEPAUSE 2000 //powerless time in milliseconds to allow gear change\n')
+        f.write('\n')
 
         f.write('\n')
         f.write('const switch_name MENU_BUTTON_UP = SWITCH_THROTTLE;\n')
