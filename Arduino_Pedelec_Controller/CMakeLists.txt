@@ -41,6 +41,8 @@ set(${FIRMWARE_NAME}_SRCS                          # Source code
     display.h
     display_backlight.cpp
     display_backlight.h
+    display_bafang.cpp
+    display_bafang.h
     display_kingmeter.cpp
     display_kingmeter.h
     ds1307.cpp
