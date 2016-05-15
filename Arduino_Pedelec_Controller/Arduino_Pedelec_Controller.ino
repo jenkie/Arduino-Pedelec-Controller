@@ -570,7 +570,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 }
 #endif
 
-#if ((DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS3))
+#if ((DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS3)||(DISPLAY_TYPE == DISPLAY_TYPE_BAFANG))
     display_update();
 #endif
 
@@ -971,7 +971,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
         wh_human+=(millis()-last_writetime)/3600000.0*power_human;  //human watthours calculation
         mah+=current*(millis()-last_writetime)/3600.0;  //mah calculation
 
-#if (!(DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER) && !(DISPLAY_TYPE == DISPLAY_TYPE_BMS) && !(DISPLAY_TYPE == DISPLAY_TYPE_BMS3))
+#if (!(DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER) && !(DISPLAY_TYPE == DISPLAY_TYPE_BMS) && !(DISPLAY_TYPE == DISPLAY_TYPE_BMS3)&& !(DISPLAY_TYPE == DISPLAY_TYPE_BAFANG))
 #if !(DISPLAY_TYPE == DISPLAY_TYPE_NONE)
         display_update();
 #endif

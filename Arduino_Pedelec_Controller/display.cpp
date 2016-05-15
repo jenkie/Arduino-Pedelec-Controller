@@ -28,6 +28,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "display_kingmeter.h"
 #endif
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
+#include "display_bafang.h"
+#endif
+
 
 display_mode_type display_mode = DISPLAY_MODE_GRAPHIC; //startup screen
 display_mode_type display_mode_last = DISPLAY_MODE_TEXT; //last screen type
@@ -53,6 +57,17 @@ static SerialLCD lcd(serial_display_16x2_pin);                      //16x2 New H
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)         // For King-Meter J-LCD, SW-LCD, KM5s-LCD, EBS-LCD2
 KINGMETER_t KM;                                     // Context of the King-Meter object
+#if HARDWARE_REV < 20
+#include <SoftwareSerial.h>
+static SoftwareSerial mySerial(10, 11);             // RX (YELLOW cable), TX (GREEN cable)
+SoftwareSerial* displaySerial =& mySerial;
+#else
+HardwareSerial* displaySerial=&Serial2;
+#endif
+#endif
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)            // For Bafang BBS0x displays
+BAFANG_t BF;                                     // Context of the Bafang object
 #if HARDWARE_REV < 20
 #include <SoftwareSerial.h>
 static SoftwareSerial mySerial(10, 11);             // RX (YELLOW cable), TX (GREEN cable)
@@ -636,6 +651,47 @@ void kingmeter_update(void)
 }
 #endif
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
+void bafang_update(void)
+{
+    Bafang_Service(&BF);
+    /* Apply Rx parameters */
+
+    #ifdef SUPPORT_LIGHTS_SWITCH
+    if(BF.Rx.Headlight == KM_HEADLIGHT_OFF)
+    {
+        digitalWrite(lights_pin, 0);
+    }
+    else
+    {
+        digitalWrite(lights_pin, 1);
+    }
+    #endif
+
+    if(BF.Rx.PushAssist == true)
+    {
+        throttle_stat = 200;
+    }
+    else
+    {
+        throttle_stat = 0;
+        poti_stat     = map(BF.Rx.AssistLevel, 0, 9, 0,1023);
+    }
+
+
+    /* Shutdown in case we received no message in the last 3s */
+
+    if((millis() - BF.LastRx) > 3000)
+    {
+        poti_stat     = 0;
+        throttle_stat = 0;
+        #if HARDWARE_REV >=2
+        save_shutdown();
+        #endif
+    }
+}
+#endif
+
 
 static void slcd_update(byte battery, unsigned int wheeltime, byte error)
 {
@@ -756,6 +812,11 @@ void display_init()
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
     KingMeter_Init(&KM, displaySerial);
 #endif
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
+    Bafang_Init(&BF, displaySerial);
+#endif
+
 
 #if ((DISPLAY_TYPE == DISPLAY_TYPE_BMS) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS3))
     displaySerial->begin(9600);
@@ -1156,6 +1217,9 @@ void display_update()
     kingmeter_update();
 #endif
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
+    bafang_update();
+#endif
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)
     slcd_update(map(battery_percent_fromcapacity,0,100,0,16),wheel_time,0);
@@ -1223,6 +1287,15 @@ void display_debug(HardwareSerial* localSerial)
     localSerial->print(((float)KM.Rx.SPEEDMAX_Limit_x10)/10);
     localSerial->print(MY_F("  CurrLim "));
     localSerial->println(((float)KM.Rx.CUR_Limit_x10)/10);
+    #endif
+    
+    #if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
+    localSerial->print(MY_F("  Assist "));
+    localSerial->print(BF.Rx.AssistLevel);
+    localSerial->print(MY_F("  Light "));
+    localSerial->print(BF.Rx.Headlight, HEX);
+    localSerial->print(MY_F("  Push "));
+    localSerial->println(BF.Rx.PushAssist, HEX);
     #endif
 
     
