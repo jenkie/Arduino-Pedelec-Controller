@@ -658,7 +658,7 @@ void bafang_update(void)
     /* Apply Rx parameters */
 
     #ifdef SUPPORT_LIGHTS_SWITCH
-    if(BF.Rx.Headlight == KM_HEADLIGHT_OFF)
+    if(BF.Rx.Headlight == false)
     {
         digitalWrite(lights_pin, 0);
     }
