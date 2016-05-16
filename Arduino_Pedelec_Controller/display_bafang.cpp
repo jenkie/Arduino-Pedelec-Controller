@@ -38,6 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 static void BAFANG_Service(BAFANG_t* BF_ctx);
 
 uint8_t TxBuff[BF_MAX_TXBUFF];
+uint16_t spd_tmp;
 
 
 
@@ -127,9 +128,10 @@ void Bafang_Service(BAFANG_t* BF_ctx)
         switch (BF_ctx->RxBuff[1])
         {
           case BF_CMD_GETSPEED:
-          TxBuff[0]=0;
-          TxBuff[1]=min(spd/0.128,255);
-          TxBuff[2]=TxBuff[1]+32;
+          spd_tmp=BF_ctx->Rx.Wheeldiameter*0.03887*spd;
+          TxBuff[0]=(spd_tmp>>8);
+          TxBuff[1]=(spd_tmp&0xff);
+          TxBuff[2]=TxBuff[0]+TxBuff[1]+32;
           BF_sendmessage(BF_ctx,3);
           break;
           
@@ -143,9 +145,9 @@ void Bafang_Service(BAFANG_t* BF_ctx)
           TxBuff[1]=battery_percent_fromcapacity;
           BF_sendmessage(BF_ctx,2);
           
-          case BF_CMD_GET1:
-          TxBuff[0]=0;
-          TxBuff[1]=0;
+          case BF_CMD_GETPOWER:
+          TxBuff[0]=power/10;
+          TxBuff[1]=power/10;
           BF_sendmessage(BF_ctx,2);
           break;
           
@@ -204,8 +206,12 @@ void Bafang_Service(BAFANG_t* BF_ctx)
           }
           break;
           
-          case BF_CMD_MISC:
+          case BF_CMD_LIGHT:
           BF_ctx->Rx.Headlight=(BF_ctx->RxBuff[2]==BF_LIGHTON);
+          break;
+          
+          case BF_CMD_WHEELDIAM:
+          BF_ctx->Rx.Wheeldiameter=BF_ctx->RxBuff[2]*256+BF_ctx->RxBuff[3];
           break;
         }
       }       

@@ -1295,7 +1295,9 @@ void display_debug(HardwareSerial* localSerial)
     localSerial->print(MY_F("  Light "));
     localSerial->print(BF.Rx.Headlight, HEX);
     localSerial->print(MY_F("  Push "));
-    localSerial->println(BF.Rx.PushAssist, HEX);
+    localSerial->print(BF.Rx.PushAssist, HEX);
+    localSerial->print(MY_F("  Diameter "));
+    localSerial->println(BF.Rx.Wheeldiameter,DEC);
     #endif
 
     

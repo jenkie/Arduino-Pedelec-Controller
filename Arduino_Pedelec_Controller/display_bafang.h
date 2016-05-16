@@ -38,11 +38,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define BF_CMD_STARTREQUEST 17
 #define BF_CMD_STARTINFO 22
 #define BF_CMD_LEVEL 11
-#define BF_CMD_MISC 26
+#define BF_CMD_LIGHT 26
+#define BF_CMD_WHEELDIAM 31
 #define BF_CMD_GETSPEED 32
 #define BF_CMD_GETERROR 8
 #define BF_CMD_GETBAT 17
-#define BF_CMD_GET1 10
+#define BF_CMD_GETPOWER 10
 #define BF_CMD_GET2 49
 
 #define BF_LIGHTON 241
@@ -70,6 +71,7 @@ typedef struct
     uint8_t  AssistLevel;               // 0..9 Power Assist Level
     uint8_t  Headlight;                 // BF_HEADLIGHT_OFF / BF_HEADLIGHT_ON 
     uint8_t  PushAssist;                // BF_PUSHASSIST_OFF / BF_PUSHASSIST_ON
+    uint16_t Wheeldiameter;             // Wheel Diameter
 }RX_PARAM_t;
 
 
