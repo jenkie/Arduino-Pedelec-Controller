@@ -23,7 +23,9 @@
 #define DISPLAY_TYPE_KINGMETER_618U (1<<4)                  // King-Meter 618U protocol (KM5s, EBS-LCD2, J-LCD, SW-LCD)
 #define DISPLAY_TYPE_KINGMETER_901U (1<<8)                  // King-Meter 901U protocol (KM5s)
 #define DISPLAY_TYPE_KINGMETER      (DISPLAY_TYPE_KINGMETER_618U|DISPLAY_TYPE_KINGMETER_901U)
-#define DISPLAY_TYPE_BAFANG         (1<<9)
+#define DISPLAY_TYPE_BAFANG_C961    (1<<9)
+#define DISPLAY_TYPE_BAFANG_C965    (1<<10)
+#define DISPLAY_TYPE_BAFANG         (DISPLAY_TYPE_BAFANG_C961|DISPLAY_TYPE_BAFANG_C965)
 
 #define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_4PIN                // Set your display type here. CHANGES ONLY HERE!<-----------------------------
 

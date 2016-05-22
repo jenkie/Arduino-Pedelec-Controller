@@ -88,6 +88,7 @@ typedef struct
 
     uint8_t         RxBuff[BF_MAX_RXBUFF];
     uint8_t         RxCnt;
+    uint8_t         InfoLength;
 
     RX_PARAM_t      Rx;
 

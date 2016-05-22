@@ -24,8 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
 
-
-
 // Definitions
 #define RXSTATE_STARTCODE   0
 #define RXSTATE_SENDTXMSG   1

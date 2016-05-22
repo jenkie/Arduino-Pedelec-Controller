@@ -26,13 +26,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
 
-
-
 // Definitions
-#define RXSTATE_STARTCODE   0
-#define RXSTATE_MSGBODY     1
-#define RXSTATE_DONE        2
-
+#define RXSTATE_WAITGAP     0 //waiting for gap between messages to reset rx buffer
+#define RXSTATE_STARTCODE   1 //waiting for startcode
+#define RXSTATE_REQUEST     2 //request startcode received, waiting for request code
+#define RXSTATE_INFO        3 //info startcode received, waiting for info code
+#define RXSTATE_INFOMESSAGE 4 //info code received, waiting for info message
+#define RXSTATE_DONE        5 //command received
 
 // Local function prototypes
 static void BAFANG_Service(BAFANG_t* BF_ctx);
@@ -57,7 +57,7 @@ void Bafang_Init (BAFANG_t* BF_ctx, HardwareSerial* DisplaySerial)
     uint8_t i;
     BF_ctx->SerialPort                      = DisplaySerial;            // Store serial port to use
 
-    BF_ctx->RxState                         = RXSTATE_STARTCODE;
+    BF_ctx->RxState                         = RXSTATE_WAITGAP;
     BF_ctx->LastRx                          = millis();
 
     for(i=0; i<BF_MAX_RXBUFF; i++)
@@ -77,89 +77,136 @@ void Bafang_Init (BAFANG_t* BF_ctx, HardwareSerial* DisplaySerial)
 void Bafang_Service(BAFANG_t* BF_ctx)
 {
     uint8_t  i;  
+    //wait for gap
+    if(BF_ctx->RxState == RXSTATE_WAITGAP) //waiting for start code
+    {
+      while(BF_ctx->SerialPort->available())
+      {
+        BF_ctx->SerialPort->read();
+        BF_ctx->LastRx = millis();
+      }
+      
+      if (millis()-BF_ctx->LastRx>BF_DISPLAYTIMEOUT) //gap detected
+      {
+        BF_ctx->RxState++; ///go to next state
+        BF_ctx->RxCnt=0;
+      }
+    }
+    
     // Search for Start Code
     if(BF_ctx->RxState == RXSTATE_STARTCODE) //waiting for start code
     {
-      if (millis()-BF_ctx->LastRx>BF_DISPLAYTIMEOUT) //new transmission frame will come
-        if(BF_ctx->SerialPort->available())
-        {
-            BF_ctx->LastRx = millis();
-            BF_ctx->RxBuff[0]=BF_ctx->SerialPort->read();
-            if(BF_ctx->RxBuff[0]==BF_CMD_STARTREQUEST||BF_ctx->RxBuff[0]==BF_CMD_STARTINFO) //valid startcode detected
-            {
-                BF_ctx->RxCnt = 1;
-                BF_ctx->RxState = RXSTATE_MSGBODY;
-            }
-            else
-            {
-                return;                                                 // No need to continue
-            }
-        }
+      if(BF_ctx->SerialPort->available())
+      {
+          BF_ctx->LastRx = millis();
+          BF_ctx->RxBuff[0]=BF_ctx->SerialPort->read();
+          if(BF_ctx->RxBuff[0]==BF_CMD_STARTREQUEST) //valid request startcode detected
+          {
+              BF_ctx->RxCnt = 1;
+              BF_ctx->RxState = RXSTATE_REQUEST;
+          }
+          else if(BF_ctx->RxBuff[0]==BF_CMD_STARTINFO) //valid info startcode detected
+          {
+              BF_ctx->RxCnt = 1;
+              BF_ctx->RxState = RXSTATE_INFO;
+          }
+          else
+          {
+              BF_ctx->RxState == RXSTATE_WAITGAP;
+          }
+      }
     }
     
-        // Receive Message body
-    if(BF_ctx->RxState == RXSTATE_MSGBODY)
+    if(BF_ctx->RxState == RXSTATE_REQUEST) //we are waiting for request code
     {
-        while(BF_ctx->SerialPort->available())
+        if(BF_ctx->SerialPort->available()) //request code received
         {
             BF_ctx->RxBuff[BF_ctx->RxCnt] = BF_ctx->SerialPort->read();
             BF_ctx->RxCnt++;            
-            if(BF_ctx->RxCnt > 5)   // something is wrong, reset
-            {
-                BF_ctx->RxState = RXSTATE_STARTCODE;
-                BF_ctx->LastRx = millis();
-                break;
-            }
             BF_ctx->LastRx = millis();
-        }
+            switch (BF_ctx->RxBuff[1]) // analyze and send correct answer
+            {
+              case BF_CMD_GETSPEED:
+#if (DISPLAY_TYPE==DISPLAY_TYPE_BAFANG_C961)
+              spd_tmp=BF_ctx->Rx.Wheeldiameter*0.02*spd;
+#elif (DISPLAY_TYPE==DISPLAY_TYPE_BAFANG_C965)
+              spd_tmp=BF_ctx->Rx.Wheeldiameter*0.03887*spd;
+#endif
+              TxBuff[0]=(spd_tmp>>8);
+              TxBuff[1]=(spd_tmp&0xff);
+              TxBuff[2]=TxBuff[0]+TxBuff[1]+32;
+              BF_sendmessage(BF_ctx,3);
+              break;
+              
+              case BF_CMD_GETERROR:
+              TxBuff[0]=1;
+              BF_sendmessage(BF_ctx,1);
+              break;
+              
+              case BF_CMD_GETBAT:
+              TxBuff[0]=battery_percent_fromcapacity;
+              TxBuff[1]=battery_percent_fromcapacity;
+              BF_sendmessage(BF_ctx,2);
+              break;
+              
+              case BF_CMD_GETPOWER:
+              TxBuff[0]=power/10;
+              TxBuff[1]=power/10;
+              BF_sendmessage(BF_ctx,2);
+              break;
+              
+              case BF_CMD_GET2:
+              TxBuff[0]=48;
+              TxBuff[1]=48;
+              BF_sendmessage(BF_ctx,2);
+              break;
+            }
+          BF_ctx->RxState = RXSTATE_WAITGAP;  //reset state machine
+         }
+            
     }
     
-    if ((millis()-BF_ctx->LastRx)>BF_DISPLAYTIMEOUT&&(BF_ctx->RxState == RXSTATE_MSGBODY)) //new message has been received -> analyze
+    if(BF_ctx->RxState == RXSTATE_INFO) //we are waiting for info code
     {
-      BF_ctx->RxState = RXSTATE_DONE;
-    }
-    
-    // Message received completely, analyze
-    if(BF_ctx->RxState == RXSTATE_DONE)
-    {
-      BF_ctx->RxState = RXSTATE_STARTCODE;
-      if (BF_ctx->RxBuff[0]==BF_CMD_STARTREQUEST) //display wants an answer, send it!
+      if(BF_ctx->SerialPort->available()) //info code received
       {
-        switch (BF_ctx->RxBuff[1])
+        BF_ctx->RxBuff[BF_ctx->RxCnt] = BF_ctx->SerialPort->read();
+        BF_ctx->RxCnt++;            
+        BF_ctx->LastRx = millis();
+        switch (BF_ctx->RxBuff[1])   //analyze info code and set correct bytes to receive
         {
-          case BF_CMD_GETSPEED:
-          spd_tmp=BF_ctx->Rx.Wheeldiameter*0.03887*spd;
-          TxBuff[0]=(spd_tmp>>8);
-          TxBuff[1]=(spd_tmp&0xff);
-          TxBuff[2]=TxBuff[0]+TxBuff[1]+32;
-          BF_sendmessage(BF_ctx,3);
+          case BF_CMD_LEVEL:
+          BF_ctx->InfoLength=4;  //level message has length of 4 bytes
+          BF_ctx->RxState++;
           break;
           
-          case BF_CMD_GETERROR:
-          TxBuff[0]=1;
-          BF_sendmessage(BF_ctx,1);
+          case BF_CMD_LIGHT:
+          BF_ctx->InfoLength=3;  //light message has length of 3 bytes
+          BF_ctx->RxState++;
           break;
           
-          case BF_CMD_GETBAT:
-          TxBuff[0]=battery_percent_fromcapacity;
-          TxBuff[1]=battery_percent_fromcapacity;
-          BF_sendmessage(BF_ctx,2);
-          
-          case BF_CMD_GETPOWER:
-          TxBuff[0]=power/10;
-          TxBuff[1]=power/10;
-          BF_sendmessage(BF_ctx,2);
+          case BF_CMD_WHEELDIAM: //wheeldiameter message has length of 5 bytes
+          BF_ctx->InfoLength=5;
+          BF_ctx->RxState++;
           break;
           
-          case BF_CMD_GET2:
-          TxBuff[0]=48;
-          TxBuff[1]=48;
-          BF_sendmessage(BF_ctx,2);
+          default:
+          BF_ctx->RxState=RXSTATE_WAITGAP; //not a valid message -> reset state machine
           break;
         }
-        
+      }        
+    }
+    
+    if (BF_ctx->RxState == RXSTATE_INFOMESSAGE) //we are waiting for info message
+    {
+      while(BF_ctx->SerialPort->available()&&BF_ctx->RxCnt<BF_ctx->InfoLength) //read info message
+      {
+        BF_ctx->RxBuff[BF_ctx->RxCnt] = BF_ctx->SerialPort->read();
+        BF_ctx->RxCnt++;            
+        BF_ctx->LastRx = millis();
       }
-      else if(BF_ctx->RxBuff[0]==BF_CMD_STARTINFO)
+      
+      if (BF_ctx->RxCnt==BF_ctx->InfoLength) //info message complete --> analyze
       {
         switch (BF_ctx->RxBuff[1])
         {
@@ -213,8 +260,9 @@ void Bafang_Service(BAFANG_t* BF_ctx)
           case BF_CMD_WHEELDIAM:
           BF_ctx->Rx.Wheeldiameter=BF_ctx->RxBuff[2]*256+BF_ctx->RxBuff[3];
           break;
-        }
-      }       
+        }     
+       BF_ctx->RxState = RXSTATE_STARTCODE; 
+      }
     }
 }
 
