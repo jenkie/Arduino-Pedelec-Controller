@@ -97,7 +97,9 @@ def write_config_h(filename=CONFIG_H,
         f.write('#define DISPLAY_TYPE_KINGMETER_618U (1<<4)                  // King-Meter 618U protocol (KM5s, EBS-LCD2, J-LCD, SW-LCD)\n')
         f.write('#define DISPLAY_TYPE_KINGMETER_901U (1<<8)                  // King-Meter 901U protocol (KM5s)\n')
         f.write('#define DISPLAY_TYPE_KINGMETER      (DISPLAY_TYPE_KINGMETER_618U|DISPLAY_TYPE_KINGMETER_901U)\n')
-        f.write('#define DISPLAY_TYPE_BAFANG (1<<9)\n')
+        f.write('#define DISPLAY_TYPE_BAFANG_C961    (1<<9)\n')
+        f.write('#define DISPLAY_TYPE_BAFANG_C965    (1<<10)\n')
+        f.write('#define DISPLAY_TYPE_BAFANG         (DISPLAY_TYPE_BAFANG_C961|DISPLAY_TYPE_BAFANG_C965)\n')
         f.write('\n')
         f.write('#define DISPLAY_TYPE DISPLAY_TYPE_' + display_type + '    //Set your display type here. CHANGES ONLY HERE!<-----------------------------\n')
         f.write('\n')
@@ -335,7 +337,8 @@ class CompileTest(unittest.TestCase):
                           'KINGMETER_901U',
                           'BMS',
                           'BMS3',
-                          'BAFANG']:
+                          'BAFANG_C961',
+                          'BAFANG_C965']:
             self.build_firmware(disp_type, display_type=disp_type)
 
     def test_16x2_serial_with_dynamic_backlight(self):
