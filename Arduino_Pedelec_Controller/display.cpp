@@ -37,7 +37,12 @@ display_mode_type display_mode = DISPLAY_MODE_GRAPHIC; //startup screen
 display_mode_type display_mode_last = DISPLAY_MODE_TEXT; //last screen type
 boolean display_force_text = false;
 
+// Nokia displays: Default to graphic view on startup if compiled in
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) && defined(DV_GRAPHIC)
+display_view_type display_view = DISPLAY_VIEW_GRAPHIC;
+#else
 display_view_type display_view = DISPLAY_VIEW_MAIN;
+#endif
 display_view_type display_view_last = display_view;
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
