@@ -488,6 +488,18 @@ static void display_16x2_view_human()
 #endif
 }
 
+#ifdef DV_ODOMETER
+static void display_16x2_view_odometer()
+{
+    lcd.setCursor(0,0);
+
+    // show total mileage
+    lcd.print(MY_F("ODO: "));
+    lcd.print(odo/1000.0*wheel_circumference,1);
+    lcd.print(MY_F(" km"));
+}
+#endif
+
 static void display_16x2_update()
 {
     // View changed?
@@ -513,6 +525,11 @@ static void display_16x2_update()
         case DISPLAY_VIEW_HUMAN:
             display_16x2_view_human();
             break;
+#ifdef DV_ODOMETER
+        case DISPLAY_VIEW_ODOMETER:
+            display_16x2_view_odometer();
+            break;
+#endif
         case DISPLAY_VIEW_MAIN:
         default:
             display_16x2_view_main();
@@ -1142,6 +1159,17 @@ static void display_nokia_view_environment()
 }
 #endif
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) && defined(DV_ODOMETER)
+static void display_nokia_view_odometer()
+{
+    lcd.setCursor(0,3);
+    lcd.print(MY_F("ODO: "));
+    lcd.print(odo/1000.0*wheel_circumference,1);
+    // lcd.print(MY_F(" km"));
+}
+#endif
+
+
 static void display_nokia_update()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
@@ -1169,6 +1197,11 @@ static void display_nokia_update()
 #if defined(DV_HUMAN)
         case DISPLAY_VIEW_HUMAN:
             display_nokia_view_human();
+            break;
+#endif
+#if defined(DV_ODOMETER)
+        case DISPLAY_VIEW_ODOMETER:
+            display_nokia_view_odometer();
             break;
 #endif
         case DISPLAY_VIEW_MAIN:

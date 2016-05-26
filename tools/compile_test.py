@@ -112,6 +112,7 @@ def write_config_h(filename=CONFIG_H,
         f.write('#define DV_BATTERY\n')
         f.write('#define DV_ENVIRONMENT\n')
         f.write('#define DV_HUMAN\n')
+        f.write('#define DV_ODOMETER\n')
         f.write('\n')
         f.write('\n')
         f.write('const int serial_display_16x2_pin = 12;\n')

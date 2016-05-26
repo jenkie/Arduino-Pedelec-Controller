@@ -36,6 +36,7 @@
 #define DV_BATTERY
 #define DV_ENVIRONMENT
 #define DV_HUMAN
+#define DV_ODOMETER
 
 // If using a New Haven serial 16x2 display: The pin the display is connected to
 #if HARDWARE_REV < 20
@@ -115,7 +116,7 @@ const sw_action SW_DISPLAY2_LONG_PRESS  = ACTION_ENTER_MENU;
 // #define SUPPORT_DISPLAY_BACKLIGHT // uncomment for dynamic LCD display backlight support.
                                      // Normally the backlight is always on. If you enable this option,
                                      // it will only be on when something important is shown.
-                                     
+
                                      // The Nokia 5110 display needs a 120 Ohm resistor on the backlight pin
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
 const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f.e. instead of display switch #2 (12, default).

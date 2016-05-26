@@ -64,6 +64,9 @@ typedef enum {DISPLAY_VIEW_MAIN=0,
 #if defined(DV_HUMAN)
               DISPLAY_VIEW_HUMAN,
 #endif
+#if defined(DV_ODOMETER)
+              DISPLAY_VIEW_ODOMETER,
+#endif
               _DISPLAY_VIEW_END
              } display_view_type;
 
