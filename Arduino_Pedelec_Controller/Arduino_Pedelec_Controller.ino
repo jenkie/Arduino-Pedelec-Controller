@@ -260,7 +260,8 @@ PID myPID(&power, &pid_out,&pid_set,pid_p,pid_i,0, DIRECT);
 unsigned int idle_shutdown_count = 0;
 unsigned long idle_shutdown_last_wheel_time = millis();
 byte pulse_human=0;          //cyclist's heart rate
-double torque=0.0;           //cyclist's torque
+double torque=0.0;           //cyclist's torque in Nm (averaged over one pedal revolution)
+double torque_instant=0.0;   //cyclist's torque in Nm (live)
 double power_human=0.0;      //cyclist's power
 double wh_human=0;
 #ifdef SUPPORT_XCELL_RT
@@ -643,6 +644,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     power=current*voltage;
 
 #ifdef SUPPORT_XCELL_RT
+    torque_instant=(analogRead(option_pin)-torque_zero);  //multiplication constant for THUN X-CELL RT is approx. 1Nm/count
     if (readtorque==true)
     {
         torque=0.0;
@@ -756,6 +758,14 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 #if CONTROL_MODE == CONTROL_MODE_TORQUE                      //human power control mode
 #ifdef SUPPORT_XCELL_RT
     power_poti = poti_stat/102300.0* curr_power_poti_max*power_human*(1+spd/20.0); //power_poti_max is in this control mode interpreted as percentage. Example: power_poti_max=200 means; motor power = 200% of human power
+#ifdef SUPPORT_TORQUE_THROTTLE                              //we want to trigger throttle just by pedal torque
+    if (abs(torque_instant)>torque_throttle_min)            //we are above the threshold to trigger throttle
+    {
+      double power_torque_throttle = abs(torque_instant/torque_throttle_full*poti_stat/1023*curr_power_max);  //translate torque_throttle_full to maximum power
+      power_throttle = max(power_throttle,power_torque_throttle); //decide if thumb throttle or torque throttle are higher
+      power_throttle = constrain(power_throttle,0,curr_power_max); //constrain throttle value to maximum power 
+    }
+#endif
 #endif
 #endif
 
@@ -1220,7 +1230,7 @@ void serial_debug(HardwareSerial* localSerial)
     localSerial->print(MY_F(" Pedaling"));
     localSerial->print(pedaling);
     localSerial->print(MY_F(" Torque"));
-    localSerial->print(torque,1);
+    localSerial->print(torque_instant,1); //print current torque value in Nm
 #else
     localSerial->print(MY_F(" PAS_On"));
     localSerial->print(pas_on_time);

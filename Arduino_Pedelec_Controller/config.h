@@ -141,6 +141,7 @@ const int fixed_throttle_in_watts = 250;         //number of watts to set as thr
 // #define SUPPORT_BBS         //uncomment if BBS02 PAS sensor is connected (2 wires analog to Thun)
 #define BBS_GEARCHANGEPAUSE 2000 //powerless time in milliseconds to allow gear change 
 // #define SUPPORT_XCELL_RT    //uncomment if X-CELL RT connected. FC1.4: pas_factor_min=0.2, pas_factor_max=0.5. FC1.5: pas_factor_min=0.5, pas_factor_max=1.5. pas_magnets=8
+// #define SUPPORT_TORQUE_THROTTLE
 // #define SUPPORT_HRMI         //uncomment if polar heart-rate monitor interface connected to i2c port
 #define SUPPORT_BRAKE        //uncomment if brake switch connected
 // #define INVERT_BRAKE         //uncomment if brake signal is low when not braking
@@ -215,7 +216,8 @@ const double cfg_pid_i_throttle=2.5;     //pid i-value for throttle mode
 const byte pulse_min=150;                //lowest value of desired pulse range in bpm
 const byte pulse_range=20;               //width of desired pulse range in bpm
 const int pas_timeout=500;               //time in ms after which pedaling is set to false
-
+const int torque_throttle_min=5;         //minimum torque in Nm to trigger starting aid
+const int torque_throttle_full=20;       //torque to give full throttle
 //Config Options for profile 2-----------------------------------------------------------------------------------------------------
 const int startingaid_speed_2 = 6;
 const int spd_max1_2=22;                   //speed cutoff start in Km/h
