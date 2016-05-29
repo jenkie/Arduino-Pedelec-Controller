@@ -810,7 +810,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 
     if (power_set>curr_power_max*factor_speed)
     {power_set=curr_power_max*factor_speed;}                  //Maximum allowed power including Speed-Cutoff    
-    if ((((poti_stat<=throttle_stat)||(pedaling==false))&&(throttle_stat==0))||(brake_stat==0))  //integral part of PID regulator is slowly shrinked to 0 when you stop pedaling or brake
+    if ((((poti_stat<=throttle_stat)||(pedaling==false))&&(power_throttle<10))||(brake_stat==0))  //integral part of PID regulator is slowly shrinked to 0 when you stop pedaling or brake
     {
 #ifdef RESET_PID_ON_BRAKE
       myPID.ResetIntegral();
@@ -839,9 +839,9 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     throttle_write=map(pid_out*brake_stat*factor_volt,0,1023,motor_offset,motor_max);
 #endif
 #ifdef SUPPORT_PAS
-    if ((pedaling==false)&&(throttle_stat<5)||power_set<=0||spd>curr_spd_max2)
+    if ((pedaling==false)&&(power_throttle<10)||power_set<=0||spd>curr_spd_max2)
 #else
-    if (throttle_stat<5||spd>curr_spd_max2)
+    if (power_throttle<10||spd>curr_spd_max2)
 #endif
     {throttle_write=motor_offset;}
 //Broken speed sensor detection START
