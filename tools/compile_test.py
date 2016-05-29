@@ -30,6 +30,7 @@ ALL_FEATURES = [
                   'SUPPORT_THROTTLE',
                   'SUPPORT_PAS',
                   'SUPPORT_XCELL_RT',
+                  'SUPPORT_TORQUE_THROTTLE',
                   'SUPPORT_HRMI',
                   'SUPPORT_BRAKE',
                   'INVERT_BREAK',
