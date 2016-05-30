@@ -2,9 +2,10 @@
 """Try to configure different config.h settings"""
 """and see if everything still compiles"""
 """Licensed under the GPL v3, part of the pedelec controller"""
-"""Written by Thomas Jarosch, (c) 2014-2015"""
+"""Written by Thomas Jarosch, (c) 2014-2017"""
 import os
 import sys
+import argparse
 import subprocess
 import unittest
 import multiprocessing
@@ -313,7 +314,8 @@ class CompileTest(unittest.TestCase):
 
     def prepare_cmake(self, build_name):
         test_name = BUILD_PREFIX + build_name
-        os.mkdir(test_name)
+        if not os.path.isdir(test_name):
+            os.mkdir(test_name)
         os.chdir(test_name)
 
         subprocess.call('cmake -DDOCUMENTATION=OFF -Wno-dev ../', shell=True)
@@ -513,17 +515,25 @@ if __name__ == '__main__':
     if not os.path.isdir(BASE_DIR):
         raise Exception('Please call from base directory: tools/compile_test.py')
 
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('--dirty-build', action='store_true')
+    options, args = parser.parse_known_args()
+
     # Prebuild cleanup
     print('Cleaning build directories before build')
-    subprocess.call('rm -rf ' + BUILD_PREFIX + '*', shell=True)
+    if not options.dirty_build:
+        subprocess.call('rm -rf ' + BUILD_PREFIX + '*', shell=True)
     print('')
 
-    test_program = unittest.main(failfast=True, exit=False)
+    test_program = unittest.main(failfast=True, exit=False, argv=sys.argv[:1] + args)
 
     if test_program.result.wasSuccessful():
         # Cleanup
-        print('All fine. Cleaning build directories')
-        subprocess.call('rm -rf ' + BUILD_PREFIX + '*', shell=True)
+        if options.dirty_build:
+            print('All fine. Keeping build directories')
+        else:
+            print('All fine. Cleaning build directories')
+            subprocess.call('rm -rf ' + BUILD_PREFIX + '*', shell=True)
         print('')
     else:
         print('Build failed')
