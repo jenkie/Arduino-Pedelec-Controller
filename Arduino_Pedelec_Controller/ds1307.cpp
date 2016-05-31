@@ -36,7 +36,7 @@ static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
 void RTC_DS1307::adjust_time(uint8_t hh, uint8_t mm, uint8_t ss)
 {
     WIRE.beginTransmission(DS1307_ADDRESS);
-    WIRE.write(0);
+    WIRE.write((uint8_t)0);
     WIRE.write(bin2bcd(ss));
     WIRE.write(bin2bcd(mm));
     WIRE.write(bin2bcd(hh));
@@ -46,7 +46,7 @@ void RTC_DS1307::adjust_time(uint8_t hh, uint8_t mm, uint8_t ss)
 Time RTC_DS1307::get_time()
 {
     WIRE.beginTransmission(DS1307_ADDRESS);
-    WIRE.write(0);
+    WIRE.write((uint8_t)0);
     WIRE.endTransmission();
     WIRE.requestFrom(DS1307_ADDRESS, 7);
     uint8_t ss = bcd2bin(WIRE.read() & 0x7F);
