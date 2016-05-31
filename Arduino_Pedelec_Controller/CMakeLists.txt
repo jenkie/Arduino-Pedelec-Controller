@@ -13,6 +13,15 @@ set(FIRMWARE_NAME pcontroller)
 set(${FIRMWARE_NAME}_BOARD ${FC_PROCESSOR})
 set(${FIRMWARE_NAME}_PORT /dev/ttyUSB0)            # Serial upload port
 
+# special compile flags for the Travis CI environment
+# (avr-gcc is rather outdated and outputs crazy warnings)
+if("$ENV{TRAVIS}" STREQUAL "true")
+    message(STATUS "Detected Travis CI environment")
+
+    # disable compiler invocation output since Travis CI has a 4MB log output limit
+    set_property(GLOBAL PROPERTY RULE_MESSAGES off)
+endif("$ENV{TRAVIS}" STREQUAL "true")
+
 # Hack until we replace the .ino file with a stub
 # and move everything to main.cpp
 configure_file(Arduino_Pedelec_Controller.ino main.cpp COPYONLY)

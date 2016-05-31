@@ -4,6 +4,7 @@
 """Licensed under the GPL v3, part of the pedelec controller"""
 """Written by Thomas Jarosch, (c) 2014-2015"""
 import os
+import sys
 import subprocess
 import unittest
 import multiprocessing
@@ -294,7 +295,7 @@ class CompileTest(unittest.TestCase):
         os.mkdir(test_name)
         os.chdir(test_name)
 
-        subprocess.call('cmake ../ -DDOCUMENTATION=OFF', shell=True)
+        subprocess.call('cmake -DDOCUMENTATION=OFF -Wno-dev ../', shell=True)
 
     def run_make(self, build_name):
         ret = subprocess.call('make -j' + str(CPU_COUNT), shell=True)
@@ -492,3 +493,6 @@ if __name__ == '__main__':
         print('All fine. Cleaning build directories')
         subprocess.call('rm -rf ' + BUILD_PREFIX + '*', shell=True)
         print('')
+    else:
+        print('Build failed')
+        sys.exit(1)
