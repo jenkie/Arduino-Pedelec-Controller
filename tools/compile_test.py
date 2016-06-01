@@ -67,13 +67,24 @@ DEFAULT_FEATURES = [
                   'DETECT_BROKEN_SPEEDSENSOR'
                  ]
 
+ALL_DISPLAY_VIEWS = [
+                   'DV_GRAPHIC',
+                   'DV_TIME',
+                   'DV_BATTERY',
+                   'DV_ENVIRONMENT',
+                   'DV_HUMAN',
+                   'DV_ODOMETER'
+                  ]
+
+
 def write_config_h(filename=CONFIG_H,
                    hardware_rev=21,
                    display_type='NOKIA_4PIN',
                    serial_mode='DEBUG',
                    bluetooth_mode='NONE',
                    features=DEFAULT_FEATURES,
-                   control_mode='NORMAL'):
+                   control_mode='NORMAL',
+                   display_views=ALL_DISPLAY_VIEWS):
     with open(filename, 'w') as f:
         f.write('#ifndef CONFIG_H\n')
         f.write('#define CONFIG_H\n')
@@ -109,12 +120,10 @@ def write_config_h(filename=CONFIG_H,
         f.write('\n')
         f.write('\n')
         f.write('//Selection of available display views: comment out any view that you do not want. Can save much programming space!\n')
-        f.write('#define DV_GRAPHIC\n')
-        f.write('#define DV_TIME 1\n')
-        f.write('#define DV_BATTERY\n')
-        f.write('#define DV_ENVIRONMENT\n')
-        f.write('#define DV_HUMAN\n')
-        f.write('#define DV_ODOMETER\n')
+        for dv in display_views:
+            if dv not in ALL_DISPLAY_VIEWS:
+                raise Exception('Unknown display view: ' + dv)
+            f.write('#define ' + dv + '\n')
         f.write('\n')
         f.write('\n')
         f.write('const int serial_display_16x2_pin = 12;\n')
@@ -351,6 +360,15 @@ class CompileTest(unittest.TestCase):
         self.build_firmware(hardware_rev = 5,
                     display_type='16X2_SERIAL',
                     features=my_features)
+
+    def test_display_views(self):
+        for disp_type in ['16X2_SERIAL',
+                          'NOKIA_4PIN'
+                         ]:
+            for view in ALL_DISPLAY_VIEWS:
+                name_hint = disp_type + "_" + view
+                self.build_firmware(name_hint, display_type=disp_type,
+                                    display_views=[view])
 
     def test_serial_modes(self):
         for serial_mode in ['NONE',
