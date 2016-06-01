@@ -5,6 +5,9 @@ dist: trusty
 language:
     - python
 
+cache:
+    - ccache
+
 python:
   - "3.4"
 
@@ -16,5 +19,6 @@ addons:
    - avr-libc
    - arduino
    - cmake
+   - ccache
 
 script: tools/compile_test.py
