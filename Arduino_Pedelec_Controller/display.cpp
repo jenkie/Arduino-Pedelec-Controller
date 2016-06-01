@@ -511,20 +511,28 @@ static void display_16x2_update()
 
     switch (display_view)
     {
+#ifdef DV_TIME
         case DISPLAY_VIEW_TIME:
             display_16x2_view_time();
             break;
+#endif
+#ifdef DV_BATTERY
         case DISPLAY_VIEW_BATTERY:
             display_16x2_view_battery();
             break;
+#endif
 #if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01) || defined(SUPPORT_TEMP_SENSOR)
+#ifdef DV_ENVIRONMENT
         case DISPLAY_VIEW_ENVIRONMENT:
             display_16x2_view_environment();
             break;
 #endif
+#endif
+#ifdef DV_HUMAN
         case DISPLAY_VIEW_HUMAN:
             display_16x2_view_human();
             break;
+#endif
 #ifdef DV_ODOMETER
         case DISPLAY_VIEW_ODOMETER:
             display_16x2_view_odometer();
