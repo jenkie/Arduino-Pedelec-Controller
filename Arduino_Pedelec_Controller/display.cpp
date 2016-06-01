@@ -385,6 +385,7 @@ static void display_16x2_view_main()
     lcd.print(MY_F(" km"));
 }
 
+#ifdef DV_TIME
 static void display_16x2_view_time()
 {
     lcd.setCursor(0,0);
@@ -404,7 +405,9 @@ static void display_16x2_view_time()
     lcd.print(now.mm);
 #endif
 }
+#endif
 
+#ifdef DV_BATTERY
 static void display_16x2_view_battery()
 {
     lcd.setCursor(0,0);
@@ -428,7 +431,9 @@ static void display_16x2_view_battery()
         lcd.print(MY_F("---"));
     lcd.print(MY_F(" AVG "));
 }
+#endif
 
+#ifdef DV_ENVIRONMENT
 bool show_altitude = false;
 static void display_16x2_view_environment()
 {
@@ -469,7 +474,9 @@ static void display_16x2_view_environment()
     lcd.print(MY_F(" C "));
 #endif
 }
+#endif
 
+#ifdef DV_HUMAN
 static void display_16x2_view_human()
 {
     lcd.setCursor(0,0);
@@ -487,6 +494,7 @@ static void display_16x2_view_human()
     lcd.print(MY_F(" "));
 #endif
 }
+#endif
 
 #ifdef DV_ODOMETER
 static void display_16x2_view_odometer()
@@ -1031,7 +1039,7 @@ static void display_nokia_view_main()
 }
 #endif// (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) && defined (DV_GRAPHIC)
 static void display_nokia_view_graphic()
 {
     //print range in km in the top left corner
@@ -1095,7 +1103,7 @@ static void display_nokia_view_graphic()
 }
 #endif
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) && defined (DV_HUMAN)
 static void display_nokia_view_human()
 {
 
@@ -1130,7 +1138,7 @@ static void display_nokia_view_human()
 }
 #endif
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) && defined (DV_ENVIRONMENT)
 static void display_nokia_view_environment()
 {
 #if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
@@ -1192,22 +1200,22 @@ static void display_nokia_update()
 
     switch (display_view)
     {
-#if (defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01) || defined(SUPPORT_TEMP_SENSOR))&& defined(DV_ENVIRONMENT)
+#if (defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01) || defined(SUPPORT_TEMP_SENSOR)) && defined(DV_ENVIRONMENT)
         case DISPLAY_VIEW_ENVIRONMENT:
             display_nokia_view_environment();
             break;
 #endif
-#if defined(DV_GRAPHIC)
+#ifdef DV_GRAPHIC
         case DISPLAY_VIEW_GRAPHIC:
             display_nokia_view_graphic();
             break;
 #endif
-#if defined(DV_HUMAN)
+#ifdef DV_HUMAN
         case DISPLAY_VIEW_HUMAN:
             display_nokia_view_human();
             break;
 #endif
-#if defined(DV_ODOMETER)
+#ifdef DV_ODOMETER
         case DISPLAY_VIEW_ODOMETER:
             display_nokia_view_odometer();
             break;
