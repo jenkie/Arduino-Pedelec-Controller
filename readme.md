@@ -10,3 +10,5 @@ http://www.pedelecforum.de/wiki/doku.php?id=elektrotechnik:forumscontroller
 * [Hacking](docs/README_hacking.txt)
 * [Menu](docs/README_menu.txt)
 
+## Code build status
+[![Build Status](https://travis-ci.org/jenkie/Arduino-Pedelec-Controller.svg?branch=master)](https://travis-ci.org/jenkie/Arduino-Pedelec-Controller)
