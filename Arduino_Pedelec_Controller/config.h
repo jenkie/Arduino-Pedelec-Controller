@@ -175,6 +175,12 @@ const byte gear_shift_pin_high_gear = 7;     //pin that connects to the high gea
 //#define SUPPORT_TEMP_SENSOR                //uncomment if you want to use a DS18x20 temperature sensor
 const byte temp_pin = A2;                     //pin connected to Data pin of the DS18x20 temperature Sensor
 
+//#define SUPPORT_THERMISTOR                 //uncomment if you have thermistor connected
+const byte thermistor_pin = A2;              //thermistor pin
+const float thermistor_t0=0.00335401643;     // 1/T0 of thermistor in 1/K
+const float thermistor_b=0.00025316455;      // 1/beta of thermistor in 1/K
+const float thermistor_r=10;                 // r of thermistor in kOhm
+
 //#define SUPPORT_HX711                        //uncomment this if you want to use a load cell with hx711 amplifier
 const byte hx711_data=20;                    //data pin of hx711 sensor
 const byte hx711_sck=21;                     //clock pin of hx711 sensor

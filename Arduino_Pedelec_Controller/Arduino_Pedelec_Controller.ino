@@ -282,6 +282,10 @@ volatile boolean readtorque=false;  //true if torque array has been updated -> r
 unsigned long bbs_pausestart=0; //start time of power pause for gear change
 #endif
 
+#ifdef SUPPORT_THERMISTOR
+float temperature_thermistor=0; //thermistor temperature
+#endif
+
 #if (SERIAL_MODE & SERIAL_MODE_MMC)           //communicate with mmc-app
 String mmc_command="";
 byte mmc_value=0;
@@ -542,6 +546,10 @@ motorservo.attach(throttle_out);
 #ifdef SUPPORT_HX711     
 loadcell.tare();                   //set zero scale. remove any load diring startup!
 loadcell.set_scale(hx711_scale);   //apply scaling
+#endif
+
+#ifdef SUPPORT_THERMISTOR
+  pinMode(thermistor_pin,INPUT);
 #endif
 
 #ifdef DEBUG_MEMORY_USAGE
@@ -975,6 +983,10 @@ if (loadcell.is_ready())     //new conversion result from load cell available
         sensors.requestTemperatures(); // read temperature(s) from DS18x20 sensor. Readouts are in sensors.getTempCByIndex(n)
 #endif
 
+#ifdef SUPPORT_THERMISTOR
+       temperature_thermistor=1/(thermistor_t0+thermistor_b*log((10240/analogRead(thermistor_pin)-10)/thermistor_r))-273.15; //calculate thermistor temperature from Steinhart-Hart parameters
+#endif
+
         battery_percent_fromcapacity = constrain((1-wh/ curr_capacity)*100,0,100);     //battery percent calculation from battery capacity. For voltage-based calculation see above
         range=constrain(curr_capacity/wh*km-km,0.0,200.0);               //range calculation from battery capacity
         wh+=current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
@@ -1252,6 +1264,10 @@ void serial_debug(HardwareSerial* localSerial)
 #ifdef SUPPORT_TEMP_SENSOR
     localSerial->print(MY_F(" Temp"));
     localSerial->print(sensors.getTempCByIndex(0),2);
+#endif
+#ifdef SUPPORT_THERMISTOR
+    localSerial->print(MY_F(" Temp"));
+    localSerial->print(temperature_thermistor,1);
 #endif
     /*
         localSerial->print(MY_F(" TEMP"));
