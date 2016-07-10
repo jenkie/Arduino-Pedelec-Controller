@@ -984,7 +984,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 #endif
 
 #ifdef SUPPORT_THERMISTOR
-       temperature_thermistor=1/(thermistor_t0+thermistor_b*log((10240/analogRead(thermistor_pin)-10)/thermistor_r))-273.15; //calculate thermistor temperature from Steinhart-Hart parameters
+              temperature_thermistor=1/(thermistor_t0+thermistor_b*log((10/(1023.0/analogRead(thermistor_pin)-1))/thermistor_r))-273.15; //calculate thermistor temperature from Steinhart-Hart parameters
 #endif
 
         battery_percent_fromcapacity = constrain((1-wh/ curr_capacity)*100,0,100);     //battery percent calculation from battery capacity. For voltage-based calculation see above
