@@ -47,7 +47,7 @@ ALL_FEATURES = [
                   'SUPPORT_GEAR_SHIFT',
                   'SUPPORT_MOTOR_SERVO',
                   'SUPPORT_TEMP_SENSOR',
-				  'SUPPORT_THERMISTOR',
+                  'SUPPORT_THERMISTOR',
                   'SUPPORT_HX711',
                   'DETECT_BROKEN_SPEEDSENSOR',
                   'USE_EXTERNAL_CURRENT_SENSOR',
@@ -206,10 +206,10 @@ def write_config_h(filename=CONFIG_H,
         f.write('\n')
         f.write('//Config Options-----------------------------------------------------------------------------------------------------\n')
         f.write('const byte temp_pin = A2;                //pin connected to Data pin of the DS18x20 temperature Sensor\n')
-		f.write('const byte thermistor_pin = A2;              //thermistor pin\n')
-		f.write('const float thermistor_t0=0.00335401643;     // 1/T0 of thermistor in 1/K\n')
-		f.write('const float thermistor_b=0.00025316455;      // 1/beta of thermistor in 1/K\n')
-		f.write('const float thermistor_r=10;                 // r of thermistor in kOhm\n')
+        f.write('const byte thermistor_pin = A2;              //thermistor pin\n')
+        f.write('const float thermistor_t0=0.00335401643;     // 1/T0 of thermistor in 1/K\n')
+        f.write('const float thermistor_b=0.00025316455;      // 1/beta of thermistor in 1/K\n')
+        f.write('const float thermistor_r=10;                 // r of thermistor in kOhm\n')
         f.write('const int pas_tolerance=1;               //0... increase to make pas sensor slower but more tolerant against speed changes\n')
         f.write('const int throttle_offset=196;           //Offset voltage of throttle control when in "0" position (0..1023 = 0..5V)\n')
         f.write('const int throttle_max=832;              //Offset voltage of throttle control when in "MAX" position (0..1023 = 0..5V)\n')
@@ -481,7 +481,7 @@ class CompileTest(unittest.TestCase):
                             'SUPPORT_BATTERY_CHARGE_COUNTER',
                             'SUPPORT_GEAR_SHIFT',
                             'SUPPORT_TEMP_SENSOR',
-							'SUPPORT_THERMISTOR',
+                            'SUPPORT_THERMISTOR',
                             'SUPPORT_HX711',
                             'DETECT_BROKEN_SPEEDSENSOR'
                         ]
