@@ -1291,7 +1291,11 @@ void serial_debug(HardwareSerial* localSerial)
     localSerial->print(analogRead_noISR(external_voltage_in)); Serial.print(MY_F(";"));
 #endif
 #ifndef USE_EXTERNAL_CURRENT_SENSOR
+#if HARDWARE_REV <=21
     localSerial->print(analogRead_noISR(current_in)); Serial.print(MY_F(";"));
+#else
+    localSerial->print(analogRead_noISR(current_in)-analogRead_noISR(current_in_neg)); Serial.print(MY_F(";"));
+#endif
 #else
     localSerial->print(analogRead_noISR(external_current_in)); Serial.print(MY_F(";"));
 #endif
