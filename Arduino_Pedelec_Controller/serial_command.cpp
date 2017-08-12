@@ -167,6 +167,7 @@ static void handle_command()
         case 7:              //charge count write
 #ifdef SUPPORT_BATTERY_CHARGE_COUNTER
                 charge_count=atoi(active_serial->numberstring);
+                save_eeprom();
 #endif
                 break;
     }
