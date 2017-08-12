@@ -192,6 +192,9 @@ const int switch_disp = 37;           //Display switch
 // const int switch_disp_2 = 48;        //second Display switch with Nokia-Display in 4-pin-mode
 const int buzzer=11;
 #endif
+#if HARDWARE_REV >= 22
+const int current_in_neg = A13;           //Negative Current read-Pin
+#endif
 
 
 
@@ -638,9 +641,11 @@ if (loadcell.is_ready())     //new conversion result from load cell available
           lowest_raw_current = raw_current;
       current = (raw_current-lowest_raw_current)*current_amplitude_R11; //check with multimeter, change in config.h if needed!
       current = constrain(current,0,30);
-  #endif
-  #if HARDWARE_REV >= 3
+  #elif HARDWARE_REV >= 3 && HARDWARE_REV <= 21
       current = (analogRead_noISR(current_in)-512)*current_amplitude_R13+current_offset;    //check with multimeter, change in config.h if needed!
+      current = constrain(current,-30,30);
+  #elif HARDWARE_REV >= 22
+      current = (analogRead_noISR(current_in)-analogRead_noISR(current_in_neg))*current_amplitude_R22+current_offset;    //check with multimeter, change in config.h if needed!
       current = constrain(current,-30,30);
   #endif
 #else //using external current sensor
@@ -648,7 +653,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 #endif
 
     voltage_display = 0.99*voltage_display + 0.01*voltage; //averaged voltage for display
-    current_display = 0.99*current_display + 0.01*current; //averaged voltage for display
+    current_display = 0.99*current_display + 0.01*current; //averaged current for display
     power=current*voltage;
 
 #ifdef SUPPORT_XCELL_RT
@@ -1539,7 +1544,7 @@ void handle_unused_pins()
   PORTG|= B00011111;
   PORTH|= B10000000;
   PORTJ|= B11111100;
-  PORTK|= B00111111;
+  PORTK|= B00011111;
   PORTL|= B11000111;
 #endif
 }

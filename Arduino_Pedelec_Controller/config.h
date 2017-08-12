@@ -9,7 +9,7 @@
 #endif
 #include "switches_action.h"
 
-#define HARDWARE_REV 21      //place your hardware revision here: 1-5 means hardware-revision 1.x, 2x means 2.x
+#define HARDWARE_REV 22      //place your hardware revision here: 1-5 means hardware-revision 1.x, 2x means 2.x
 
 #define DISPLAY_TYPE_NONE           (1<<0)                  // No display at all
 #define DISPLAY_TYPE_NOKIA_5PIN     (1<<1)                  // Nokia 5110 5-pin mode
@@ -235,10 +235,11 @@ const double capacity_2 = 166.0;           //battery capacity in watthours for r
 // voltage and current calibration
 const float voltage_amplitude = 0.0587;       // set this value according to your own voltage-calibration. Default: 0.0587
 const float voltage_offset = 0.0;             // set this value according to your own voltage-calibration. Default: 0.0
-const float current_offset = 0.0;             // for Rev 1.3 ONLY! set this value according to your own current-calibration. Default: 0.0
-                                              // for Rev 1.1 - 1.2 the offset is corrected by software!
+const float current_offset = 0.0;             // for Rev >1.3 ONLY! set this value according to your own current-calibration. Default: 0.0
+                                              // for Rev 1.1 - 1.2 the offset is automatically corrected by software!
 const float current_amplitude_R11 = 0.0296;   // for Rev 1.1 - 1.2 set this value according to your own current-calibration. Default: 0.0296
-const float current_amplitude_R13 = 0.0741;   // for Rev 1.3 set this value according to your own current-calibration. Default: 0.0741
+const float current_amplitude_R13 = 0.0741;   // for Rev 1.3-2.1 set this value according to your own current-calibration. Default: 0.0741
+const float current_amplitude_R22 = 0.04887585533;   // for Rev >= 2.2 set this value according to your own current-calibration. Default: 0.0741
 // #define USE_EXTERNAL_CURRENT_SENSOR
 // #define USE_EXTERNAL_VOLTAGE_SENSOR
 const float external_voltage_offset = 0.0;  
