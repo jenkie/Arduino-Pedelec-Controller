@@ -48,7 +48,8 @@ enum sw_action { ACTION_NONE=0,                // do nothing
                  ACTION_GEAR_SHIFT_HIGH,                  // gear shift: shift to high gear
                  ACTION_GEAR_SHIFT_AUTO,                  // gear shift: shift motor controller to "auto" mode
                  ACTION_GEAR_SHIFT_TOGGLE_LOW_HIGH,       // gear shift: toggle between low and high
-                 ACTION_GEAR_SHIFT_TOGGLE_LOW_HIGH_AUTO   // gear shift: toggle between low, high and auto
+                 ACTION_GEAR_SHIFT_TOGGLE_LOW_HIGH_AUTO,   // gear shift: toggle between low, high and auto
+                 ACTION_TORQUE_ZERO            // Re-zero torque sensor
                };
 
 #endif

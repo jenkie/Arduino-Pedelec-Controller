@@ -224,6 +224,8 @@ const byte pulse_range=20;               //width of desired pulse range in bpm
 const int pas_timeout=500;               //time in ms after which pedaling is set to false
 const int torque_throttle_min=5;         //minimum torque in Nm to trigger starting aid
 const int torque_throttle_full=20;       //torque to give full throttle
+define TORQUE_ZERO 533                  //Offset of X-Cell RT torque sensor.
+#define TORQUE_AUTOZERO                  //uncomment to re-zero torque sensor at startup
 //Config Options for profile 2-----------------------------------------------------------------------------------------------------
 const int startingaid_speed_2 = 6;
 const int spd_max1_2=22;                   //speed cutoff start in Km/h
@@ -260,6 +262,9 @@ const char msg_tempomat_reset[] PROGMEM = "Tempomat reset";
 const char msg_unknown_action[] PROGMEM = "Unknown action!";
 const char msg_activated[] PROGMEM = "Activated";
 const char msg_deactivated[] PROGMEM = "Deactivated";
+#ifdef SUPPORT_XCELL_RT
+const char msg_torquezero[] PROGMEM = "Re-zero torque sensor";
+#endif
 
 #ifdef SUPPORT_GEAR_SHIFT
 const char msg_gear_shift_low_gear[] PROGMEM = "Low gear active";

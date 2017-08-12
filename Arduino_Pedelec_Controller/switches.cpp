@@ -77,6 +77,7 @@ void init_switches()
 // Switch actions start here.
 // Those can be executed when a button is pressed (short or long)
 //
+
 void action_set_soft_poti(int new_throttle_stat)
 {
 #if defined(SUPPORT_SOFT_POTI) || \
@@ -334,6 +335,12 @@ static void execute_action(const sw_action action)
             break;
         case ACTION_GEAR_SHIFT_TOGGLE_LOW_HIGH_AUTO:
             action_toggle_gear(true);
+            break;
+#endif
+#ifdef SUPPORT_XCELL_RT
+        case ACTION_TORQUE_ZERO:
+            torque_rezero();
+            display_show_important_info(FROM_FLASH(msg_torquezero), 2);
             break;
 #endif
         default:

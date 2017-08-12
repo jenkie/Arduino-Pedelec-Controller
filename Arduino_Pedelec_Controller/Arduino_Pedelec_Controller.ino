@@ -268,7 +268,7 @@ double torque_instant=0.0;   //cyclist's torque in Nm (live)
 double power_human=0.0;      //cyclist's power
 double wh_human=0;
 #ifdef SUPPORT_XCELL_RT
-int torque_zero=533;             //Offset of X-Cell RT torque sensor. Adjusted at startup
+int torque_zero=TORQUE_ZERO; //Offset of X-Cell RT torque sensor. Adjusted at startup if TORQUE_AUTOZERO option is set
 static volatile boolean analogRead_in_use = false; //read torque values in interrupt only if no analogRead in process
 static volatile boolean thun_want_calculation = false; //read torque values in interrupt only if no analogRead in process
 #if HARDWARE_REV<20
@@ -521,7 +521,9 @@ digitalWrite(option_pin,HIGH);
 #endif
 
 #ifdef SUPPORT_XCELL_RT
-    torque_zero=analogRead_noISR(option_pin);
+#ifdef TORQUE_AUTOZERO
+    torque_rezero();
+#endif
 #endif
 
 #ifdef SUPPORT_MOTOR_SERVO
@@ -1105,6 +1107,11 @@ void read_current_torque() //this reads the current torque value
     if (torqueindex==torquevalues_count)
         torqueindex=0;
     readtorque=true;  
+}
+
+void torque_rezero() //resets torque sensor
+{
+  torque_zero=analogRead_noISR(option_pin);
 }
 #endif
 

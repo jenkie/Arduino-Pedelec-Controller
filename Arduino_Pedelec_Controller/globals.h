@@ -76,6 +76,8 @@ extern void activate_new_profile();
 extern RTC_DS1307 rtc;
 extern Time now;
 
+void torque_rezero();
+
 #ifdef SUPPORT_TEMP_SENSOR
 #include "DallasTemp.h"
 extern DallasTemperature sensors;
