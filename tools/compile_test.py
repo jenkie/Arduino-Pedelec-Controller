@@ -248,7 +248,7 @@ def write_config_h(filename=CONFIG_H,
         f.write('const int pas_timeout=500;               //time in ms after which pedaling is set to false\n')
         f.write('const int torque_throttle_min=5;         //minimum torque in Nm to trigger starting aid\n')
         f.write('const int torque_throttle_full=20;       //torque to give full throttle\n')
-
+        f.write('#define TORQUE_ZERO 533                  //Offset of X-Cell RT torque sensor.\n')
         f.write('\n')
         f.write('//Config Options for profile 2-----------------------------------------------------------------------------------------------------\n')
         f.write('const int startingaid_speed_2 = 6;\n')
