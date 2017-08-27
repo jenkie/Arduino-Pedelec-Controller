@@ -32,6 +32,7 @@ ALL_FEATURES = [
                   'SUPPORT_PAS',
                   'SUPPORT_XCELL_RT',
                   'SUPPORT_TORQUE_THROTTLE',
+                  'TORQUE_AUTOZERO',
                   'SUPPORT_HRMI',
                   'SUPPORT_BRAKE',
                   'INVERT_BREAK',
@@ -79,7 +80,7 @@ ALL_DISPLAY_VIEWS = [
 
 
 def write_config_h(filename=CONFIG_H,
-                   hardware_rev=21,
+                   hardware_rev=22,
                    display_type='NOKIA_4PIN',
                    serial_mode='DEBUG',
                    bluetooth_mode='NONE',
@@ -264,7 +265,8 @@ def write_config_h(filename=CONFIG_H,
         f.write('const float current_offset = 0.0;             // for Rev 1.3 ONLY! set this value according to your own current-calibration. Default: 0.0\n')
         f.write('                                              // for Rev 1.1 - 1.2 the offset is corrected by software!\n')
         f.write('const float current_amplitude_R11 = 0.0296;   // for Rev 1.1 - 1.2 set this value according to your own current-calibration. Default: 0.0296\n')
-        f.write('const float current_amplitude_R13 = 0.0741;   // for Rev 1.3 set this value according to your own current-calibration. Default: 0.0741\n')
+        f.write('const float current_amplitude_R13 = 0.0741;   // for Rev 1.3 - 2.1 set this value according to your own current-calibration. Default: 0.0741\n')
+        f.write('const float current_amplitude_R22 = 0.04887585533;   // for Rev >= 2.2 set this value according to your own current-calibration. Default: 0.04887585533\n')
         f.write('// #define USE_EXTERNAL_CURRENT_SENSOR\n')
         f.write('// #define USE_EXTERNAL_VOLTAGE_SENSOR\n')
         f.write('const float external_voltage_offset = 0.0;\n')
@@ -410,7 +412,7 @@ class CompileTest(unittest.TestCase):
             self.build_firmware(control_mode, control_mode=control_mode, features=my_features)
 
     def test_hw_revisions(self):
-        for hw_revision in [1, 2, 3, 4, 5, 20, 21]:
+        for hw_revision in [1, 2, 3, 4, 5, 20, 21, 22]:
             self.build_firmware(str(hw_revision), hardware_rev = hw_revision)
 
     def test_throttle_auto_cruise(self):
@@ -464,7 +466,7 @@ class CompileTest(unittest.TestCase):
                     )
 
     def test_max_config_fc2x0(self):
-        self.build_firmware(hardware_rev = 21,
+        self.build_firmware(hardware_rev = 22,
                     display_type='NOKIA_4PIN',
                     serial_mode='DEBUG',
                     control_mode='TORQUE',
@@ -477,6 +479,7 @@ class CompileTest(unittest.TestCase):
                             'SUPPORT_THROTTLE',
                             'SUPPORT_PAS',
                             'SUPPORT_XCELL_RT',
+                            'TORQUE_AUTOZERO',
                             'SUPPORT_HRMI',
                             'SUPPORT_BRAKE',
                             'SUPPORT_PROFILE_SWITCH_MENU',
