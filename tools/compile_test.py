@@ -246,6 +246,8 @@ def write_config_h(filename=CONFIG_H,
         f.write('const byte pulse_range=20;               //width of desired pulse range in bpm\n')
         f.write('const byte battery_charged_min_voltage = 20;\n')
         f.write('const int pas_timeout=500;               //time in ms after which pedaling is set to false\n')
+        f.write('const int torque_throttle_min=5;         //minimum torque in Nm to trigger starting aid\n')
+        f.write('const int torque_throttle_full=20;       //torque to give full throttle\n')
 
         f.write('\n')
         f.write('//Config Options for profile 2-----------------------------------------------------------------------------------------------------\n')
