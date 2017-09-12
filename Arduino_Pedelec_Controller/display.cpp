@@ -52,7 +52,11 @@ static PCD8544 lcd;                          //for Nokia Display
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)
 #include "LiquidCrystalDogm.h"             //for 4bit (e.g. EA-DOGM) Display
+#if HARDWARE_REV < 20
 static LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   //for 4bit (e.g. EA-DOGM) Display
+#else
+static LiquidCrystal lcd(6,PH2,  16, 17,7,37);    //for 4bit (e.g. EA-DOGM) Display
+#endif
 #endif
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
@@ -119,7 +123,11 @@ static void prepare_important_info(int duration_secs)
 #endif
 
     lcd.clear();
+    #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     lcd.setCursor(0, 2);
+    #elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+    lcd.setCursor(0, 0);
+    #endif
 }
 #endif
 
@@ -274,7 +282,7 @@ static void display_16x2_setup()
     lcd.init();
 #endif
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
     // Online editor for custom chars (5x8 pixels):
     // http://www.quinapalus.com/hd44780udg.html
     lcd.createChar(0x01, serial_break_symbol);
@@ -346,7 +354,7 @@ static void display_16x2_view_main()
     lcd.setCursor(0,0);
     if (spd<10)
     {lcd.print(MY_F(" "));}
-    lcd.print(round(spd),0);
+    lcd.print(spd,0);
     lcd.print(MY_F(" km/h  "));
 
     double power_display = power;
@@ -367,15 +375,25 @@ static void display_16x2_view_main()
 
     // Break status
     if(brake_stat==0)
+    #if DISPAY_TYPE==DISPLAY_TYPE_16X2_SERIAL
         lcd.write(0x01);
+    #else
+        lcd.print(MY_F("B"));
+    #endif
     else if (current_profile)           // second profile active?
+    #if DISPAY_TYPE==DISPLAY_TYPE_16X2_SERIAL
         lcd.write(0x03);
+    #else
+        lcd.print(MY_F("2"));
+    #endif
     else
         lcd.print(MY_F(" "));
 
     lcd.setCursor(0,1);
     // Custom battery symbol
+    #if DISPAY_TYPE==DISPLAY_TYPE_16X2_SERIAL
     lcd.write(0x02);
+    #endif
     lcd.print(battery_percent_fromcapacity);
     // Note: two extra spaces to clear chars when the capacity gets lower
     lcd.print(MY_F("%  "));
