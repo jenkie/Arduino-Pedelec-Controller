@@ -4,6 +4,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include "Arduino.h"
+#include "config.h"
 
 // When the display powers up, it is configured as follows:
 //
