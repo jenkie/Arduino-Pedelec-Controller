@@ -23,8 +23,6 @@ class HX711
 		// gain: 128 or 64 for channel A; channel B works with 32 gain factor only
 		HX711(byte dout, byte pd_sck, byte gain = 128);
 
-		virtual ~HX711();
-
 		// check if HX711 is ready
 		// from the datasheet: When output data is not ready for retrieval, digital output pin DOUT is high. Serial clock
 		// input PD_SCK should be low. When DOUT goes to low, it indicates data is ready for retrieval.

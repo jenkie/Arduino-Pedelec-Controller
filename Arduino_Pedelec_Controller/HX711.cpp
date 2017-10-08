@@ -12,10 +12,6 @@ HX711::HX711(byte dout, byte pd_sck, byte gain) {
 	set_gain(gain);
 }
 
-HX711::~HX711() {
-
-}
-
 bool HX711::is_ready() {
 	return digitalRead(DOUT) == LOW;
 }
