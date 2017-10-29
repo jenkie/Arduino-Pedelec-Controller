@@ -88,7 +88,7 @@ Time now;
 #error Soft poti is incompatible with throttle auto cruise
 #endif
 
-#if defined(SUPPORT_LIGHTS_SWITCH) && defined(SUPPORT_XCELL_RT)
+#if defined(SUPPORT_LIGHTS_SWITCH) && defined(SUPPORT_XCELL_RT) && HARDWARE_REV < 20
 #error Software controlled lights switch is not compatible with X-CELL RT support
 #endif
 
