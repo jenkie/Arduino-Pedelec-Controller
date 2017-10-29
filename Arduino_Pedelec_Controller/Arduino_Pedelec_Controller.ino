@@ -88,8 +88,8 @@ Time now;
 #error Soft poti is incompatible with throttle auto cruise
 #endif
 
-#if defined(SUPPORT_LIGHTS_SWITCH) && defined(SUPPORT_XCELL_RT) && HARDWARE_REV < 20
-#error Software controlled lights switch is not compatible with X-CELL RT support
+#if defined(SUPPORT_LIGHTS_SWITCH) && (defined(SUPPORT_XCELL_RT)||defined(SUPPORT_SEMPU)) && HARDWARE_REV < 20
+#error Software controlled lights switch is not compatible with torque sensor support on FC < 2.0
 #endif
 
 #if defined(SUPPORT_LIGHTS_SWITCH) && HARDWARE_REV < 3
@@ -133,7 +133,7 @@ struct savings   //add variables if you want to store additional values to the e
 #ifdef SUPPORT_BATTERY_CHARGE_COUNTER
     unsigned int charge_count;//battery charge count
 #endif
-#ifdef SUPPORT_XCELL_RT
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)
     float wh_human; //human watthours
 #endif
 };
@@ -254,7 +254,11 @@ int last_throttle_write=0;                      //last throttle write value
 #endif
 volatile byte wheel_counter=0; //counter for events that should happen once per wheel revolution. only needed if wheel_magnets>1
 volatile unsigned long last_pas_event = millis();  //last change-time of PAS sensor status
-#define pas_time 60000/pas_magnets //conversion factor for pas_time to rpm (cadence)
+#ifdef SUPPORT_SEMPU
+  #define pas_time 1875 //conversion factor for pas_time to rpm (cadence) 
+#else
+  #define pas_time 60000/pas_magnets //conversion factor for pas_time to rpm (cadence)
+#endif
 volatile boolean pedaling = false;  //pedaling? (in forward direction!)
 volatile boolean pedalingbackwards = false;  //pedalingn in backward direction
 boolean firstrun = true;  //first run of loop?
@@ -267,16 +271,16 @@ double torque=0.0;           //cyclist's torque in Nm (averaged over one pedal r
 double torque_instant=0.0;   //cyclist's torque in Nm (live)
 double power_human=0.0;      //cyclist's power
 double wh_human=0;
-#ifdef SUPPORT_XCELL_RT
-int torque_zero=TORQUE_ZERO; //Offset of X-Cell RT torque sensor. Adjusted at startup if TORQUE_AUTOZERO option is set
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)
+int torque_zero=TORQUE_ZERO; //Offset of torque sensor. Adjusted at startup if TORQUE_AUTOZERO option is set
 static volatile boolean analogRead_in_use = false; //read torque values in interrupt only if no analogRead in process
-static volatile boolean thun_want_calculation = false; //read torque values in interrupt only if no analogRead in process
-#if HARDWARE_REV<20
+static volatile boolean torque_want_calculation = false; //read torque values in interrupt only if no analogRead in process
+#if HARDWARE_REV<20 && defined(SUPPORT_XCELL_RT)
 const int torquevalues_count=8;
 volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0}; //stores the 8 torque values per pedal roundtrip
 #else
 const int torquevalues_count=16;
-volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; //stores the 16 torque values per pedal roundtrip
+volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; //stores the 16 torque values per pedal roundtrip (Thun) or half roundtrip (Sempu)
 #endif
 volatile byte torqueindex=0;        //index to write next torque value
 volatile boolean readtorque=false;  //true if torque array has been updated -> recalculate in main loop
@@ -520,7 +524,7 @@ digitalWrite(option_pin,HIGH);
     poti_stat = map(poti_value_on_startup_in_watts, 0, curr_power_poti_max, 0, 1023);
 #endif
 
-#ifdef SUPPORT_XCELL_RT
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)
 #ifdef TORQUE_AUTOZERO
     torque_rezero();
 #endif
@@ -658,8 +662,12 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     current_display = 0.99*current_display + 0.01*current; //averaged current for display
     power=current*voltage;
 
-#ifdef SUPPORT_XCELL_RT
-    torque_instant=(analogRead(option_pin)-torque_zero);  //multiplication constant for THUN X-CELL RT is approx. 1Nm/count
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)
+#ifdef SUPPORT_XCELL_RT 
+      torque_instant=0.49*(analogRead(option_pin)-torque_zero);  //multiplication constant for THUN X-CELL RT is approx. 0.49Nm/count
+#else //SEMPU
+      torque_instant=0.33*(analogRead(option_pin)-torque_zero);  //multiplication constant for SEMPU is approx. 0.33Nm/count
+#endif
     if (readtorque==true)
     {
         torque=0.0;
@@ -668,12 +676,18 @@ if (loadcell.is_ready())     //new conversion result from load cell available
             torque+=torquevalues[i];
         }
         readtorque=false;
-#if HARDWARE_REV<20
-        torque=abs((torque)*0.061);
-#else
-        torque=abs((torque)*0.03054740957);
+//now calculate torque_instant, torque and power       
+#ifdef SUPPORT_XCELL_RT 
+  #if HARDWARE_REV<20
+          torque=abs((torque)*0.061);   //torque=sum of torque values/#of torque values*5V/1023 counts/(10mV/Nm)
+  #else
+          torque=abs((torque)*0.03054740957);
+  #endif
+          power_human=0.20943951*cad*torque;   //power=2*pi*cadence*torque/60s*2 (*2 because only left side torque is measured by x-cell rt)
+#else //SEMPU
+      torque=abs((torque)*0.02078055073);   //torque=sum of torque values/#of torque values*5V/1023 counts/(14.7 mV/Nm)
+      power_human=0.10471975512*cad*torque;   //power=2*pi*cadence*torque/60s
 #endif
-        power_human=0.20943951*cad*torque;   //power=2*pi*cadence*torque/60s*2 (*2 because only left side torque is measured by x-cell rt)
     }
 #endif
 
@@ -707,7 +721,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
             wh=variable.wh;
             km=variable.kilometers;
             mah=variable.mah;
-#ifdef SUPPORT_XCELL_RT
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)
             wh_human=variable.wh_human;
 #endif
         }
@@ -771,7 +785,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     power_throttle = throttle_stat / 1023.0 * curr_power_max;         //power currently set by throttle
 
 #if CONTROL_MODE == CONTROL_MODE_TORQUE                      //human power control mode
-#ifdef SUPPORT_XCELL_RT
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)
     power_poti = poti_stat/102300.0* curr_power_poti_max*power_human*(1+spd/20.0); //power_poti_max is in this control mode interpreted as percentage. Example: power_poti_max=200 means; motor power = 200% of human power
 #ifdef SUPPORT_TORQUE_THROTTLE                              //we want to trigger throttle just by pedal torque
     if (abs(torque_instant)>torque_throttle_min)            //we are above the threshold to trigger throttle
@@ -1090,7 +1104,7 @@ void pas_change_dual(boolean signal)
 #ifdef SUPPORT_XCELL_RT
     if (analogRead_in_use)
     {
-      thun_want_calculation = true;
+      torque_want_calculation = true;
       return;
     }
     read_current_torque();
@@ -1099,7 +1113,7 @@ void pas_change_dual(boolean signal)
 #endif
 #endif
 
-#ifdef SUPPORT_XCELL_RT
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)
 void read_current_torque() //this reads the current torque value
 {
     torquevalues[torqueindex]=analogRead(option_pin)-torque_zero;
@@ -1123,9 +1137,9 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
     if (pas_stat)
     {
         pas_off_time=millis()-last_pas_event;
-#ifdef SUPPORT_XCELL_RT
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)
         if (analogRead_in_use)
-          thun_want_calculation = true;
+          torque_want_calculation = true;
         else
           read_current_torque();
 #endif
@@ -1133,14 +1147,19 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
     else
     {pas_on_time=millis()-last_pas_event;}
     last_pas_event = millis();
-    pas_failtime=pas_failtime+1;
     cad=pas_time/(pas_on_time+pas_off_time);
-    double pas_factor=(double)pas_on_time/(double)pas_off_time;
-    if ((pas_factor>pas_factor_min)&&(pas_factor<pas_factor_max))
-    {
-        pedaling=true;
-        pas_failtime=0;
-    }
+    
+    #ifdef SUPPORT_SEMPU
+      pedaling=bitRead(PINE,6); //read direction pin of pas sensor and set pedaling to true
+    #else
+      pas_failtime=pas_failtime+1;
+      double pas_factor=(double)pas_on_time/(double)pas_off_time;
+      if ((pas_factor>pas_factor_min)&&(pas_factor<pas_factor_max))
+      {
+          pedaling=true;
+          pas_failtime=0;
+      }
+    #endif
 }
 #else
 #warning PAS sensor support is required for legal operation of a Pedelec  by EU-wide laws except Austria or Swiss.
@@ -1250,7 +1269,7 @@ void serial_debug(HardwareSerial* localSerial)
     localSerial->print(current,1);
     localSerial->print(MY_F(" Power"));
     localSerial->print(power,0);
-#ifdef SUPPORT_XCELL_RT
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)
     localSerial->print(MY_F(" Pedaling"));
     localSerial->print(pedaling);
     localSerial->print(MY_F(" Torque"));
@@ -1491,7 +1510,7 @@ void save_eeprom()
 #ifdef SUPPORT_BATTERY_CHARGE_COUNTER
   variable_new.charge_count=charge_count; //save charge counter
 #endif
-#ifdef SUPPORT_XCELL_RT
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)
   variable_new.wh_human=wh_human; //save human watthours
 #endif
   const byte* p_new = (const byte*)(const void*)&variable_new; //pointer to new variables to save
@@ -1562,16 +1581,16 @@ void handle_unused_pins()
 
 int analogRead_noISR(uint8_t pin) //this function makes sure that analogRead is never used in interrupt. only important for X-Cell RT bottom brackets
 {
-#ifdef SUPPORT_XCELL_RT
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)
     analogRead_in_use = true; //this prevents analogReads in Interrupt from Thun bracket
-    if (thun_want_calculation)
+    if (torque_want_calculation)
     {
-      thun_want_calculation=false;
+      torque_want_calculation=false;
       read_current_torque();
     }
 #endif
     int temp=analogRead(pin);
-#ifdef SUPPORT_XCELL_RT
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)
     analogRead_in_use = false;
 #endif
     return temp;
