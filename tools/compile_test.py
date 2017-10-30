@@ -368,7 +368,7 @@ class CompileTest(unittest.TestCase):
             self.build_firmware(disp_type, display_type=disp_type)
 
     def test_16x2_serial_with_dynamic_backlight(self):
-        my_features = DEFAULT_FEATURES
+        my_features = DEFAULT_FEATURES.copy()
         my_features.append('SUPPORT_DISPLAY_BACKLIGHT')
 
         self.build_firmware(hardware_rev = 5,
@@ -407,7 +407,7 @@ class CompileTest(unittest.TestCase):
     def test_control_modes(self):
         for control_mode in ['NORMAL', 'LIMIT_WH_PER_KM', 'TORQUE']:
             # Enable XCELL_RT support in TORQUE mode
-            my_features = DEFAULT_FEATURES
+            my_features = DEFAULT_FEATURES.copy()
             if control_mode == 'TORQUE':
                 my_features.append('SUPPORT_XCELL_RT')
 
