@@ -32,6 +32,7 @@ ALL_FEATURES = [
                   'SUPPORT_THROTTLE',
                   'SUPPORT_PAS',
                   'SUPPORT_XCELL_RT',
+                  'SUPPORT_SEMPU',
                   'SUPPORT_TORQUE_THROTTLE',
                   'TORQUE_AUTOZERO',
                   'SUPPORT_HRMI',
@@ -405,11 +406,14 @@ class CompileTest(unittest.TestCase):
             self.build_firmware(bluetooth_mode, bluetooth_mode=bluetooth_mode)
 
     def test_control_modes(self):
-        for control_mode in ['NORMAL', 'LIMIT_WH_PER_KM', 'TORQUE']:
+        for control_mode in ['NORMAL', 'LIMIT_WH_PER_KM', 'TORQUE', 'TORQUE_SEMPU']:
             # Enable XCELL_RT support in TORQUE mode
             my_features = DEFAULT_FEATURES.copy()
             if control_mode == 'TORQUE':
                 my_features.append('SUPPORT_XCELL_RT')
+            if control_mode == 'TORQUE_SEMPU':
+                my_features.append('SUPPORT_SEMPU')
+                control_mode = 'TORQUE'
 
             self.build_firmware(control_mode, control_mode=control_mode, features=my_features)
 
