@@ -289,7 +289,7 @@ def write_config_h(filename=CONFIG_H,
         f.write('const char msg_unknown_action[] PROGMEM = "Unknown action!";\n')
         f.write('const char msg_activated[] PROGMEM = "Activated";\n')
         f.write('const char msg_deactivated[] PROGMEM = "Deactivated";\n')
-        f.write('#ifdef SUPPORT_XCELL_RT\n')
+        f.write('#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)\n')
         f.write('const char msg_torquezero[] PROGMEM = "Re-zero torque sensor";\n')
         f.write('#endif\n')
         f.write('\n')

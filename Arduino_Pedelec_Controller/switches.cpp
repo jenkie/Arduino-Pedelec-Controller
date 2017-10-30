@@ -337,7 +337,7 @@ static void execute_action(const sw_action action)
             action_toggle_gear(true);
             break;
 #endif
-#ifdef SUPPORT_XCELL_RT
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)
         case ACTION_TORQUE_ZERO:
             torque_rezero();
             display_show_important_info(FROM_FLASH(msg_torquezero), 2);
