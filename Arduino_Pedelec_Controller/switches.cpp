@@ -101,7 +101,7 @@ void action_set_soft_poti(int new_throttle_stat)
 
         {
 #if CONTROL_MODE == CONTROL_MODE_TORQUE                      //human power control mode
-#ifdef SUPPORT_XCELL_RT
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)
             buffer[9]='%';
             power_poti = poti_stat/1023.0* curr_power_poti_max; //power_poti_max is in this control mode interpreted as percentage. Example: power_poti_max=200 means; motor power = 200% of human power
 #endif
