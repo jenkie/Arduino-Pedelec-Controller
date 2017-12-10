@@ -141,7 +141,8 @@ const int fixed_throttle_in_watts = 250;         //number of watts to set as thr
 // #define SUPPORT_BBS         //uncomment if BBS02 PAS sensor is connected (2 wires analog to Thun)
 #define BBS_GEARCHANGEPAUSE 2000 //powerless time in milliseconds to allow gear change 
 // #define SUPPORT_XCELL_RT    //uncomment if X-CELL RT connected. FC1.4: pas_factor_min=0.2, pas_factor_max=0.5. FC1.5: pas_factor_min=0.5, pas_factor_max=1.5. pas_magnets=8
-// #define SUPPORT_SEMPU  //uncomment if you have a Sempu torque sensor
+// #define SUPPORT_SEMPU_V1  //uncomment if you have a Sempu torque sensor, old type with one direction wire and one pas wire
+// #define SUPPORT_SEMPU  //uncomment if you have a Sempu torque sensor, new type with two pas wires
 // #define SUPPORT_TORQUE_THROTTLE
 // #define SUPPORT_HRMI         //uncomment if polar heart-rate monitor interface connected to i2c port
 #define SUPPORT_BRAKE        //uncomment if brake switch connected
