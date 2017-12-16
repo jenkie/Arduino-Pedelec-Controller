@@ -283,7 +283,7 @@ const int torquevalues_count=16;
 volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; //stores the 16 torque values per pedal roundtrip (Thun) or half roundtrip (Sempu)
 #elif defined(SUPPORT_SEMPU)
 const int torquevalues_count=24;
-volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; //stores the 24 torque values per pedal half roundtrip (Sempu new version)
+volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; //stores the 24 torque values per pedal roundtrip (Sempu new version)
 #endif
 volatile byte torqueindex=0;        //index to write next torque value
 volatile boolean readtorque=false;  //true if torque array has been updated -> recalculate in main loop
@@ -1101,10 +1101,8 @@ void pas_change_dual(boolean signal)
         pedaling=!bitRead(PINE,6);
 #ifdef SUPPORT_XCELL_RT
         cad=7500/(millis()-last_pas_event); //8 pulses per revolution
-#elif defined(SUPPORT_BBS)
+#else //Sempu or BBS with 24 Pulses per Revolution
         cad=2500/(millis()-last_pas_event); //24 pulses per revolution
-#else //Sempu: 48 pulses per revolution
-        cad=1250/(millis()-last_pas_event); //48 pulses per revolution
 #endif        
         last_pas_event = millis();
     }
