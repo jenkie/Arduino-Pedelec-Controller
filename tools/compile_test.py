@@ -33,6 +33,7 @@ ALL_FEATURES = [
                   'SUPPORT_PAS',
                   'SUPPORT_XCELL_RT',
                   'SUPPORT_SEMPU',
+                  'SUPPORT_SEMPU_V1',
                   'SUPPORT_TORQUE_THROTTLE',
                   'TORQUE_AUTOZERO',
                   'SUPPORT_HRMI',
@@ -289,7 +290,7 @@ def write_config_h(filename=CONFIG_H,
         f.write('const char msg_unknown_action[] PROGMEM = "Unknown action!";\n')
         f.write('const char msg_activated[] PROGMEM = "Activated";\n')
         f.write('const char msg_deactivated[] PROGMEM = "Deactivated";\n')
-        f.write('#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)\n')
+        f.write('#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU) || defined(SUPPORT_SEMPU_V1)\n')
         f.write('const char msg_torquezero[] PROGMEM = "Re-zero torque sensor";\n')
         f.write('#endif\n')
         f.write('\n')
