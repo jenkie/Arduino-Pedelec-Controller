@@ -278,7 +278,7 @@ static volatile boolean torque_want_calculation = false; //read torque values in
 #if HARDWARE_REV<20 && defined(SUPPORT_XCELL_RT)
 const int torquevalues_count=8;
 volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0}; //stores the 8 torque values per pedal roundtrip
-#elif defined(SUPPORT_SEMPU_V1)
+#elif defined(SUPPORT_SEMPU_V1) || defined(SUPPORT_XCELL_RT)
 const int torquevalues_count=16;
 volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; //stores the 16 torque values per pedal roundtrip (Thun) or half roundtrip (Sempu)
 #elif defined(SUPPORT_SEMPU)
