@@ -271,7 +271,7 @@ double torque=0.0;           //cyclist's torque in Nm (averaged over one pedal r
 double torque_instant=0.0;   //cyclist's torque in Nm (live)
 double power_human=0.0;      //cyclist's power
 double wh_human=0;
-#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU_V1)|| defined(SUPPORT_SEMPU)
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU_V1) || defined(SUPPORT_SEMPU)
 int torque_zero=TORQUE_ZERO; //Offset of torque sensor. Adjusted at startup if TORQUE_AUTOZERO option is set
 static volatile boolean analogRead_in_use = false; //read torque values in interrupt only if no analogRead in process
 static volatile boolean torque_want_calculation = false; //read torque values in interrupt only if no analogRead in process
@@ -485,7 +485,7 @@ digitalWrite(option_pin,HIGH);
 #ifdef SUPPORT_PAS
     bitClear(DDRE,5);      //configure PE5 as input
     bitSet(PORTE,5);       //enable pull-up on PAS sensor
-#if !defined(SUPPORT_XCELL_RT) && !defined(SUPPORT_BBS)&& !defined(SUPPORT_SEMPU)
+#if !defined(SUPPORT_XCELL_RT) && !defined(SUPPORT_BBS) && !defined(SUPPORT_SEMPU)
     bitSet(EICRB,2);      //trigger on any edge INT5 for PAS sensor
     EIMSK  |= (1<<INT5);  //turn on interrupt INT5 for PAS sensor
 #else
@@ -527,7 +527,7 @@ digitalWrite(option_pin,HIGH);
     poti_stat = map(poti_value_on_startup_in_watts, 0, curr_power_poti_max, 0, 1023);
 #endif
 
-#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU_V1)|| defined(SUPPORT_SEMPU)
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU_V1) || defined(SUPPORT_SEMPU)
 #ifdef TORQUE_AUTOZERO
     torque_rezero();
 #endif
@@ -665,8 +665,8 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     current_display = 0.99*current_display + 0.01*current; //averaged current for display
     power=current*voltage;
 
-#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU_V1)|| defined(SUPPORT_SEMPU)
-#ifdef SUPPORT_XCELL_RT 
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU_V1) || defined(SUPPORT_SEMPU)
+#ifdef SUPPORT_XCELL_RT
       torque_instant=0.49*(analogRead(option_pin)-torque_zero);  //multiplication constant for THUN X-CELL RT is approx. 0.49Nm/count
 #else //Sempu
       torque_instant=0.33*(analogRead(option_pin)-torque_zero);  //multiplication constant for SEMPU V1 is approx. 0.33Nm/count
@@ -679,8 +679,8 @@ if (loadcell.is_ready())     //new conversion result from load cell available
             torque+=torquevalues[i];
         }
         readtorque=false;
-//now calculate torque_instant, torque and power       
-#ifdef SUPPORT_XCELL_RT 
+//now calculate torque_instant, torque and power
+#ifdef SUPPORT_XCELL_RT
   #if HARDWARE_REV<20
           torque=abs((torque)*0.061);   //torque=sum of torque values/#of torque values*5V/1023 counts/(10mV/Nm)
   #else
@@ -727,7 +727,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
             wh=variable.wh;
             km=variable.kilometers;
             mah=variable.mah;
-#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU_V1)|| defined(SUPPORT_SEMPU)
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU_V1) || defined(SUPPORT_SEMPU)
             wh_human=variable.wh_human;
 #endif
         }
@@ -791,7 +791,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     power_throttle = throttle_stat / 1023.0 * curr_power_max;         //power currently set by throttle
 
 #if CONTROL_MODE == CONTROL_MODE_TORQUE                      //human power control mode
-#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU_V1)|| defined(SUPPORT_SEMPU)
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU_V1) || defined(SUPPORT_SEMPU)
     power_poti = poti_stat/102300.0* curr_power_poti_max*power_human*(1+spd/20.0); //power_poti_max is in this control mode interpreted as percentage. Example: power_poti_max=200 means; motor power = 200% of human power
 #ifdef SUPPORT_TORQUE_THROTTLE                              //we want to trigger throttle just by pedal torque
     if (abs(torque_instant)>torque_throttle_min)            //we are above the threshold to trigger throttle
@@ -1072,7 +1072,7 @@ ISR(INT7_vect)
     speed_change();
 }
 #ifdef SUPPORT_PAS
-#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_BBS)|| defined(SUPPORT_SEMPU)
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_BBS) || defined(SUPPORT_SEMPU)
 ISR(INT5_vect)
 {
     pas_change_dual(false);
@@ -1126,7 +1126,7 @@ void read_current_torque() //this reads the current torque value
     torqueindex++;
     if (torqueindex==torquevalues_count)
         torqueindex=0;
-    readtorque=true;  
+    readtorque=true;
 }
 
 void torque_rezero() //resets torque sensor
