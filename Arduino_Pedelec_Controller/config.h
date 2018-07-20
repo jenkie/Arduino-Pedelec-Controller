@@ -146,7 +146,7 @@ const int fixed_throttle_in_watts = 250;         //number of watts to set as thr
 // #define SUPPORT_SEMPU_T4_3B //uncomment if you have a Sempu torque sensor, of type left&right crank torque 1.5V-3V(4V), dual speed/direction signal cos/sin 2x16 pulses per revolution
 // #define SUPPORT_TORQUE_THROTTLE
 // #define SUPPORT_HRMI         //uncomment if polar heart-rate monitor interface connected to i2c port
-#define SUPPORT_BRAKE        //uncomment if brake switch connected
+// #define SUPPORT_BRAKE        //uncomment if brake switch connected
 // #define INVERT_BRAKE         //uncomment if brake signal is low when not braking
 // #define RESET_PID_ON_BRAKE   //uncomment to reset the pid regulator if you are braking or stop pedaling. If this config option is not active, the pid regulator will slowly ramp down instead, which gives you a faster kick-in of the motor if you release the brake or start pedaling again
 #define DETECT_BROKEN_SPEEDSENSOR //detect broken speed sensor and disable motor (useful for legalisation)
