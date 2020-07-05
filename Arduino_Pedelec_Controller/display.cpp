@@ -357,20 +357,20 @@ static void display_16x2_view_main()
     lcd.print(spd,0);
     lcd.print(MY_F(" km/h  "));
 
-    double power_display = power;
-    if (power_display > 999)
-        power_display = 999;
-    else if (power_display < 0)
-        power_display = 0;
+    double power_temp = power_display;
+    if (power_temp > 999)
+        power_temp = 999;
+    else if (power_temp < 0)
+        power_temp = 0;
 
-    if (power_display<10)
+    if (power_temp<10)
     {lcd.print(MY_F(" "));}
-    if (power_display<100)
+    if (power_temp<100)
     {lcd.print(MY_F(" "));}
-    if (power_display < 0)
+    if (power_temp < 0)
         lcd.print(MY_F("0"));
     else
-        lcd.print(power_display,0);
+        lcd.print(power_temp,0);
     lcd.print(MY_F(" W "));
 
     // Break status
@@ -986,11 +986,11 @@ static void display_nokia_view_main()
     lcd.print(battery_percent_fromcapacity);
 
     lcd.setCursor(0,1);
-    if (power<99.5)
+    if (power_display<99.5)
     {lcd.print(MY_F(" "));}
-    if (power<9.5)
+    if (power_display<9.5)
     {lcd.print(MY_F(" "));}
-    lcd.print(power,0);
+    lcd.print(power_display,0);
 
     lcd.setCursor(9,1);
     if (wh<99.5)
@@ -1020,7 +1020,7 @@ static void display_nokia_view_main()
 
     lcd.setCursor(0,4);
     if ( spd > 5.0)
-        lcd.print(power/spd,1);
+        lcd.print(power_display/spd,1);
     else
         lcd.print(MY_F("---"));
     lcd.print(MY_F("/"));
@@ -1082,9 +1082,9 @@ static void display_nokia_view_graphic()
 
     //print the electrical power (Watt) in the top right corner
     lcd.setCursorInPixels(84-4*6,0);
-    if (power<99.5) {lcd.print(MY_F(" "));}
-    if (power<9.5)  {lcd.print(MY_F(" "));}
-    lcd.print(power,0);
+    if (power_display<99.5) {lcd.print(MY_F(" "));}
+    if (power_display<9.5)  {lcd.print(MY_F(" "));}
+    lcd.print(power_display,0);
     lcd.print(MY_F("W"));
 
     drawSpeed(spd, 20, 2); //centered vertically
@@ -1098,7 +1098,7 @@ static void display_nokia_view_graphic()
     //- the limit line shows the target power that is selected by the user (power_set_for_display)
     //- the bar shows the currenlty measured electrical power that the moter consumes
     lcd.setCursorInPixels(72,1);
-    lcd.drawVerticalBar((word)(max(curr_power_max,curr_power_poti_max)), (word)(max(power_set,0)), (word)(power), 11, 4);
+    lcd.drawVerticalBar((word)(max(curr_power_max,curr_power_poti_max)), (word)(max(power_set,0)), (word)(power_display), 11, 4);
 
     //print battery percent left
     lcd.setCursorInPixels(0,1);
@@ -1299,7 +1299,7 @@ void display_update()
 
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS3)
-    slcd3_update(map(battery_percent_fromcapacity,0,100,0,16),wheel_time, 0, max(power/9.75,0), (byte)0x20*(!brake_stat));
+    slcd3_update(map(battery_percent_fromcapacity,0,100,0,16),wheel_time, 0, max(power_display/9.75,0), (byte)0x20*(!brake_stat));
 #endif
 }
 

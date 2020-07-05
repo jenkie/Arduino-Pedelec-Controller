@@ -30,6 +30,7 @@ extern float current_display;
 extern byte battery_percent_fromvoltage;
 extern byte battery_percent_fromcapacity;
 extern double power;
+extern double power_display;
 extern double power_set;
 extern float wh;
 extern double wh_human;

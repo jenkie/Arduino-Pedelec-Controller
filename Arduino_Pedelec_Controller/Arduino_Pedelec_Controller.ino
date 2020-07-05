@@ -225,6 +225,7 @@ float voltage_1s,voltage_2s = 0.0; //Voltage history 1s and 2s before "now"
 float voltage_display = 0.0;   //averaged voltage
 float current_display = 0.0;   //averaged current
 double power=0.0;              //calculated power
+double power_display=0.0;      //averaged power for display
 double power_set = 0;          //Set Power
 double power_poti = 0.0;   //set power, calculated with current poti setting
 double power_throttle=0.0; //set power, calculated with current throttle setting
@@ -664,6 +665,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     voltage_display = 0.99*voltage_display + 0.01*voltage; //averaged voltage for display
     current_display = 0.99*current_display + 0.01*current; //averaged current for display
     power=current*voltage;
+    power_display = current_display*voltage_display;
 
 #if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU_V1) || defined(SUPPORT_SEMPU)
 #ifdef SUPPORT_XCELL_RT
