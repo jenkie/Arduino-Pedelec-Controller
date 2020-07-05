@@ -129,7 +129,7 @@ void Bafang_Service(BAFANG_t* BF_ctx)
               case BF_CMD_GETSPEED:
 #if (DISPLAY_TYPE==DISPLAY_TYPE_BAFANG_C961)
               spd_tmp=BF_ctx->Rx.Wheeldiameter*0.02*spd;
-#elif (DISPLAY_TYPE==DISPLAY_TYPE_BAFANG_C965)
+#elif (DISPLAY_TYPE==DISPLAY_TYPE_BAFANG_C965 || DISPLAY_TYPE==DISPLAY_TYPE_BAFANG_SW102)
               spd_tmp=BF_ctx->Rx.Wheeldiameter*0.03887*spd;
 #endif
               TxBuff[0]=(spd_tmp>>8);
@@ -142,10 +142,43 @@ void Bafang_Service(BAFANG_t* BF_ctx)
               TxBuff[0]=1;
               BF_sendmessage(BF_ctx,1);
               break;
-              
+          
               case BF_CMD_GETBAT:
+#if (DISPLAY_TYPE==DISPLAY_TYPE_BAFANG_SW102)
+              if(battery_percent_fromcapacity>90)
+              {
+                TxBuff[0]=75;
+                TxBuff[1]=75;
+              }
+              else if (battery_percent_fromcapacity>70)
+              {
+                TxBuff[0]=50;
+                TxBuff[1]=50;
+              }
+              else if (battery_percent_fromcapacity>50)
+              {
+                TxBuff[0]=30;
+                TxBuff[1]=30;
+              }
+              else if (battery_percent_fromcapacity>30)
+              {
+                TxBuff[0]=10;
+                TxBuff[1]=10;
+              }
+              else if (battery_percent_fromcapacity>10)
+              {
+                TxBuff[0]=6;
+                TxBuff[1]=6;
+              }
+              else
+              {
+                TxBuff[0]=0;
+                TxBuff[1]=0;
+              }
+#else
               TxBuff[0]=battery_percent_fromcapacity;
               TxBuff[1]=battery_percent_fromcapacity;
+#endif    
               BF_sendmessage(BF_ctx,2);
               break;
               
