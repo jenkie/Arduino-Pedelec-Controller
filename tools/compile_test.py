@@ -324,7 +324,7 @@ class CompileTest(unittest.TestCase):
             os.mkdir(test_name)
         os.chdir(test_name)
 
-        subprocess.call('cmake -DDOCUMENTATION=OFF -Wno-dev ../', shell=True)
+        subprocess.call('cmake -DDOCUMENTATION=OFF -Wno-dev -DARDUINO_INSTALL_PATH=/tmp ../', shell=True)
 
     def run_make(self, build_name):
         ret = subprocess.call('make -j' + str(CPU_COUNT), shell=True)
