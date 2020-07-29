@@ -10,9 +10,6 @@ include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR}
 
 set(FIRMWARE_NAME pcontroller)
 
-set(${FIRMWARE_NAME}_BOARD ${FC_PROCESSOR})
-set(${FIRMWARE_NAME}_PORT /dev/ttyUSB0)            # Serial upload port
-
 # special compile flags for the Travis CI environment
 # (avr-gcc is rather outdated and outputs crazy warnings)
 if("$ENV{TRAVIS}" STREQUAL "true")
@@ -26,7 +23,7 @@ endif("$ENV{TRAVIS}" STREQUAL "true")
 # and move everything to main.cpp
 configure_file(Arduino_Pedelec_Controller.ino main.cpp COPYONLY)
 
-set(${FIRMWARE_NAME}_SRCS                          # Source code
+add_executable(${FIRMWARE_NAME}
     ${CMAKE_CURRENT_BINARY_DIR}/main.cpp
     BMP085.cpp
     BMP085.h
@@ -71,9 +68,8 @@ set(${FIRMWARE_NAME}_SRCS                          # Source code
     switches.h
     switches_action.h
     )
-generate_arduino_firmware(${FIRMWARE_NAME})
+target_link_arduino_libraries(${FIRMWARE_NAME} PRIVATE AUTO_PUBLIC)
 
-# Dirty hack to solve compile error on Fedora 15
-#target_link_libraries(${FIRMWARE_NAME} m)
-#target_link_libraries(${FIRMWARE_NAME} c)
-#target_link_libraries(${FIRMWARE_NAME} m)
+# Upload support: Usage:
+#     make upload-pcontroller SERIAL_PORT=/dev/ttyUSB0
+target_enable_arduino_upload(${FIRMWARE_NAME})
