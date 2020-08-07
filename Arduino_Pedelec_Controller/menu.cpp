@@ -48,6 +48,7 @@ Layout:
     │   │    ├── Ign. Treten
     │   │    ├── Ign. Tacho
     │   │    ├── Ign. Gasgr.
+    │   │    ├── Ign. Temps.           (only with SUPPORT_THERMISTOR_CUTOFF and SUPPORT_THERMISTOR)
     │   │    ├── Ign. Poti             (only with SUPPORT_POTI)
     │   │    ├── Poti +
     │   │    ├── Poti -
@@ -55,6 +56,7 @@ Layout:
     │   └── Zurück
     └── Zurück
 */
+// note: Nokia Display is just 14 chars wide minus "> " for the selector
 MenuSystem menu_system;
 
 static const char desc_main[] PROGMEM = "";
@@ -112,6 +114,11 @@ static MenuItem m_first_aid_ignore_speed(desc_first_aid_ignore_speed);
 
 static const char desc_first_aid_ignore_throttle[] PROGMEM = "Ign. Gasgr.";
 static MenuItem m_first_aid_ignore_throttle(desc_first_aid_ignore_throttle);
+
+#if defined(SUPPORT_THERMISTOR) && defined(SUPPORT_THERMISTOR_CUTOFF)
+static const char desc_first_aid_ignore_temp_sensor[] PROGMEM = "Ign. Tempse.";
+static MenuItem m_first_aid_ignore_temp_sensor(desc_first_aid_ignore_temp_sensor);
+#endif
 
 static const char desc_first_aid_ignore_poti[] PROGMEM = "Ignore Poti";
 static MenuItem m_first_aid_ignore_poti(desc_first_aid_ignore_poti);
@@ -260,6 +267,14 @@ static void handle_ignore_throttle(MenuItem* p_menu_item)
     show_new_state(first_aid_ignore_throttle);
 }
 
+#if defined(SUPPORT_THERMISTOR) && defined(SUPPORT_THERMISTOR_CUTOFF)
+static void handle_ignore_temp_sensor(MenuItem* p_menu_item)
+{
+    first_aid_ignore_temp_sensor = !first_aid_ignore_temp_sensor;
+    show_new_state(first_aid_ignore_temp_sensor);
+}
+#endif
+
 static void handle_ignore_poti(MenuItem* p_menu_item)
 {
     first_aid_ignore_poti = !first_aid_ignore_poti;
@@ -305,7 +320,9 @@ static void add_first_aid_menu()
 #ifdef SUPPORT_THROTTLE
     menu_first_aid.add_item(&m_first_aid_ignore_throttle, &handle_ignore_throttle);
 #endif
-
+#if defined(SUPPORT_THERMISTOR) && defined(SUPPORT_THERMISTOR_CUTOFF)
+    menu_first_aid.add_item(&m_first_aid_ignore_temp_sensor, &handle_ignore_temp_sensor);
+#endif
 #ifdef SUPPORT_POTI
     menu_first_aid.add_item(&m_first_aid_ignore_poti, &handle_ignore_poti);
 #endif

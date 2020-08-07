@@ -69,6 +69,7 @@ extern boolean first_aid_ignore_pas;
 extern boolean first_aid_ignore_speed;
 extern boolean first_aid_ignore_poti;
 extern boolean first_aid_ignore_throttle;
+extern boolean first_aid_ignore_temp_sensor;
 
 extern void save_eeprom();
 extern void save_shutdown();

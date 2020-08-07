@@ -318,6 +318,7 @@ boolean first_aid_ignore_pas = false;
 boolean first_aid_ignore_speed = false;
 boolean first_aid_ignore_poti = false;
 boolean first_aid_ignore_throttle = false;
+boolean first_aid_ignore_temp_sensor = false;
 
 // Forward declarations for compatibility with new gcc versions
 void pas_change();
@@ -870,8 +871,11 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 
 //Temperature cutoff
 #if defined(SUPPORT_THERMISTOR) && defined(SUPPORT_THERMISTOR_CUTOFF)
-    float factor_temperature=constrain(1-(temperature_thermistor-temperature_cutoff_start)/(temperature_cutoff_stop-temperature_cutoff_start),0,1); //linear decrease of maximum power for temperatures higher than temperature_cutoff_start
-    factor_volt=factor_volt*factor_temperature;
+    if (!first_aid_ignore_temp_sensor)
+    {
+        float factor_temperature=constrain(1-(temperature_thermistor-temperature_cutoff_start)/(temperature_cutoff_stop-temperature_cutoff_start),0,1); //linear decrease of maximum power for temperatures higher than temperature_cutoff_start
+        factor_volt=factor_volt*factor_temperature;
+    }
 #endif
 
 //Throttle output-------------------------------------------------------------------------------------------------------
