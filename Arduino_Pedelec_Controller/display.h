@@ -58,7 +58,7 @@ typedef enum {DISPLAY_VIEW_MAIN=0,
               DISPLAY_VIEW_BATTERY,
 #endif
 #endif
-#if (defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01) || defined(SUPPORT_TEMP_SENSOR))&&defined(DV_ENVIRONMENT)
+#if (defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01) || defined(SUPPORT_TEMP_SENSOR) || defined(SUPPORT_THERMISTOR)) && defined(DV_ENVIRONMENT)
               DISPLAY_VIEW_ENVIRONMENT,
 #endif
 #if defined(DV_HUMAN)

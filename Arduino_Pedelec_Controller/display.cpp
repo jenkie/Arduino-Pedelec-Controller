@@ -464,7 +464,7 @@ static void display_16x2_view_environment()
 #endif
     lcd.setCursor(0,1);
 
-    // switch between altitude and slope very five seconds
+    // switch between altitude and slope every five seconds
     byte current_second = (millis() / 1000) % 60UL;
     if (current_second % 5 == 0)
         show_altitude = !show_altitude;
@@ -489,6 +489,12 @@ static void display_16x2_view_environment()
     lcd.print(MY_F(" C "));
     lcd.print(MY_F("T2: "));
     lcd.print((int)sensors.getTempCByIndex(1),1);
+    lcd.print(MY_F(" C "));
+#endif
+#if defined(SUPPORT_THERMISTOR)
+    lcd.setCursor(0,0);
+    lcd.print(MY_F("Temp: "));
+    lcd.print(temperature_thermistor,1);
     lcd.print(MY_F(" C "));
 #endif
 }
@@ -547,7 +553,7 @@ static void display_16x2_update()
             display_16x2_view_battery();
             break;
 #endif
-#if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01) || defined(SUPPORT_TEMP_SENSOR)
+#if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01) || defined(SUPPORT_TEMP_SENSOR) || defined(SUPPORT_THERMISTOR)
 #ifdef DV_ENVIRONMENT
         case DISPLAY_VIEW_ENVIRONMENT:
             display_16x2_view_environment();
@@ -1167,7 +1173,7 @@ static void display_nokia_view_environment()
     lcd.print(MY_F(" C"));
 //#endif
     lcd.setCursor(0,2);
-    // switch between altitude and slope very five seconds
+    // switch between altitude and slope every five seconds
     lcd.print(MY_F("Start: "));
     lcd.print((int)(altitude_start));
     lcd.print(MY_F("m")); 
@@ -1188,6 +1194,12 @@ static void display_nokia_view_environment()
     lcd.print(MY_F(" C "));
     lcd.print(MY_F("T2: "));
     lcd.print((int)sensors.getTempCByIndex(1),1);
+    lcd.print(MY_F(" C "));
+#endif
+#if defined(SUPPORT_THERMISTOR)
+    lcd.setCursor(0,0);
+    lcd.print(MY_F("Temp: "));
+    lcd.print(temperature_thermistor,1);
     lcd.print(MY_F(" C "));
 #endif
 }
@@ -1218,10 +1230,12 @@ static void display_nokia_update()
 
     switch (display_view)
     {
-#if (defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01) || defined(SUPPORT_TEMP_SENSOR)) && defined(DV_ENVIRONMENT)
+#if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01) || defined(SUPPORT_TEMP_SENSOR) || defined(SUPPORT_THERMISTOR)
+#ifdef DV_ENVIRONMENT
         case DISPLAY_VIEW_ENVIRONMENT:
             display_nokia_view_environment();
             break;
+#endif
 #endif
 #ifdef DV_GRAPHIC
         case DISPLAY_VIEW_GRAPHIC:

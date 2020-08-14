@@ -84,6 +84,9 @@ void torque_rezero();
 #include "DallasTemp.h"
 extern DallasTemperature sensors;
 #endif
+#ifdef SUPPORT_THERMISTOR
+extern float temperature_thermistor;
+#endif
 
 // Define own version of F() macro since compile will
 // fail on newer gcc versions with a "const" warning.

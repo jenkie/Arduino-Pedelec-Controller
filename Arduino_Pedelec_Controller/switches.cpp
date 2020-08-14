@@ -386,7 +386,7 @@ void handle_switch(const switch_name sw_name, boolean current_state, const switc
     }
 }
 
-// Workhose of switch handling: Detect short
+// Workhorse of switch handling: Detect short
 // or long presses, also debounces the switches.
 static enum switch_result _read_switch(switch_state *state, boolean switch_current)
 {
