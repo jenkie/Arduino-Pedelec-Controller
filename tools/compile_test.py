@@ -424,7 +424,7 @@ class CompileTest(unittest.TestCase):
             self.build_firmware(control_mode, control_mode=control_mode, features=my_features)
 
     def test_hw_revisions(self):
-        for hw_revision in [1, 2, 3, 4, 5, 20, 21, 22]:
+        for hw_revision in [1, 2, 3, 4, 5, 20, 21, 22, 23]:
             self.build_firmware(str(hw_revision), hardware_rev = hw_revision)
 
     def test_throttle_auto_cruise(self):
@@ -478,7 +478,7 @@ class CompileTest(unittest.TestCase):
                     )
 
     def test_max_config_fc2x0(self):
-        self.build_firmware(hardware_rev = 22,
+        self.build_firmware(hardware_rev = 23,
                     display_type='NOKIA_4PIN',
                     serial_mode='DEBUG',
                     control_mode='TORQUE',
