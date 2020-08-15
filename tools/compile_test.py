@@ -84,7 +84,7 @@ ALL_DISPLAY_VIEWS = [
 
 
 def write_config_h(filename=CONFIG_H,
-                   hardware_rev=22,
+                   hardware_rev=23,
                    display_type='NOKIA_4PIN',
                    serial_mode='DEBUG',
                    bluetooth_mode='NONE',
