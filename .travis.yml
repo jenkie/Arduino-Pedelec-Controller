@@ -1,6 +1,6 @@
 ---
 sudo: required
-dist: trusty
+dist: focal
 
 language:
     - c
@@ -8,13 +8,22 @@ language:
 cache:
     - ccache
 
+before_install:
+  - wget http://downloads.arduino.cc/arduino-1.8.3-linux64.tar.xz
+  - tar xf arduino-1.8.3-linux64.tar.xz
+  - sudo mv arduino-1.8.3 /usr/local/share/arduino
+  - sudo ln -s /usr/local/share/arduino/arduino /usr/local/bin/arduino
+
+install:
+  - arduino --install-boards "arduino:avr:1.8.3"
+  - arduino --install-library Servo:1.1.6
+  - mkdir -p $TRAVIS_BUILD_DIR/libraries
+  - mv ~/Arduino/libraries/* $TRAVIS_BUILD_DIR/libraries
+
 addons:
  apt:
    packages:
-   - gcc-avr
-   - binutils-avr
-   - avr-libc
-   - arduino
-   - python3.4
+   - python3.6
 
-script: tools/compile_test.py
+script:
+  - tools/compile_test.py
