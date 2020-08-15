@@ -12,6 +12,14 @@ Note: Linux only for now. Windows support is untested.
    cd build
    cmake ../
 
+   Most likely you will have to give the Arduino install path:
+   cmake -DARDUINO_INSTALL_PATH=/tmp ../
+
+   If you have a FC before 2.x and the Arduino Nano uses
+   the old bootloader (57600 baud), use this option:
+
+   cmake cmake -DARDUINO_INSTALL_PATH=/tmp -DOLD_BOOTLOADER=ON ../
+
 2. Compile
 
    cd build
@@ -20,4 +28,4 @@ Note: Linux only for now. Windows support is untested.
 3. Upload
 
    cd build
-   make pcontroller-upload
+   make upload-pcontroller SERIAL_PORT=/dev/ttyUSB0
