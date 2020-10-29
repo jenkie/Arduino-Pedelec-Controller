@@ -255,10 +255,8 @@ int last_throttle_write=0;                      //last throttle write value
 #endif
 volatile byte wheel_counter=0; //counter for events that should happen once per wheel revolution. only needed if wheel_magnets>1
 volatile unsigned long last_pas_event = millis();  //last change-time of PAS sensor status
-#ifdef SUPPORT_SEMPU_V1
+#if defined(SUPPORT_SEMPU_V1) || defined(SUPPORT_T9)
   #define pas_time 1875 //conversion factor for pas_time to rpm (cadence), 32 Pulses
-#elif defined(SUPPORT_T9)
-  #define pas_time 3333 //conversion factor for pas_time to rpm (cadence), 18 Pulses
 #else
   #define pas_time 60000/pas_magnets //conversion factor for pas_time to rpm (cadence)
 #endif
@@ -281,15 +279,12 @@ static volatile boolean torque_want_calculation = false; //read torque values in
 #if HARDWARE_REV<20 && defined(SUPPORT_XCELL_RT)
 const int torquevalues_count=8;
 volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0}; //stores the 8 torque values per pedal roundtrip
-#elif defined(SUPPORT_SEMPU_V1) || defined(SUPPORT_XCELL_RT)
+#elif defined(SUPPORT_SEMPU_V1) || defined(SUPPORT_XCELL_RT) || defined(SUPPORT_T9)
 const int torquevalues_count=16;
 volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; //stores the 16 torque values per pedal roundtrip (Thun) or half roundtrip (Sempu)
 #elif defined(SUPPORT_SEMPU)
 const int torquevalues_count=24;
 volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; //stores the 24 torque values per pedal roundtrip (Sempu new version)
-#elif defined(SUPPORT_T9)
-const int torquevalues_count=18;
-volatile int torquevalues[torquevalues_count]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; //stores the 18 torque values per half roundtrip (T9)
 #endif
 volatile byte torqueindex=0;        //index to write next torque value
 volatile boolean readtorque=false;  //true if torque array has been updated -> recalculate in main loop

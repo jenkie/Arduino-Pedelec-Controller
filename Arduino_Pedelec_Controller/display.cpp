@@ -1135,7 +1135,7 @@ static void display_nokia_view_human()
     lcd.print(MY_F(" CAD "));
     lcd.print(cad);
     lcd.print(MY_F("  "));
-#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU_V1) || defined(SUPPORT_SEMPU) //show left bar with human and battery wh
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU_V1) || defined(SUPPORT_SEMPU) || defined(SUPPORT_T9) //show left bar with human and battery wh
     lcd.setCursor(3,3);  //print human power centered
     lcd.print(MY_F("   W ")); lcd.print(power_human,0);
     lcd.print(MY_F("   "));

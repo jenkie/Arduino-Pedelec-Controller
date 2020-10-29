@@ -101,7 +101,7 @@ void action_set_soft_poti(int new_throttle_stat)
 
         {
 #if CONTROL_MODE == CONTROL_MODE_TORQUE                      //human power control mode
-#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU_V1) || defined(SUPPORT_SEMPU)
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU_V1) || defined(SUPPORT_SEMPU) || defined(SUPPORT_T9)
             buffer[9]='%';
             power_poti = poti_stat/1023.0* curr_power_poti_max; //power_poti_max is in this control mode interpreted as percentage. Example: power_poti_max=200 means; motor power = 200% of human power
 #endif
@@ -337,7 +337,7 @@ static void execute_action(const sw_action action)
             action_toggle_gear(true);
             break;
 #endif
-#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU_V1) || defined(SUPPORT_SEMPU)
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU_V1) || defined(SUPPORT_SEMPU) || defined(SUPPORT_T9)
         case ACTION_TORQUE_ZERO:
             torque_rezero();
             display_show_important_info(FROM_FLASH(msg_torquezero), 2);

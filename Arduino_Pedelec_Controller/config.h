@@ -270,7 +270,7 @@ const char msg_tempomat_reset[] PROGMEM = "Tempomat reset";
 const char msg_unknown_action[] PROGMEM = "Unknown action!";
 const char msg_activated[] PROGMEM = "Activated";
 const char msg_deactivated[] PROGMEM = "Deactivated";
-#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)|| defined(SUPPORT_SEMPU_V1)
+#if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_SEMPU)|| defined(SUPPORT_SEMPU_V1) || defined(SUPPORT_T9)
 const char msg_torquezero[] PROGMEM = "Re-zero torque sensor";
 #endif
 
